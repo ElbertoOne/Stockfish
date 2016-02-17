@@ -712,10 +712,8 @@ namespace {
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
             {
-                if (abs(pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) > 1)
-                    sf = ScaleFactor(67);
-                else if (more_than_one(pos.pieces(PAWN)))
-                    sf = ScaleFactor(31);
+                if (more_than_one(pos.pieces(PAWN))) //With big pawn difference, less drawish.
+                    sf = ScaleFactor(31 + 10 * abs(pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)));
                 else //In case of KBP vs KB, it is even more a draw.
                     sf = ScaleFactor( 9);
             }
