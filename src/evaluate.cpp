@@ -467,7 +467,7 @@ namespace {
   }
 
 
-  // evaluate_threats() assigns bonuses according to the types of the attacking 
+  // evaluate_threats() assigns bonuses according to the types of the attacking
   // and the attacked pieces.
 
   template<Color Us, bool DoTrace>
@@ -711,7 +711,14 @@ namespace {
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
+            {
+                if (abs(pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) > 2)
+                    sf = ScaleFactor(67);
+                else if (more_than_one(pos.pieces(PAWN)))
+                    sf = ScaleFactor(31);
+                else //In case of KBP vs KB, it is even more a draw.
+                    sf = ScaleFactor( 9);
+            }
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
