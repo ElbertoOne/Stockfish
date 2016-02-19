@@ -467,7 +467,7 @@ namespace {
   }
 
 
-  // evaluate_threats() assigns bonuses according to the types of the attacking 
+  // evaluate_threats() assigns bonuses according to the types of the attacking
   // and the attacked pieces.
 
   template<Color Us, bool DoTrace>
@@ -708,10 +708,36 @@ namespace {
         if (pos.opposite_bishops())
         {
             // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
-            // is almost a draw, in case of KBP vs KB, it is even more a draw.
+            // is almost a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
+            {
+                if (abs(pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) == 2
+                    && (pos.count<PAWN>(WHITE) == 2 || pos.count<PAWN>(BLACK) == 2)) //KBPP vs KB
+                {
+                    int dist = distance<File>(pos.squares<PAWN>(strongSide)[0], pos.squares<PAWN>(strongSide)[1]);
+                    if (dist == 0)
+                    {
+                        sf = ScaleFactor(9); //doubled pawns, drawish
+                    }
+                    else if (dist > 3)
+                    {
+                        sf = ScaleFactor(67); //pawns far apart, less drawish
+                    }
+                    else
+                    {
+                        sf = ScaleFactor(31);
+                    }
+                }
+                else if (more_than_one(pos.pieces(PAWN)))
+                {
+                    sf = ScaleFactor(31);
+                }
+                else
+                {
+                    sf = ScaleFactor(9); //KBP vs KB, it is even more a draw.
+                }
+            }
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
