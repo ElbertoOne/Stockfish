@@ -129,20 +129,23 @@ namespace {
       S(118,174), S(119,177), S(123,191), S(128,199) }
   };
 
-  // Outpost[knight/bishop][supported by pawn] contains bonuses for knights and
-  // bishops outposts, bigger if outpost piece is supported by a pawn.
-  const Score Outpost[][2] = {
-    { S(42,11), S(63,17) }, // Knights
-    { S(18, 5), S(27, 8) }  // Bishops
-  };
+  // OutpostKnight[supported by pawn] contains bonuses for knights
+  // outposts, bigger if outpost piece is supported by a pawn.
+  const Score OutpostKnight[2] = { S(42,11), S(63,17) };
 
-  // ReachableOutpost[knight/bishop][supported by pawn] contains bonuses for
-  // knights and bishops which can reach an outpost square in one move, bigger
+  // OutpostBishop[supported by pawn] contains bonuses for bishops
+  // outposts, bigger if outpost piece is supported by a pawn.
+  const Score OutpostBishop[2] = { S(18, 5), S(27, 8) };
+
+  // ReachableOutpostKnight[supported by pawn] contains bonuses for
+  // knights which can reach an outpost square in one move, bigger
   // if outpost square is supported by a pawn.
-  const Score ReachableOutpost[][2] = {
-    { S(21, 5), S(31, 8) }, // Knights
-    { S( 8, 2), S(13, 4) }  // Bishops
-  };
+  const Score ReachableOutpostKnight[2] = { S(21, 5), S(31, 8) };
+
+  // ReachableOutpostBishop[supported by pawn] contains bonuses for
+  // bishops which can reach an outpost square in one move, bigger
+  // if outpost square is supported by a pawn.
+  const Score ReachableOutpostBishop[2] = { S( 8, 2), S(13, 4) };
 
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is no
   // friendly pawn on the rook file.
@@ -289,17 +292,17 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt][mob];
 
-        if (Pt == BISHOP || Pt == KNIGHT)
+        if (Pt == BISHOP)
         {
             // Bonus for outpost squares
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
             if (bb & s)
-                score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+                score += OutpostBishop[!!(ei.attackedBy[Us][PAWN] & s)];
             else
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
-                   score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
+                   score += ReachableOutpostBishop[!!(ei.attackedBy[Us][PAWN] & bb)];
             }
 
             // Bonus when behind a pawn
@@ -308,14 +311,12 @@ namespace {
                 score += MinorBehindPawn;
 
             // Penalty for pawns on the same color square as the bishop
-            if (Pt == BISHOP)
-                score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
+            score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
             // when that pawn is also blocked.
-            if (   Pt == BISHOP
-                && pos.is_chess960()
+            if (   pos.is_chess960()
                 && (s == relative_square(Us, SQ_A1) || s == relative_square(Us, SQ_H1)))
             {
                 Square d = pawn_push(Us) + (file_of(s) == FILE_A ? DELTA_E : DELTA_W);
@@ -325,8 +326,25 @@ namespace {
                                                                               : TrappedBishopA1H1;
             }
         }
+        else if (Pt == KNIGHT)
+        {
+            // Bonus for outpost squares
+            bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
+            if (bb & s)
+                score += OutpostKnight[!!(ei.attackedBy[Us][PAWN] & s)];
+            else
+            {
+                bb &= b & ~pos.pieces(Us);
+                if (bb)
+                   score += ReachableOutpostKnight[!!(ei.attackedBy[Us][PAWN] & bb)];
+            }
 
-        if (Pt == ROOK)
+            // Bonus when behind a pawn
+            if (    relative_rank(Us, s) < RANK_5
+                && (pos.pieces(PAWN) & (s + pawn_push(Us))))
+                score += MinorBehindPawn;
+        }
+        else if (Pt == ROOK)
         {
             // Bonus for aligning with enemy pawns on the same rank/file
             if (relative_rank(Us, s) >= RANK_5)
@@ -467,7 +485,7 @@ namespace {
   }
 
 
-  // evaluate_threats() assigns bonuses according to the types of the attacking 
+  // evaluate_threats() assigns bonuses according to the types of the attacking
   // and the attacked pieces.
 
   template<Color Us, bool DoTrace>
