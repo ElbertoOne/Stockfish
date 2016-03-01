@@ -325,11 +325,12 @@ namespace {
                                                                               : TrappedBishopA1H1;
             }
         }
-
-        if (Pt == ROOK)
+        else if (Pt == ROOK)
         {
+            Rank rank = relative_rank(Us, s);
+
             // Bonus for aligning with enemy pawns on the same rank/file
-            if (relative_rank(Us, s) >= RANK_5)
+            if (rank >= RANK_5)
             {
                 Bitboard alignedPawns = pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s];
                 if (alignedPawns)
@@ -349,6 +350,11 @@ namespace {
                     && (rank_of(ksq) == rank_of(s) || relative_rank(Us, ksq) == RANK_1)
                     && !ei.pi->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+                else if (rank >= RANK_4 && rank <= RANK_6)
+                {
+                    //penalty if rook has little mobility when in the middle of the board.
+                    score -= TrappedRook/2;
+                }
             }
         }
     }
@@ -467,7 +473,7 @@ namespace {
   }
 
 
-  // evaluate_threats() assigns bonuses according to the types of the attacking 
+  // evaluate_threats() assigns bonuses according to the types of the attacking
   // and the attacked pieces.
 
   template<Color Us, bool DoTrace>
