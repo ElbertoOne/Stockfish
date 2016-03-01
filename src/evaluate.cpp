@@ -341,19 +341,23 @@ namespace {
             if (ei.pi->semiopen_file(Us, file_of(s)))
                 score += RookOnFile[!!ei.pi->semiopen_file(Them, file_of(s))];
 
-            // Penalize when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
             {
                 Square ksq = pos.square<KING>(Us);
 
+                // Penalize when trapped by the king, even more if the king cannot castle
                 if (   ((file_of(ksq) < FILE_E) == (file_of(s) < file_of(ksq)))
                     && (rank_of(ksq) == rank_of(s) || relative_rank(Us, ksq) == RANK_1)
                     && !ei.pi->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
-                else if (rank >= RANK_4 && rank <= RANK_6)
+
+                else if ((rank >= RANK_4 && rank <= RANK_6) && !(b & mobilityArea[Us] & file_bb(s)))
                 {
-                    //penalty if rook has little mobility when in the middle of the board.
-                    score -= (TrappedRook - make_score(mob * 30, 0));
+                    //The rook has no file mobility. This can only happen if the rook is squeezed between
+                    // a friendly pawn (or a King) on one rank,
+                    // and a pawn protected opponent pawn on the other rank.
+                    // or the squares where it could move are pawn protected.
+                    score -= (TrappedRook - make_score(mob * 22, 0)) / 2;
                 }
             }
         }
