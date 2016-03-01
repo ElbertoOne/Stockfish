@@ -353,7 +353,7 @@ namespace {
                 else if (rank >= RANK_4 && rank <= RANK_6)
                 {
                     //penalty if rook has little mobility when in the middle of the board.
-                    score -= TrappedRook/2;
+                    score -= (TrappedRook - make_score(mob * 30, 0));
                 }
             }
         }
