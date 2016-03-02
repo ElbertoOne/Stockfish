@@ -351,7 +351,7 @@ namespace {
                     && !ei.pi->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
 
-                else if ((rank >= RANK_4 && rank <= RANK_6) && !(b & mobilityArea[Us] & file_bb(s)))
+                else if (rank != RANK_1 && !(b & mobilityArea[Us] & file_bb(s)))
                 {
                     //The rook has no file mobility. This can only happen if the rook is squeezed between
                     // a friendly pawn (or a King) on one rank,
