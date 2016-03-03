@@ -183,6 +183,7 @@ namespace {
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 7, 27);
   const Score TrappedRook         = S(92,  0);
+  const Score CrampedRook         = S(64,  0);
   const Score Checked             = S(20, 20);
   const Score ThreatByHangingPawn = S(70, 63);
   const Score Hanging             = S(48, 28);
@@ -325,11 +326,12 @@ namespace {
                                                                               : TrappedBishopA1H1;
             }
         }
-
         if (Pt == ROOK)
         {
+            Rank rank = relative_rank(Us, s);
+
             // Bonus for aligning with enemy pawns on the same rank/file
-            if (relative_rank(Us, s) >= RANK_5)
+            if (rank >= RANK_5)
             {
                 Bitboard alignedPawns = pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s];
                 if (alignedPawns)
@@ -340,15 +342,54 @@ namespace {
             if (ei.pi->semiopen_file(Us, file_of(s)))
                 score += RookOnFile[!!ei.pi->semiopen_file(Them, file_of(s))];
 
-            // Penalize when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
             {
                 Square ksq = pos.square<KING>(Us);
 
+                // Penalize when trapped by the king, even more if the king cannot castle
                 if (   ((file_of(ksq) < FILE_E) == (file_of(s) < file_of(ksq)))
                     && (rank_of(ksq) == rank_of(s) || relative_rank(Us, ksq) == RANK_1)
                     && !ei.pi->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+
+                else if (rank != RANK_1)
+                {
+					switch (mob)
+					{
+					  case 0 : score -= TrappedRook; //completely trapped rook
+					  case 1 :
+					  	if (rank > RANK_2)
+					    {
+							score -= CrampedRook; //only one square to move to above rank 2
+					    }
+					    else if (!(b & mobilityArea[Us] & file_bb(s)))
+					    {
+							score -= CrampedRook/2; //only one square to move to the left or right on rank 2
+						}
+					  case 2 :
+					  	if ((rank > RANK_3 && rank <= RANK_7) || (rank <= RANK_3 && !(b & mobilityArea[Us] & file_bb(s))))
+						{
+							score -= CrampedRook/2; // two squares to move above rank 3 or on rank 3 or below without file mobility
+					    }
+					    else if (rank == RANK_3)
+					    {
+							score -= CrampedRook/4; // two squares to move on rank 3 with file mobility
+						}
+					  case 3 :
+					  	if ((rank > RANK_4 && rank <= RANK_7) || (rank <= RANK_4 && !(b & mobilityArea[Us] & file_bb(s))))
+					  	{
+							score -= CrampedRook/4; // three squares to move above rank 4 or on rank 4 or below without file mobility
+						}
+						else if (rank == RANK_4)
+						{
+							score -= CrampedRook/8; // three squares to move on rank 4 with file mobility
+						}
+						else if (rank == RANK_3)
+						{
+							score -= CrampedRook/16; // three squares to move on rank 3 with file mobility
+						}
+                    }
+                }
             }
         }
     }
@@ -467,7 +508,7 @@ namespace {
   }
 
 
-  // evaluate_threats() assigns bonuses according to the types of the attacking 
+  // evaluate_threats() assigns bonuses according to the types of the attacking
   // and the attacked pieces.
 
   template<Color Us, bool DoTrace>
