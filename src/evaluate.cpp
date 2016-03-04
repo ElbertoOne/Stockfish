@@ -342,11 +342,11 @@ namespace {
             if (ei.pi->semiopen_file(Us, file_of(s)))
                 score += RookOnFile[!!ei.pi->semiopen_file(Them, file_of(s))];
 
+            // Penalize when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
             {
                 Square ksq = pos.square<KING>(Us);
 
-                // Penalize when trapped by the king, even more if the king cannot castle
                 if (   ((file_of(ksq) < FILE_E) == (file_of(s) < file_of(ksq)))
                     && (rank_of(ksq) == rank_of(s) || relative_rank(Us, ksq) == RANK_1)
                     && !ei.pi->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
@@ -355,10 +355,10 @@ namespace {
 
             // Give small penalty when rook is not attacking anything and can not move on a file or a rank
             if (rank != RANK_1
-            	&& (!(b & mobilityArea[Us] & file_bb(s)) || !(b & mobilityArea[Us] & rank_bb(s)))
-            	&& !(pos.pieces(Them) & PseudoAttacks[ROOK][s]))
-			{
-				score -= CrampedRook;
+                && (!(b & mobilityArea[Us] & file_bb(s)) || !(b & mobilityArea[Us] & rank_bb(s)))
+                && !(pos.pieces(Them) & b))
+            {
+                score -= CrampedRook;
             }
         }
     }
