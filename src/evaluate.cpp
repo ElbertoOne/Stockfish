@@ -355,8 +355,8 @@ namespace {
 
             // Give small penalty when a rook is not attacking anything and can not move on a file or a rank
             if (rank != RANK_1
-                && (!(b & mobilityArea[Us] & file_bb(s)) || !(b & mobilityArea[Us] & rank_bb(s)))
-                && !(b & pos.pieces(Them)))
+                && !(b & pos.pieces(Them))
+                && (!(b & mobilityArea[Us] & file_bb(s)) || !(b & mobilityArea[Us] & rank_bb(s))))
             {
                 score -= CrampedRook;
             }
