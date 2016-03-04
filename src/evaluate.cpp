@@ -183,7 +183,7 @@ namespace {
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 7, 27);
   const Score TrappedRook         = S(92,  0);
-  const Score CrampedRook         = S( 5,  5);
+  const Score CrampedRook         = S( 8, 12);
   const Score Checked             = S(20, 20);
   const Score ThreatByHangingPawn = S(70, 63);
   const Score Hanging             = S(48, 28);
@@ -353,10 +353,10 @@ namespace {
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
 
-            // Give small penalty when rook is not attacking anything and can not move on a file or a rank
+            // Give small penalty when a rook is not attacking anything and can not move on a file or a rank
             if (rank != RANK_1
                 && (!(b & mobilityArea[Us] & file_bb(s)) || !(b & mobilityArea[Us] & rank_bb(s)))
-                && !(pos.pieces(Them) & b))
+                && !(b & pos.pieces(Them)))
             {
                 score -= CrampedRook;
             }
