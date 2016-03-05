@@ -182,7 +182,7 @@ namespace {
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 7, 27);
-  const Score TrappedRook         = S(92,  0);
+  const Score TrappedRook         = S(92, 92);
   const Score Checked             = S(20, 20);
   const Score ThreatByHangingPawn = S(70, 63);
   const Score Hanging             = S(48, 28);
@@ -348,7 +348,7 @@ namespace {
                 if (   ((file_of(ksq) < FILE_E) == (file_of(s) < file_of(ksq)))
                     && (rank_of(ksq) == rank_of(s) || relative_rank(Us, ksq) == RANK_1)
                     && !ei.pi->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
-                    score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+                    score -= (TrappedRook - make_score(mob * 22, mob * 22)) * (1 + !pos.can_castle(Us));
             }
         }
     }
@@ -467,7 +467,7 @@ namespace {
   }
 
 
-  // evaluate_threats() assigns bonuses according to the types of the attacking 
+  // evaluate_threats() assigns bonuses according to the types of the attacking
   // and the attacked pieces.
 
   template<Color Us, bool DoTrace>
