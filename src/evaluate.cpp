@@ -182,8 +182,8 @@ namespace {
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 7, 27);
-  const Score TrappedRook         = S(92,  0);
-  const Score CrampedRook         = S( 8, 12);
+  const Score TrappedRook         = S(92, 92);
+  const Score CrampedRook         = S( 4,  6);
   const Score Checked             = S(20, 20);
   const Score ThreatByHangingPawn = S(70, 63);
   const Score Hanging             = S(48, 28);
@@ -338,6 +338,8 @@ namespace {
                     score += RookOnPawn * popcount<Max15>(alignedPawns);
             }
 
+            bool trapped = false;
+
             // Bonus when on an open or semi-open file
             if (ei.pi->semiopen_file(Us, file_of(s)))
                 score += RookOnFile[!!ei.pi->semiopen_file(Them, file_of(s))];
@@ -350,15 +352,27 @@ namespace {
                 if (   ((file_of(ksq) < FILE_E) == (file_of(s) < file_of(ksq)))
                     && (rank_of(ksq) == rank_of(s) || relative_rank(Us, ksq) == RANK_1)
                     && !ei.pi->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
+                {
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+                    trapped = true;
+                }
             }
 
-            // Give small penalty when a rook is not attacking anything and can not move on a file or a rank
-            if (rank != RANK_1
-                && !(b & pos.pieces(Them))
-                && (!(b & mobilityArea[Us] & file_bb(s)) || !(b & mobilityArea[Us] & rank_bb(s))))
+            // Give penalty when a rook is not attacking anything and can not move on a file and/or a rank
+            if (!trapped
+                && rank != RANK_1
+                && !(b & pos.pieces(Them)))
             {
-                score -= CrampedRook;
+                bool noRankMob = !(b & mobilityArea[Us] & file_bb(s));
+                bool noFileMob = !(b & mobilityArea[Us] & rank_bb(s));
+                if (noRankMob && noFileMob)
+                {
+                    score -= TrappedRook; //Trapped rook
+                }
+                else if (noRankMob || noFileMob)
+                {
+                    score -= CrampedRook; //no file or rank mobility, give small penalty
+                }
             }
         }
     }
