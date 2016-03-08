@@ -183,7 +183,7 @@ namespace {
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 7, 27);
   const Score TrappedRook         = S(92,  0);
-  const Score CrampedRook         = S( 6,  8);
+  const Score ImmobileRook        = S(46, 46);
   const Score Checked             = S(20, 20);
   const Score ThreatByHangingPawn = S(70, 63);
   const Score Hanging             = S(48, 28);
@@ -329,15 +329,15 @@ namespace {
 
         if (Pt == ROOK)
         {
-            Rank rank = relative_rank(Us, s);
-
             // Bonus for aligning with enemy pawns on the same rank/file
-            if (rank >= RANK_5)
+            if (relative_rank(Us, s) >= RANK_5)
             {
                 Bitboard alignedPawns = pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s];
                 if (alignedPawns)
                     score += RookOnPawn * popcount<Max15>(alignedPawns);
             }
+
+            bool trapped = false;
 
             // Bonus when on an open or semi-open file
             if (ei.pi->semiopen_file(Us, file_of(s)))
@@ -351,14 +351,16 @@ namespace {
                 if (   ((file_of(ksq) < FILE_E) == (file_of(s) < file_of(ksq)))
                     && (rank_of(ksq) == rank_of(s) || relative_rank(Us, ksq) == RANK_1)
                     && !ei.pi->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
+                {
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+                    trapped = true;
+                }
             }
-            // Give small penalty when rook is not attacking anything and can not move on a file or a rank
-            if (rank != RANK_1
-                && (!(b & mobilityArea[Us] & file_bb(s)) || !(b & mobilityArea[Us] & rank_bb(s)))
-                && !(pos.pieces(Them) & b))
+
+            if (!trapped && mob == popcount<Max15>(b & mobilityArea[Us] & ei.attackedBy[Them][ALL_PIECES]))
             {
-                score -= CrampedRook;
+                //if the fields that the rook can move to are all under attack, give a penalty.
+                score -= ImmobileRook;
             }
         }
     }
