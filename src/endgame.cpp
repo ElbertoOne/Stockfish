@@ -345,7 +345,7 @@ Value Endgame<KQKR>::operator()(const Position& pos) const {
 /// Some cases of trivial draws
 template<> Value Endgame<KNNK>::operator()(const Position&) const { return VALUE_DRAW; }
 
-/// KQ vs KNN. This is a known draw when all conditions below are met:
+/// KQ vs KNN. This is a draw (knight fortress) when all conditions below are met:
 /// the knights are next to each other on the same rank or file
 /// there is no knight on first or last ranks or files
 /// the defending king defends both knights
