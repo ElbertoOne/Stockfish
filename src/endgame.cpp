@@ -345,9 +345,11 @@ Value Endgame<KQKR>::operator()(const Position& pos) const {
 /// Some cases of trivial draws
 template<> Value Endgame<KNNK>::operator()(const Position&) const { return VALUE_DRAW; }
 
-/// KQ vs KNN. In some cases this is a draw:
-/// when the knights are next to each other and the defending king
-/// is between them and the attacking king.
+/// KQ vs KNN. This is a known draw when all conditions below are met:
+/// the knights are next to each other on the same rank or file
+/// there is no knight on first or last ranks or files
+/// the defending king defends both knights
+/// the defending king is between the knights and the attacking king.
 template<>
 ScaleFactor Endgame<KQKNN>::operator()(const Position& pos) const {
 
@@ -359,11 +361,18 @@ ScaleFactor Endgame<KQKNN>::operator()(const Position& pos) const {
   Square knsq1 = pos.squares<KNIGHT>(weakSide)[0];
   Square knsq2 = pos.squares<KNIGHT>(weakSide)[1];
   int knightDist = distance(knsq1, knsq2);
-  int kingDist = distance(weakKingSq, strongKingSq);
-  int kknDist1 = distance(knsq1, strongKingSq);
-  int kknDist2 = distance(knsq2, strongKingSq);
+  int kingDist   = distance(weakKingSq, strongKingSq);
+  int wkknDist1  = distance(knsq1, weakKingSq);
+  int wkknDist2  = distance(knsq2, weakKingSq);
+  int skknDist1  = distance(knsq1, strongKingSq);
+  int skknDist2  = distance(knsq2, strongKingSq);
 
-  if (knightDist <= 1 && kingDist < kknDist1 && kingDist < kknDist2
+  if (knightDist <= 1 && wkknDist1 <= 1 && wkknDist2 <= 1
+     && file_of(knsq1) != FILE_A && file_of(knsq1) != FILE_H
+     && rank_of(knsq1) != RANK_1 && rank_of(knsq1) != RANK_8
+     && file_of(knsq2) != FILE_A && file_of(knsq2) != FILE_H
+     && rank_of(knsq2) != RANK_1 && rank_of(knsq2) != RANK_8
+     && kingDist < skknDist1 && kingDist < skknDist2
      && ((file_of(knsq1) == file_of(knsq2)) || (rank_of(knsq1) == rank_of(knsq2))))
   {
       return SCALE_FACTOR_DRAW;
