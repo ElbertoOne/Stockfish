@@ -118,6 +118,7 @@ Endgames::Endgames() {
   add<KRKN>("KRKN");
   add<KQKP>("KQKP");
   add<KQKR>("KQKR");
+  add<KQKNN>("KQKNN");
 
   add<KNPK>("KNPK");
   add<KNPKB>("KNPKB");
@@ -341,9 +342,35 @@ Value Endgame<KQKR>::operator()(const Position& pos) const {
   return strongSide == pos.side_to_move() ? result : -result;
 }
 
-
 /// Some cases of trivial draws
 template<> Value Endgame<KNNK>::operator()(const Position&) const { return VALUE_DRAW; }
+
+/// KQ vs KNN. In some cases this is a draw:
+/// when the knights are next to each other and the defending king
+/// is between them and the attacking king.
+template<>
+ScaleFactor Endgame<KQKNN>::operator()(const Position& pos) const {
+
+  assert(verify_material(pos, strongSide, QueenValueMg, 0));
+  assert(verify_material(pos, weakSide, 2*KnightValueMg, 0));
+
+  Square strongKingSq = pos.square<KING>(strongSide);
+  Square weakKingSq = pos.square<KING>(weakSide);
+  Square knsq1 = pos.squares<KNIGHT>(weakSide)[0];
+  Square knsq2 = pos.squares<KNIGHT>(weakSide)[1];
+  int knightDist = distance(knsq1, knsq2);
+  int kingDist = distance(weakKingSq, strongKingSq);
+  int kknDist1 = distance(knsq1, strongKingSq);
+  int kknDist2 = distance(knsq2, strongKingSq);
+
+  if (knightDist <= 1 && kingDist < kknDist1 && kingDist < kknDist2
+     && ((file_of(knsq1) == file_of(knsq2)) || (rank_of(knsq1) == rank_of(knsq2))))
+  {
+      return SCALE_FACTOR_DRAW;
+  }
+
+  return SCALE_FACTOR_NONE;
+}
 
 
 /// KB and one or more pawns vs K. It checks for draws with rook pawns and
