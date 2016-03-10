@@ -225,6 +225,13 @@ namespace {
   const int BishopCheck       = 6;
   const int KnightCheck       = 14;
 
+  // Initiative parameters
+  int kingDistanceInitiative = 8;
+  int pawnsInitiative = 12;
+  int asymmetryInitiative = 8;
+  int correctionInitiative = 120;
+  TUNE(kingDistanceInitiative, pawnsInitiative, asymmetryInitiative, correctionInitiative);
+
 
   // eval_init() initializes king and attack bitboards for a given color
   // adding pawn attacks. To be done at the beginning of the evaluation.
@@ -479,7 +486,7 @@ namespace {
   }
 
 
-  // evaluate_threats() assigns bonuses according to the types of the attacking 
+  // evaluate_threats() assigns bonuses according to the types of the attacking
   // and the attacked pieces.
 
   template<Color Us, bool DoTrace>
@@ -695,7 +702,7 @@ namespace {
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (pawns + asymmetry + kingDistance - 15);
+    int initiative = pawnsInitiative * pawns + asymmetryInitiative * asymmetry + kingDistanceInitiative * kingDistance - correctionInitiative;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
