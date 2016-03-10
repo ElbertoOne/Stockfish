@@ -192,7 +192,8 @@ namespace {
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
-  const Score BishopPawns         = S( 8, 12);
+  Score BishopPawns[9]            = { S(0, 0), S(8, 12), S(16, 24), S(24, 36), S(32, 48), S(40, 60), S(48, 72), S(56, 84), S(64, 96) };
+  TUNE(BishopPawns);
   const Score RookOnPawn          = S( 7, 27);
   const Score TrappedRook         = S(92,  0);
   const Score Checked             = S(20, 20);
@@ -321,7 +322,7 @@ namespace {
 
             // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
-                score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
+                score -= BishopPawns[ei.pi->pawns_on_same_color_squares(Us, s)];
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
@@ -479,7 +480,7 @@ namespace {
   }
 
 
-  // evaluate_threats() assigns bonuses according to the types of the attacking 
+  // evaluate_threats() assigns bonuses according to the types of the attacking
   // and the attacked pieces.
 
   template<Color Us, bool DoTrace>
