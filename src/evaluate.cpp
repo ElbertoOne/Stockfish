@@ -467,7 +467,7 @@ namespace {
   }
 
 
-  // evaluate_threats() assigns bonuses according to the types of the attacking 
+  // evaluate_threats() assigns bonuses according to the types of the attacking
   // and the attacked pieces.
 
   template<Color Us, bool DoTrace>
@@ -684,7 +684,7 @@ namespace {
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance) + 12 * pawns - 120;
+    int initiative = 8 * (asymmetry + kingDistance) + 11 * pawns - 130;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
