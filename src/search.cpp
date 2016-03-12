@@ -127,6 +127,35 @@ namespace {
     Move pv[3];
   };
 
+  // Set of rows with half bits set to 1 and half to 0. It is used to allocate
+  // the search depths across the threads.
+  typedef std::vector<int> Row;
+
+  const Row HalfDensity[] = {
+    {0, 1},
+    {1, 0},
+    {0, 0, 1, 1},
+    {0, 1, 1, 0},
+    {1, 1, 0, 0},
+    {1, 0, 0, 1},
+    {0, 0, 0, 1, 1, 1},
+    {0, 0, 1, 1, 1, 0},
+    {0, 1, 1, 1, 0, 0},
+    {1, 1, 1, 0, 0, 0},
+    {1, 1, 0, 0, 0, 1},
+    {1, 0, 0, 0, 1, 1},
+    {0, 0, 0, 0, 1, 1, 1, 1},
+    {0, 0, 0, 1, 1, 1, 1, 0},
+    {0, 0, 1, 1, 1, 1, 0 ,0},
+    {0, 1, 1, 1, 1, 0, 0 ,0},
+    {1, 1, 1, 1, 0, 0, 0 ,0},
+    {1, 1, 1, 0, 0, 0, 0 ,1},
+    {1, 1, 0, 0, 0, 0, 1 ,1},
+    {1, 0, 0, 0, 0, 1, 1 ,1},
+  };
+
+  const size_t HalfDensitySize = std::extent<decltype(HalfDensity)>::value;
+
   EasyMoveManager EasyMove;
   Value DrawValue[COLOR_NB];
   CounterMoveHistoryStats CounterMoveHistory;
@@ -150,22 +179,23 @@ namespace {
 
 void Search::init() {
 
-  const double K[][2] = {{ 0.799, 2.281 }, { 0.484, 3.023 }};
+  const bool PV=true;
 
-  for (int pv = 0; pv <= 1; ++pv)
-      for (int imp = 0; imp <= 1; ++imp)
-          for (int d = 1; d < 64; ++d)
-              for (int mc = 1; mc < 64; ++mc)
-              {
-                  double r = K[pv][0] + log(d) * log(mc) / K[pv][1];
+  for (int imp = 0; imp <= 1; ++imp)
+      for (int d = 1; d < 64; ++d)
+          for (int mc = 1; mc < 64; ++mc)
+          {
+              double r = log(d) * log(mc) / 2;
+              if (r < 0.80)
+                continue;
 
-                  if (r >= 1.5)
-                      Reductions[pv][imp][d][mc] = int(r) * ONE_PLY;
-
-                  // Increase reduction when eval is not improving
-                  if (!pv && !imp && Reductions[pv][imp][d][mc] >= 2 * ONE_PLY)
-                      Reductions[pv][imp][d][mc] += ONE_PLY;
-              }
+              Reductions[!PV][imp][d][mc] = int(std::round(r)) * ONE_PLY;
+              Reductions[PV][imp][d][mc] = std::max(Reductions[!PV][imp][d][mc] - ONE_PLY, DEPTH_ZERO);
+              
+              // Increase reduction for non-PV nodes when eval is not improving
+              if (!imp && Reductions[!PV][imp][d][mc] >= 2 * ONE_PLY)
+                Reductions[!PV][imp][d][mc] += ONE_PLY;
+          }
 
   for (int d = 0; d < 16; ++d)
   {
@@ -353,33 +383,6 @@ void MainThread::search() {
   std::cout << sync_endl;
 }
 
-const int halfDensityMap[][9] =
-{
-    {2, 0, 1},
-    {2, 1, 0},
-
-    {4, 0, 0, 1, 1},
-    {4, 0, 1, 1, 0},
-    {4, 1, 1, 0, 0},
-    {4, 1, 0, 0, 1},
-
-    {6, 0, 0, 0, 1, 1, 1},
-    {6, 0, 0, 1, 1, 1, 0},
-    {6, 0, 1, 1, 1, 0, 0},
-    {6, 1, 1, 1, 0, 0, 0},
-    {6, 1, 1, 0, 0, 0, 1},
-    {6, 1, 0, 0, 0, 1, 1},
-
-    {8, 0, 0, 0, 0, 1, 1, 1, 1},
-    {8, 0, 0, 0, 1, 1, 1, 1, 0},
-    {8, 0, 0, 1, 1, 1, 1, 0 ,0},
-    {8, 0, 1, 1, 1, 1, 0, 0 ,0},
-    {8, 1, 1, 1, 1, 0, 0, 0 ,0},
-    {8, 1, 1, 1, 0, 0, 0, 0 ,1},
-    {8, 1, 1, 0, 0, 0, 0, 1 ,1},
-    {8, 1, 0, 0, 0, 0, 1, 1 ,1},
-};
-
 
 // Thread::search() is the main iterative deepening loop. It calls search()
 // repeatedly with increasing depth until the allocated thinking time has been
@@ -424,8 +427,8 @@ void Thread::search() {
       // 2nd ply (using a half-density matrix).
       if (!mainThread)
       {
-          int row = (idx - 1) % 20;
-          if (halfDensityMap[row][(rootDepth + rootPos.game_ply()) % halfDensityMap[row][0] + 1])
+          const Row& row = HalfDensity[(idx - 1) % HalfDensitySize];
+          if (row[(rootDepth + rootPos.game_ply()) % row.size()])
              continue;
       }
 
@@ -867,10 +870,12 @@ namespace {
 moves_loop: // When in check search starts from here
 
     Square prevSq = to_sq((ss-1)->currentMove);
+    Square ownPrevSq = to_sq((ss-2)->currentMove);
     Move cm = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
     const CounterMoveStats& cmh = CounterMoveHistory[pos.piece_on(prevSq)][prevSq];
+    const CounterMoveStats& fmh = CounterMoveHistory[pos.piece_on(ownPrevSq)][ownPrevSq];
 
-    MovePicker mp(pos, ttMove, depth, thisThread->history, cmh, cm, ss);
+    MovePicker mp(pos, ttMove, depth, thisThread->history, cmh, fmh, cm, ss);
     CheckInfo ci(pos);
     value = bestValue; // Workaround a bogus 'uninitialized' warning under gcc
     improving =   ss->staticEval >= (ss-2)->staticEval
@@ -967,7 +972,7 @@ moves_loop: // When in check search starts from here
               && cmh[pos.moved_piece(move)][to_sq(move)] < VALUE_ZERO)
               continue;
 
-          predictedDepth = newDepth - reduction<PvNode>(improving, depth, moveCount);
+          predictedDepth = std::max(newDepth - reduction<PvNode>(improving, depth, moveCount), DEPTH_ZERO);
 
           // Futility pruning: parent node
           if (predictedDepth < 7 * ONE_PLY)
@@ -1008,16 +1013,16 @@ moves_loop: // When in check search starts from here
           && !captureOrPromotion)
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
+          Value hValue = thisThread->history[pos.piece_on(to_sq(move))][to_sq(move)];
+          Value cmhValue = cmh[pos.piece_on(to_sq(move))][to_sq(move)];
 
           // Increase reduction for cut nodes and moves with a bad history
           if (   (!PvNode && cutNode)
-              || (   thisThread->history[pos.piece_on(to_sq(move))][to_sq(move)] < VALUE_ZERO
-                  && cmh[pos.piece_on(to_sq(move))][to_sq(move)] <= VALUE_ZERO))
+              || (hValue < VALUE_ZERO && cmhValue <= VALUE_ZERO))
               r += ONE_PLY;
 
           // Decrease/increase reduction for moves with a good/bad history
-          int rHist = (  thisThread->history[pos.piece_on(to_sq(move))][to_sq(move)]
-                       + cmh[pos.piece_on(to_sq(move))][to_sq(move)]) / 14980;
+          int rHist = (hValue + cmhValue) / 14980;
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
           // Decrease reduction for moves that escape a capture. Filter out
@@ -1439,7 +1444,9 @@ moves_loop: // When in check search starts from here
     Value bonus = Value((depth / ONE_PLY) * (depth / ONE_PLY) + depth / ONE_PLY - 1);
 
     Square prevSq = to_sq((ss-1)->currentMove);
+    Square ownPrevSq = to_sq((ss-2)->currentMove);
     CounterMoveStats& cmh = CounterMoveHistory[pos.piece_on(prevSq)][prevSq];
+    CounterMoveStats& fmh = CounterMoveHistory[pos.piece_on(ownPrevSq)][ownPrevSq];
     Thread* thisThread = pos.this_thread();
 
     thisThread->history.update(pos.moved_piece(move), to_sq(move), bonus);
@@ -1450,6 +1457,9 @@ moves_loop: // When in check search starts from here
         cmh.update(pos.moved_piece(move), to_sq(move), bonus);
     }
 
+    if (is_ok((ss-2)->currentMove))
+        fmh.update(pos.moved_piece(move), to_sq(move), bonus);
+
     // Decrease all the other played quiet moves
     for (int i = 0; i < quietsCnt; ++i)
     {
@@ -1457,6 +1467,9 @@ moves_loop: // When in check search starts from here
 
         if (is_ok((ss-1)->currentMove))
             cmh.update(pos.moved_piece(quiets[i]), to_sq(quiets[i]), -bonus);
+
+        if (is_ok((ss-2)->currentMove))
+            fmh.update(pos.moved_piece(quiets[i]), to_sq(quiets[i]), -bonus);
     }
 
     // Extra penalty for a quiet TT move in previous ply when it gets refuted
