@@ -213,6 +213,7 @@ namespace {
   const int BishopCheck       = 6;
   const int KnightCheck       = 14;
 
+  // tune passed pawn bonus values
   int ppbonus1 = 18;
   int ppbonus2 = 8;
   int ppbonus3 = 6;
