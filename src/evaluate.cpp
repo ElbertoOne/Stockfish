@@ -225,6 +225,12 @@ namespace {
   const int BishopCheck       = 6;
   const int KnightCheck       = 14;
 
+  int ppbonus1 = 18;
+  int ppbonus2 = 8;
+  int ppbonus3 = 6;
+  int ppbonus4 = 4;
+  TUNE(ppbonus1, ppbonus2, ppbonus3, ppbonus4);
+
 
   // eval_init() initializes king and attack bitboards for a given color
   // adding pawn attacks. To be done at the beginning of the evaluation.
@@ -479,7 +485,7 @@ namespace {
   }
 
 
-  // evaluate_threats() assigns bonuses according to the types of the attacking 
+  // evaluate_threats() assigns bonuses according to the types of the attacking
   // and the attacked pieces.
 
   template<Color Us, bool DoTrace>
@@ -617,15 +623,15 @@ namespace {
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
-                int k = !unsafeSquares ? 18 : !(unsafeSquares & blockSq) ? 8 : 0;
+                int k = !unsafeSquares ? ppbonus1 : !(unsafeSquares & blockSq) ? ppbonus2 : 0;
 
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
                 if (defendedSquares == squaresToQueen)
-                    k += 6;
+                    k += ppbonus3;
 
                 else if (defendedSquares & blockSq)
-                    k += 4;
+                    k += ppbonus4;
 
                 mbonus += k * rr, ebonus += k * rr;
             }
