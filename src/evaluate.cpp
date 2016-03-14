@@ -427,7 +427,7 @@ namespace {
         b = (b1 | b2) & ei.attackedBy[Them][QUEEN];
         if (b)
         {
-            attackUnits += QueenCheck * popcount<Max15>(b);
+            attackUnits += QueenCheck;
             score -= Checked;
         }
 
@@ -435,7 +435,7 @@ namespace {
         b = b1 & ei.attackedBy[Them][ROOK];
         if (b)
         {
-            attackUnits += RookCheck * popcount<Max15>(b);
+            attackUnits += RookCheck;
             score -= Checked;
         }
 
@@ -443,7 +443,7 @@ namespace {
         b = b2 & ei.attackedBy[Them][BISHOP];
         if (b)
         {
-            attackUnits += BishopCheck * popcount<Max15>(b);
+            attackUnits += BishopCheck;
             score -= Checked;
         }
 
@@ -451,7 +451,7 @@ namespace {
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT] & safe;
         if (b)
         {
-            attackUnits += KnightCheck * popcount<Max15>(b);
+            attackUnits += KnightCheck;
             score -= Checked;
         }
 
@@ -467,7 +467,7 @@ namespace {
   }
 
 
-  // evaluate_threats() assigns bonuses according to the types of the attacking 
+  // evaluate_threats() assigns bonuses according to the types of the attacking
   // and the attacked pieces.
 
   template<Color Us, bool DoTrace>
