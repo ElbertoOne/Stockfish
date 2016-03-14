@@ -212,7 +212,7 @@ namespace {
   int RookCheck         = 45;
   int BishopCheck       = 6;
   int KnightCheck       = 14;
-  TUNE(QueenCheck, RookCheck, BishopCheck, KnightCheck);
+  TUNE(SetRange(0, 150), QueenCheck, RookCheck, BishopCheck, KnightCheck);
 
   // eval_init() initializes king and attack bitboards for a given color
   // adding pawn attacks. To be done at the beginning of the evaluation.
