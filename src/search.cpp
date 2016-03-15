@@ -60,6 +60,9 @@ using Eval::evaluate;
 using namespace Search;
 
 namespace {
+  int rHistA = 14980;
+  int rHistB = 14980;
+  TUNE(SetRange(0, 100000), rHistA, rHistB);
 
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV };
@@ -1013,6 +1016,7 @@ moves_loop: // When in check search starts from here
           Depth r = reduction<PvNode>(improving, depth, moveCount);
           Value hValue = thisThread->history[pos.piece_on(to_sq(move))][to_sq(move)];
           Value cmhValue = cmh[pos.piece_on(to_sq(move))][to_sq(move)];
+          Value fmhValue = fmh[pos.piece_on(to_sq(move))][to_sq(move)];
 
           // Increase reduction for cut nodes and moves with a bad history
           if (   (!PvNode && cutNode)
@@ -1020,7 +1024,7 @@ moves_loop: // When in check search starts from here
               r += ONE_PLY;
 
           // Decrease/increase reduction for moves with a good/bad history
-          int rHist = (hValue + cmhValue) / 14980;
+          int rHist = (hValue + cmhValue) / rHistA + fmhValue / rHistB;
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
           // Decrease reduction for moves that escape a capture. Filter out
