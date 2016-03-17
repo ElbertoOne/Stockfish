@@ -1010,8 +1010,8 @@ moves_loop: // When in check search starts from here
           &&  moveCount > 1
           && !captureOrPromotion)
       {
-		  Square toSq = to_sq(move);
-		  Piece toPc = pos.piece_on(toSq);
+          Square toSq = to_sq(move);
+          Piece toPc = pos.piece_on(toSq);
           Depth r = reduction<PvNode>(improving, depth, moveCount);
           Value hValue = thisThread->history[toPc][toSq];
           Value cmhValue = cmh[toPc][toSq];
