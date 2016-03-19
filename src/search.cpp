@@ -1016,15 +1016,14 @@ moves_loop: // When in check search starts from here
           Value hValue = thisThread->history[toPc][toSq];
           Value cmhValue = cmh[toPc][toSq];
           Value fmhValue = fmh[toPc][toSq];
-          Value maxValue = std::max(cmhValue, fmhValue);
 
           // Increase reduction for cut nodes and moves with a bad history
           if (   (!PvNode && cutNode)
-              || (hValue < VALUE_ZERO && maxValue <= VALUE_ZERO))
+              || (hValue < VALUE_ZERO && cmhValue <= VALUE_ZERO))
               r += ONE_PLY;
 
           // Decrease/increase reduction for moves with a good/bad history
-          int rHist = (hValue + maxValue) / 14980;
+          int rHist = (hValue + cmhValue) / 19000 + fmhValue / 15400;
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
           // Decrease reduction for moves that escape a capture. Filter out
