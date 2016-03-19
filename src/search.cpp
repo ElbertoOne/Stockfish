@@ -60,9 +60,10 @@ using Eval::evaluate;
 using namespace Search;
 
 namespace {
-  int rHistA = 14980;
-  int rHistB = 14980;
-  TUNE(SetRange(0, 100000), rHistA, rHistB);
+  int rHistA = 21727;
+  int rHistB = 21727;
+  int rHistC = 21727;
+  TUNE(rHistA, rHistB, rHistC);
 
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV };
@@ -1024,7 +1025,7 @@ moves_loop: // When in check search starts from here
               r += ONE_PLY;
 
           // Decrease/increase reduction for moves with a good/bad history
-          int rHist = (hValue + cmhValue) / rHistA + fmhValue / rHistB;
+          int rHist = hValue / rHistA + cmhValue / rHistB + fmhValue / rHistC;
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
           // Decrease reduction for moves that escape a capture. Filter out
