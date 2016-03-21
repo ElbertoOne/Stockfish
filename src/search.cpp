@@ -1011,8 +1011,11 @@ moves_loop: // When in check search starts from here
           && !captureOrPromotion)
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
-          Value hValue = thisThread->history[pos.piece_on(to_sq(move))][to_sq(move)];
-          Value cmhValue = cmh[pos.piece_on(to_sq(move))][to_sq(move)];
+          Square toSq = to_sq(move);
+          Piece toPc = pos.piece_on(toSq);
+          Value hValue = thisThread->history[toPc][toSq];
+          Value cmhValue = cmh[toPc][toSq];
+          Value fmhValue = fmh[toPc][toSq];
 
           // Increase reduction for cut nodes and moves with a bad history
           if (   (!PvNode && cutNode)
@@ -1020,7 +1023,15 @@ moves_loop: // When in check search starts from here
               r += ONE_PLY;
 
           // Decrease/increase reduction for moves with a good/bad history
-          int rHist = (hValue + cmhValue) / 14980;
+          int rHist;
+          if (cmhValue >= 0 && fmhValue >= 0)
+          {
+              rHist = (hValue + std::max(cmhValue, fmhValue)) / 16384;
+          }
+          else
+          {
+              rHist = (hValue + cmhValue) / 14980;
+          }
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
           // Decrease reduction for moves that escape a capture. Filter out
@@ -1029,8 +1040,8 @@ moves_loop: // When in check search starts from here
           // because the destination square is empty.
           if (   r
               && type_of(move) == NORMAL
-              && type_of(pos.piece_on(to_sq(move))) != PAWN
-              && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
+              && type_of(toPc) != PAWN
+              && pos.see(make_move(toSq, from_sq(move))) < VALUE_ZERO)
               r = std::max(DEPTH_ZERO, r - ONE_PLY);
 
           Depth d = std::max(newDepth - r, ONE_PLY);
