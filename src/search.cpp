@@ -1024,13 +1024,13 @@ moves_loop: // When in check search starts from here
 
           // Decrease/increase reduction for moves with a good/bad history
           int rHist;
-          if (cmhValue > 0 && fmhValue > 0)
+          if (cmhValue >= 0 && fmhValue >= 0)
           {
-              rHist = (hValue + std::max(cmhValue, fmhValue)) / 16040;
+              rHist = (hValue / 16681) + (std::max(cmhValue, fmhValue) / 16491);
           }
           else
           {
-              rHist = (hValue + std::min(cmhValue, fmhValue)) / 16460;
+              rHist = (hValue / 16863) + (std::min(cmhValue, fmhValue) / 16687);
           }
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
