@@ -1026,11 +1026,11 @@ moves_loop: // When in check search starts from here
           int rHist;
           if (cmhValue >= 0 && fmhValue >= 0)
           {
-              rHist = (hValue / 16681) + (std::max(cmhValue, fmhValue) / 16491);
+              rHist = (hValue + std::max(cmhValue, fmhValue)) / 14980;
           }
           else
           {
-              rHist = (hValue / 16863) + (std::min(cmhValue, fmhValue) / 16687);
+              rHist = (hValue + std::min(cmhValue, fmhValue)) / 15500;
           }
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
