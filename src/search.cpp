@@ -1019,7 +1019,7 @@ moves_loop: // When in check search starts from here
 
           // Increase reduction for cut nodes and moves with a bad history
           if (   (!PvNode && cutNode)
-              || (hValue < VALUE_ZERO && (cmhValue <= VALUE_ZERO || fmhValue <= VALUE_ZERO)))
+              || (hValue < VALUE_ZERO && std::min(cmhValue, fmhValue) <= VALUE_ZERO))
               r += ONE_PLY;
 
           // Decrease/increase reduction for moves with a good/bad history
