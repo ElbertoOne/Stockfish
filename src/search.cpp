@@ -1027,11 +1027,11 @@ moves_loop: // When in check search starts from here
           int rHist;
           if (cmhValue >= 0 && fmhValue >= 0)
           {
-              rHist = (hValue + std::max(cmhValue, fmhValue)) / 14980;
+              rHist = (hValue + std::max(cmhValue, fmhValue)) / 14900;
           }
           else
           {
-              rHist = (hValue + minCmhFmh) / 14980;
+              rHist = (hValue + minCmhFmh) / 14900;
           }
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
@@ -1041,8 +1041,8 @@ moves_loop: // When in check search starts from here
           // because the destination square is empty.
           if (   r
               && type_of(move) == NORMAL
-              && type_of(pos.piece_on(to_sq(move))) != PAWN
-              && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
+              && type_of(toPc) != PAWN
+              && pos.see(make_move(toSq, from_sq(move))) < VALUE_ZERO)
               r = std::max(DEPTH_ZERO, r - ONE_PLY);
 
           Depth d = std::max(newDepth - r, ONE_PLY);
