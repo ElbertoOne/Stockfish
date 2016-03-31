@@ -60,11 +60,9 @@ using Eval::evaluate;
 using namespace Search;
 
 namespace {
-  int dividerA = 16384;
-  int dividerB = 16384;
-  int dividerC = 16384;
-  int dividerD = 16384;
-  TUNE(dividerA, dividerB, dividerC, dividerD);
+  int dividerA = 14980;
+  int dividerB = 14980;
+  TUNE(dividerA, dividerB);
 
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV };
@@ -1021,21 +1019,22 @@ moves_loop: // When in check search starts from here
           Value hValue = thisThread->history[toPc][toSq];
           Value cmhValue = cmh[toPc][toSq];
           Value fmhValue = fmh[toPc][toSq];
+          Value minCmhFmh = std::min(cmhValue, fmhValue);
 
           // Increase reduction for cut nodes and moves with a bad history
           if (   (!PvNode && cutNode)
-              || (hValue < VALUE_ZERO && cmhValue <= VALUE_ZERO))
+              || (hValue < VALUE_ZERO && minCmhFmh <= VALUE_ZERO))
               r += ONE_PLY;
 
           // Decrease/increase reduction for moves with a good/bad history
           int rHist;
           if (cmhValue >= 0 && fmhValue >= 0)
           {
-              rHist = (hValue / dividerA) + (std::max(cmhValue, fmhValue) / dividerB);
+              rHist = (hValue + std::max(cmhValue, fmhValue)) / dividerA;
           }
           else
           {
-              rHist = (hValue / dividerC) + (std::min(cmhValue, fmhValue) / dividerD);
+              rHist = (hValue + minCmhFmh) / dividerB;
           }
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
