@@ -1028,7 +1028,7 @@ moves_loop: // When in check search starts from here
               Value fmhValue = fmh[toPc][toSq];
               if (fmhValue < VALUE_ZERO)
               {
-                  r += ONE_PLY;
+                  cmhValue += fmhValue / 10;
               }
           }
 
