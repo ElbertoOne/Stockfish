@@ -60,8 +60,10 @@ using Eval::evaluate;
 using namespace Search;
 
 namespace {
-  int dividerA = 10;
-  TUNE(SetRange(1, 100), dividerA);
+  int dividerA = 21500;
+  int dividerB = 21500;
+  int dividerC = 21500;
+  TUNE(dividerA, dividerB, dividerC);
 
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV };
@@ -1017,23 +1019,19 @@ moves_loop: // When in check search starts from here
           Piece toPc = pos.piece_on(toSq);
           Value hValue = thisThread->history[toPc][toSq];
           Value cmhValue = cmh[toPc][toSq];
+          Value fmhValue = fmh[toPc][toSq];
 
           // Increase reduction for cut nodes and moves with a bad history
-          if (!PvNode && cutNode)
-          {
-              r += ONE_PLY;
-          }
-          else if (hValue < VALUE_ZERO && cmhValue <= VALUE_ZERO)
-          {
-              r += ONE_PLY;
-              //increase reduction even more if fmhValue is bad.
-              Value fmhValue = fmh[toPc][toSq];
-              if (fmhValue < VALUE_ZERO)
-              {
-                  cmhValue += fmhValue / dividerA;
-              }
-          }
-          int rHist = (hValue + cmhValue) / 14980;
+          if ((!PvNode && cutNode)
+              || (hValue < VALUE_ZERO && cmhValue <= VALUE_ZERO))
+               r += ONE_PLY;
+
+          double hHist = hValue / dividerA;
+          double cHist = cmhValue / dividerB;
+          double fHist = fmhValue / dividerC;
+          double dHist = hHist + cHist + fHist;
+          int rHist = (int) dHist;
+          //int rHist = (hValue + cmhValue) / 14980;
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
           // Decrease reduction for moves that escape a capture. Filter out
