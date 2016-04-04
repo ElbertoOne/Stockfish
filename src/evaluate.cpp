@@ -189,6 +189,12 @@ namespace {
   const Score ThreatByPawnPush    = S(31, 19);
   const Score Unstoppable         = S( 0, 20);
 
+  int attackUnitA = 72;
+  int attackUnitC = 27;
+  int attackUnitD = 11;
+  int attackUnitE = 64;
+  TUNE(attackUnitA, attackUnitC, attackUnitD, attackUnitE);
+
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
   // happen in Chess960 games.
@@ -396,11 +402,11 @@ namespace {
         // number and types of the enemy's attacking pieces, the number of
         // attacked and undefended squares around our king and the quality of
         // the pawn shelter (current 'score' value).
-        attackUnits =  std::min(72, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
-                     +  9 * ei.kingAdjacentZoneAttacksCount[Them]
-                     + 27 * popcount<Max15>(undefended)
-                     + 11 * !!ei.pinnedPieces[Us]
-                     - 64 * !pos.count<QUEEN>(Them)
+        attackUnits =  std::min(attackUnitA, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
+                     + 9 * ei.kingAdjacentZoneAttacksCount[Them]
+                     + attackUnitC * popcount<Max15>(undefended)
+                     + attackUnitD * !!ei.pinnedPieces[Us]
+                     - attackUnitE * !pos.count<QUEEN>(Them)
                      - mg_value(score) / 8;
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
