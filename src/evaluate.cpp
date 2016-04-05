@@ -189,10 +189,10 @@ namespace {
   const Score ThreatByPawnPush    = S(31, 19);
   const Score Unstoppable         = S( 0, 20);
 
-  int attackUnitA = 72;
-  int attackUnitC = 27;
-  int attackUnitD = 11;
-  int attackUnitE = 64;
+  int attackUnitA = 71;
+  int attackUnitC = 26;
+  int attackUnitD = 12;
+  int attackUnitE = 65;
   TUNE(attackUnitA, attackUnitC, attackUnitD, attackUnitE);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
