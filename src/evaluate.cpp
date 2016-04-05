@@ -179,7 +179,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties used by evaluation
-  const Score MinorBehindPawn     = S(16,  0);
+  Score MinorBehindPawn     = S(16,  5);
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 7, 27);
   const Score TrappedRook         = S(92,  0);
@@ -189,11 +189,7 @@ namespace {
   const Score ThreatByPawnPush    = S(31, 19);
   const Score Unstoppable         = S( 0, 20);
 
-  int attackUnitA = 71;
-  int attackUnitC = 26;
-  int attackUnitD = 12;
-  int attackUnitE = 65;
-  TUNE(attackUnitA, attackUnitC, attackUnitD, attackUnitE);
+  TUNE(MinorBehindPawn);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -402,11 +398,11 @@ namespace {
         // number and types of the enemy's attacking pieces, the number of
         // attacked and undefended squares around our king and the quality of
         // the pawn shelter (current 'score' value).
-        attackUnits =  std::min(attackUnitA, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
+        attackUnits =  std::min(72, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
                      + 9 * ei.kingAdjacentZoneAttacksCount[Them]
-                     + attackUnitC * popcount<Max15>(undefended)
-                     + attackUnitD * !!ei.pinnedPieces[Us]
-                     - attackUnitE * !pos.count<QUEEN>(Them)
+                     + 27 * popcount<Max15>(undefended)
+                     + 11 * !!ei.pinnedPieces[Us]
+                     - 64 * !pos.count<QUEEN>(Them)
                      - mg_value(score) / 8;
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
