@@ -194,9 +194,9 @@ namespace {
   int attackB = 9;
   int attackC = 27;
   int attackD = 11;
-  int attackE = 64;
-  int attackF = 8;
-  int attackG = 399;
+  int attackE = 11;
+  int attackF = 64;
+  int attackG = 8;
   TUNE(attackA, attackB, attackC, attackD, attackE, attackF, attackG);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -414,9 +414,10 @@ namespace {
         attackUnits =  std::min(attackA, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
                      +  attackB * ei.kingAdjacentZoneAttacksCount[Them]
                      + attackC * popcount<Max15>(undefended)
-                     + attackD * (popcount<Max15>(b) + !!ei.pinnedPieces[Us])
-                     - attackE * !pos.count<QUEEN>(Them)
-                     - mg_value(score) / attackF;
+                     + attackD * popcount<Max15>(b)
+                     + attackE * !!ei.pinnedPieces[Us]
+                     - attackF * !pos.count<QUEEN>(Them)
+                     - mg_value(score) / attackG;
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
         // undefended squares around the king reachable by the enemy queen...
@@ -456,7 +457,7 @@ namespace {
 
         // Finally, extract the king danger score from the KingDanger[]
         // array and subtract the score from the evaluation.
-        score -= KingDanger[std::max(std::min(attackUnits, attackG), 0)];
+        score -= KingDanger[std::max(std::min(attackUnits, 399), 0)];
     }
 
     if (DoTrace)
