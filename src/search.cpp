@@ -967,7 +967,9 @@ moves_loop: // When in check search starts from here
           if (   depth <= 4 * ONE_PLY
               && move != ss->killers[0]
               && thisThread->history[pos.moved_piece(move)][to_sq(move)] < VALUE_ZERO
-              && cmh[pos.moved_piece(move)][to_sq(move)] < VALUE_ZERO)
+              && cmh[pos.moved_piece(move)][to_sq(move)] < VALUE_ZERO
+              && fmh[pos.moved_piece(move)][to_sq(move)] < VALUE_ZERO
+              && cmh[pos.moved_piece(move)][to_sq(move)] <= fmh[pos.moved_piece(move)][to_sq(move)])
               continue;
 
           predictedDepth = std::max(newDepth - reduction<PvNode>(improving, depth, moveCount), DEPTH_ZERO);
