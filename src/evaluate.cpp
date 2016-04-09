@@ -195,6 +195,11 @@ namespace {
   // happen in Chess960 games.
   const Score TrappedBishopA1H1 = S(50, 50);
 
+  int attackA = 69;
+  int attackB = 25;
+  int attackC = 65;
+  TUNE(attackA, attackB, attackC);
+
   #undef S
   #undef V
 
@@ -392,7 +397,7 @@ namespace {
                         | ei.attackedBy[Us][QUEEN]);
 
         // ... and those which are not defended at all in the larger king ring
-        b =   ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES] 
+        b =   ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES]
             & ei.kingRing[Us] & ~pos.pieces(Them);
 
         // Initialize the 'attackUnits' variable, which is used later on as an
@@ -400,11 +405,12 @@ namespace {
         // number and types of the enemy's attacking pieces, the number of
         // attacked and undefended squares around our king and the quality of
         // the pawn shelter (current 'score' value).
-        attackUnits =  std::min(72, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
+        attackUnits =  std::min(attackA, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
                      +  9 * ei.kingAdjacentZoneAttacksCount[Them]
-                     + 27 * popcount(undefended)
-                     + 11 * (popcount(b) + !!ei.pinnedPieces[Us])
-                     - 64 * !pos.count<QUEEN>(Them)
+                     + attackB * popcount(undefended)
+                     + 11 * popcount(b)
+                     + 10 * !!ei.pinnedPieces[Us]
+                     - attackC * !pos.count<QUEEN>(Them)
                      - mg_value(score) / 8;
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
