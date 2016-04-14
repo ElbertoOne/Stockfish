@@ -58,16 +58,8 @@ namespace {
       return *begin;
   }
 
-  const Value CaptureFileRank[FILE_NB][RANK_NB] = {
-        { Value(0), Value(197), Value(391), Value(572), Value(796), Value(964),  Value(1140), Value(1404) },
-        { Value(0), Value(184), Value(397), Value(594), Value(802), Value(1054), Value(1173), Value(1349) },
-        { Value(0), Value(192), Value(405), Value(585), Value(795), Value(991),  Value(1174), Value(1409) },
-        { Value(0), Value(196), Value(383), Value(573), Value(808), Value(967),  Value(1173), Value(1451) },
-        { Value(0), Value(193), Value(392), Value(580), Value(805), Value(1023), Value(1201), Value(1419) },
-        { Value(0), Value(190), Value(385), Value(601), Value(821), Value(1026), Value(1182), Value(1389) },
-        { Value(0), Value(192), Value(405), Value(566), Value(798), Value(1015), Value(1143), Value(1398) },
-        { Value(0), Value(189), Value(401), Value(595), Value(819), Value(995),  Value(1180), Value(1383) }
-    };
+  const Value CaptureRank[RANK_NB]     = { Value(0), Value(192), Value(395), Value(583), Value(806), Value(1004), Value(1171), Value(1400) };
+  const Value CaptureFromRank[RANK_NB] = { Value(0), Value(1), Value(2), Value(3), Value(4), Value(5), Value(6), Value(6) };
 } // namespace
 
 
@@ -144,9 +136,11 @@ void MovePicker::score<CAPTURES>() {
   // In the main search we want to push captures with negative SEE values to the
   // badCaptures[] array, but instead of doing it now we delay until the move
   // has been picked up, saving some SEE calls in case we get a cutoff.
+  Color stm = pos.side_to_move();
   for (auto& m : *this)
       m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-               - Value(CaptureFileRank[file_of(to_sq(m))][relative_rank(pos.side_to_move(), to_sq(m))]);
+               - Value(CaptureRank[relative_rank(stm, to_sq(m))])
+               + Value(CaptureFromRank[relative_rank(stm, from_sq(m))]);
 }
 
 template<>
