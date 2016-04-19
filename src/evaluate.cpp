@@ -183,7 +183,9 @@ namespace {
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
-  const Score Checked             = S(20, 20);
+  const Score CheckedMajor        = S(20, 20);
+  const Score CheckedBishop       = S(18, 18);
+  const Score CheckedKnight       = S(21, 19);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score Hanging             = S(48, 27);
@@ -429,19 +431,19 @@ namespace {
 
         // Enemy queen safe checks
         if ((b1 | b2) & ei.attackedBy[Them][QUEEN])
-            attackUnits += QueenCheck, score -= Checked;
+            attackUnits += QueenCheck, score -= CheckedMajor;
 
         // Enemy rooks safe checks
         if (b1 & ei.attackedBy[Them][ROOK])
-            attackUnits += RookCheck, score -= Checked;
+            attackUnits += RookCheck, score -= CheckedMajor;
 
         // Enemy bishops safe checks
         if (b2 & ei.attackedBy[Them][BISHOP])
-            attackUnits += BishopCheck, score -= Checked;
+            attackUnits += BishopCheck, score -= CheckedBishop;
 
         // Enemy knights safe checks
         if (pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT] & safe)
-            attackUnits += KnightCheck, score -= Checked;
+            attackUnits += KnightCheck, score -= CheckedKnight;
 
         // Finally, extract the king danger score from the KingDanger[]
         // array and subtract the score from the evaluation.
