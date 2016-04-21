@@ -1022,13 +1022,13 @@ moves_loop: // When in check search starts from here
           if (cmhValue >= 0 && fmValue >= 0 && fm2Value >= 0)
           {
               Value maxValue = std::max(cmhValue, fmValue);
-              int divider = 17700 + 34 * depth;
+              int divider = 17000 + 40 * depth;
               rHist = (hValue + std::max(maxValue, fm2Value)) / divider;
           }
           else
           {
               Value minValue = std::min(cmhValue, fmValue);
-              int divider = 16730 + 2 * depth;
+              int divider = 16900 - 5 * depth;
               rHist = (hValue + std::min(minValue, fm2Value)) / divider;
           }
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
