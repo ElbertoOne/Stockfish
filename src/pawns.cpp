@@ -50,8 +50,8 @@ namespace {
 
   // Doubled pawn penalty by file
   const Score Doubled[FILE_NB] = {
-    S(11, 34), S(17, 38), S(19, 38), S(19, 38),
-    S(19, 38), S(19, 38), S(17, 38), S(11, 34) };
+    S(11, 35), S(18, 38), S(19, 38), S(20, 36),
+    S(20, 38), S(19, 36), S(17, 37), S(11, 34) };
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
@@ -149,7 +149,7 @@ namespace {
             // either there is a stopper in the way on this rank, or there is a
             // stopper on adjacent file which controls the way to that rank.
             backward = (b | shift_bb<Up>(b & adjacent_files_bb(f))) & stoppers;
-            
+
             assert(!backward || !(pawn_attack_span(Them, s + Up) & neighbours));
         }
 
