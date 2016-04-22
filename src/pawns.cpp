@@ -50,8 +50,8 @@ namespace {
 
   // Doubled pawn penalty by file
   const Score Doubled[FILE_NB] = {
-    S(11, 35), S(18, 38), S(19, 38), S(20, 36),
-    S(20, 38), S(19, 36), S(17, 37), S(11, 34) };
+    S(11, 35), S(18, 38), S(19, 38), S(20, 38),
+    S(20, 38), S(19, 38), S(18, 38), S(11, 35) };
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
