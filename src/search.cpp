@@ -171,8 +171,13 @@ namespace {
   void update_stats(const Position& pos, Stack* ss, Move move, Depth depth, Move* quiets, int quietsCnt);
   void check_time();
 
-  int dividerA = 20000;
-  TUNE(dividerA);
+  int constantA    = 2000000;
+  int constantB    = 10000;
+  const int coeffA = 100;
+  int coeffB       = 100;
+  int coeffC       = 100;
+  int coeffD       = 100;
+  TUNE(constantA, constantB, coeffB, coeffC, coeffD);
 
 } // namespace
 
@@ -1021,7 +1026,8 @@ moves_loop: // When in check search starts from here
               r += ONE_PLY;
 
           // Decrease/increase reduction for moves with a good/bad history
-          int rHist = (hValue + cmhValue + fmValue + fm2Value) / dividerA;
+          int denominator = constantA + constantB * depth;
+          int rHist = (coeffA * hValue + coeffB * cmhValue + coeffC * fmValue + coeffD * fm2Value) / denominator;
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
           // Decrease reduction for moves that escape a capture. Filter out
