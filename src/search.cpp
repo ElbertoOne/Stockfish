@@ -71,12 +71,6 @@ namespace {
   int FutilityMoveCounts[2][16];  // [improving][depth]
   Depth Reductions[2][2][64][64]; // [pv][improving][depth][moveNumber]
 
-  long hUpdates = 0;
-  const int min_denominator = 20300;
-  const double max_denominatorIncrease = 4500;
-  const double min_hUpdates = 6000000;
-  const double param_hUpdate = 6;
-
   template <bool PvNode> Depth reduction(bool i, Depth d, int mn) {
     return Reductions[PvNode][i][std::min(d, 63 * ONE_PLY)][std::min(mn, 63)];
   }
@@ -211,8 +205,6 @@ void Search::init() {
 /// Search::clear() resets search state to zero, to obtain reproducible results
 
 void Search::clear() {
-
-  hUpdates = 0;
 
   TT.clear();
   CounterMoveHistory.clear();
@@ -1025,18 +1017,8 @@ moves_loop: // When in check search starts from here
               || (hValue < VALUE_ZERO && cmhValue <= VALUE_ZERO))
               r += ONE_PLY;
 
-          // Calculate LMR denominator. Start with a minimum value and only increase
-          // the value if  the history has been updated for a minimum number of times.
-          int denominator = min_denominator;
-          if (hUpdates > min_hUpdates)
-          {
-              double ratio = log(hUpdates / min_hUpdates);
-              double addDen = max_denominatorIncrease * ratio / (param_hUpdate + ratio);
-              denominator += (int) addDen;
-          }
-
           // Decrease/increase reduction for moves with a good/bad history
-          int rHist = (hValue + cmhValue + fmValue + fm2Value) / denominator;
+          int rHist = (hValue + cmhValue + fmValue + fm2Value) / 20500;
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
           // Decrease reduction for moves that escape a capture. Filter out
@@ -1466,11 +1448,6 @@ moves_loop: // When in check search starts from here
     CounterMoveStats* fmh  = (ss-2)->counterMoves;
     CounterMoveStats* fmh2 = (ss-4)->counterMoves;
     Thread* thisThread = pos.this_thread();
-
-    if (hUpdates < LONG_MAX - 2)
-    {
-        hUpdates++;
-    }
 
     thisThread->history.update(pos.moved_piece(move), to_sq(move), bonus);
 
