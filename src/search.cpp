@@ -72,10 +72,10 @@ namespace {
   Depth Reductions[2][2][64][64]; // [pv][improving][depth][moveNumber]
 
   long hUpdates = 0;
-  const int min_denominator = 20500;
+  const int min_denominator = 20300;
   const double max_denominatorIncrease = 4500;
   const double min_hUpdates = 6000000;
-  const double param_hUpdate = 7.34;
+  const double param_hUpdate = 6;
 
   template <bool PvNode> Depth reduction(bool i, Depth d, int mn) {
     return Reductions[PvNode][i][std::min(d, 63 * ONE_PLY)][std::min(mn, 63)];
