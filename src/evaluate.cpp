@@ -184,8 +184,8 @@ namespace {
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
   Score Checked             = S(20, 20);
-  Score Exposed             = S(10, 10);
-  TUNE(Checked, Exposed);
+  Score Exposed             = S(15, 15);
+
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score Hanging             = S(48, 27);
@@ -210,11 +210,13 @@ namespace {
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 7, 5, 4, 1 };
 
   // Penalties for enemy's safe checks
-  const int QueenContactCheck = 89;
-  const int QueenCheck        = 52;
-  const int RookCheck         = 45;
-  const int BishopCheck       = 5;
-  const int KnightCheck       = 17;
+  int QueenContactCheck = 89;
+  int QueenCheck        = 52;
+  int RookCheck         = 45;
+  int BishopCheck       = 5;
+  int KnightCheck       = 17;
+
+  TUNE(Checked, Exposed, QueenContactCheck, QueenCheck, RookCheck, BishopCheck, KnightCheck);
 
 
   // eval_init() initializes king and attack bitboards for a given color
