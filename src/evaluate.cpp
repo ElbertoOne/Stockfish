@@ -209,7 +209,7 @@ namespace {
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 7, 5, 4, 1 };
 
   // Penalties for enemy's safe checks
-  const int QueenContactCheck = 89;
+  const int QueenContactCheck = 81;
   const int QueenCheck        = 52;
   const int RookCheck         = 45;
   const int BishopCheck       = 5;
