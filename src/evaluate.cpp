@@ -183,8 +183,8 @@ namespace {
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
-  const Score SafeCheck           = S(20, 20);
-  const Score OtherCheck          = S(10, 10);
+  Score SafeCheck                 = S(20, 20);
+  Score OtherCheck                = S(15, 15);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score Hanging             = S(48, 27);
@@ -209,7 +209,8 @@ namespace {
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 7, 5, 4, 1 };
 
   // Penalties for enemy's safe checks
-  const int QueenContactCheck = 89;
+  int QueenContactCheck = 89;
+  TUNE(SafeCheck, OtherCheck, QueenContactCheck);
   const int QueenCheck        = 52;
   const int RookCheck         = 45;
   const int BishopCheck       = 5;
