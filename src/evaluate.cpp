@@ -183,8 +183,8 @@ namespace {
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
-  const Score SafeCheck           = S(20, 20);
-  const Score OtherCheck          = S(10, 10);
+  const Score SafeCheck           = S(19, 20);
+  const Score OtherCheck          = S(12, 14);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score Hanging             = S(48, 27);
