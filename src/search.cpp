@@ -1042,17 +1042,6 @@ moves_loop: // When in check search starts from here
           if (rDecr)
               r = std::max(DEPTH_ZERO, r - ONE_PLY);
 
-          // Decrease reduction for moves that escape a capture. Filter out
-          // castling moves, because they are coded as "king captures rook" and
-          // hence break make_move(). Also use see() instead of see_sign(),
-          // because the destination square is empty.
-          else if (   r
-              && !(!PvNode && cutNode)
-              && type_of(move) == NORMAL
-              && type_of(pos.piece_on(to_sq(move))) != PAWN
-              && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
-              r = std::max(DEPTH_ZERO, r - ONE_PLY);
-
           Depth d = std::max(newDepth - r, ONE_PLY);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
