@@ -1025,14 +1025,15 @@ moves_loop: // When in check search starts from here
 
           // Decrease reduction:
           // 1. for killers
-          // 2. for advanced pawn pushes.
+          // 2. for pawn pushes to 7th rank.
           // 3. for moves that escape a capture. Filter out
           // castling moves, because they are coded as "king captures rook" and
           // hence break make_move(). Also use see() instead of see_sign(),
           // because the destination square is empty.
           bool rDecr = ((PvNode && (move == ss->killers[0] || move == ss->killers[1]))
                         || (r && !(!PvNode && cutNode)
-                              && pos.advanced_pawn_push(move))
+                              && type_of(pos.piece_on(to_sq(move))) == PAWN
+                              && relative_rank(~pos.side_to_move(), to_sq(move)) == RANK_7)
                         || (r && !(!PvNode && cutNode)
                               && type_of(move) == NORMAL
                               && type_of(pos.piece_on(to_sq(move))) != PAWN
