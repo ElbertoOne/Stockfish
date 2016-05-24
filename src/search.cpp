@@ -1023,8 +1023,22 @@ moves_loop: // When in check search starts from here
           int rHist = (val - 10000) / 20000;
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
-          // Decrease reduction for killers
-          if (PvNode && (move == ss->killers[0] || move == ss->killers[1]))
+          // Decrease reduction:
+          // 1. for killers
+          // 2. for advanced pawn pushes.
+          // 3. for moves that escape a capture. Filter out
+          // castling moves, because they are coded as "king captures rook" and
+          // hence break make_move(). Also use see() instead of see_sign(),
+          // because the destination square is empty.
+          bool rDecr = ((PvNode && (move == ss->killers[0] || move == ss->killers[1]))
+                        || (r && !(!PvNode && cutNode)
+                              && pos.advanced_pawn_push(move))
+                        || (r && !(!PvNode && cutNode)
+                              && type_of(move) == NORMAL
+                              && type_of(pos.piece_on(to_sq(move))) != PAWN
+                              && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO));
+
+          if (rDecr)
               r = std::max(DEPTH_ZERO, r - ONE_PLY);
 
           // Decrease reduction for moves that escape a capture. Filter out
