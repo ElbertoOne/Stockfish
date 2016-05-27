@@ -1007,7 +1007,8 @@ moves_loop: // When in check search starts from here
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
           &&  moveCount > 1
-          && !captureOrPromotion)
+          && !captureOrPromotion
+          && move != ttMove)
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
           Value val = thisThread->history[moved_piece][to_sq(move)]
@@ -1023,14 +1024,17 @@ moves_loop: // When in check search starts from here
           int rHist = (val - 10000) / 20000;
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
-          // Decrease reduction for moves that escape a capture. Filter out
+          // Decrease reduction:
+          // 1. for killers
+          // 2. for moves that are not cut and escape a capture. Filter out
           // castling moves, because they are coded as "king captures rook" and
           // hence break make_move(). Also use see() instead of see_sign(),
           // because the destination square is empty.
-          if (   r
-              && type_of(move) == NORMAL
-              && type_of(pos.piece_on(to_sq(move))) != PAWN
-              && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
+          if ((PvNode && (move == ss->killers[0] || move == ss->killers[1]))
+              || (r && !(!PvNode && cutNode)
+                    && type_of(move) == NORMAL
+                    && type_of(pos.piece_on(to_sq(move))) != PAWN
+                    && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO))
               r = std::max(DEPTH_ZERO, r - ONE_PLY);
 
           Depth d = std::max(newDepth - r, ONE_PLY);
