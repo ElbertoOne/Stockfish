@@ -1005,10 +1005,9 @@ moves_loop: // When in check search starts from here
 
       // Step 15. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
-      if (    depth >= 3 * ONE_PLY
+      if (    depth >= 2 * ONE_PLY
           &&  moveCount > 1
-          && !captureOrPromotion
-          && move != ttMove)
+          && !captureOrPromotion)
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
           Value val = thisThread->history[moved_piece][to_sq(move)]
@@ -1026,11 +1025,14 @@ moves_loop: // When in check search starts from here
 
           // Decrease reduction:
           // 1. for killers
-          // 2. for moves that are not cut and escape a capture. Filter out
+          // 2. for pawn advance to 7th rank.
+          // 3. for moves that are not cut and escape a capture. Filter out
           // castling moves, because they are coded as "king captures rook" and
           // hence break make_move(). Also use see() instead of see_sign(),
           // because the destination square is empty.
           if ((PvNode && (move == ss->killers[0] || move == ss->killers[1]))
+              || (r && type_of(pos.piece_on(to_sq(move))) == PAWN
+                    && relative_rank(~pos.side_to_move(), to_sq(move)) == RANK_7)
               || (r && !(!PvNode && cutNode)
                     && type_of(move) == NORMAL
                     && type_of(pos.piece_on(to_sq(move))) != PAWN
