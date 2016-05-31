@@ -1007,7 +1007,8 @@ moves_loop: // When in check search starts from here
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
           &&  moveCount > 1
-          && !captureOrPromotion)
+          && !captureOrPromotion
+          && !(PvNode && (move == ss->killers[0] || move == ss->killers[1])))
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
           Value val = thisThread->history[moved_piece][to_sq(move)]
@@ -1028,6 +1029,7 @@ moves_loop: // When in check search starts from here
           // hence break make_move(). Also use see() instead of see_sign(),
           // because the destination square is empty.
           if (   r
+              && !(!PvNode && cutNode)
               && type_of(move) == NORMAL
               && type_of(pos.piece_on(to_sq(move))) != PAWN
               && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
