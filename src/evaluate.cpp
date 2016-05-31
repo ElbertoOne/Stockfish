@@ -188,6 +188,7 @@ namespace {
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
+  const Score WeakRook            = S(20,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
@@ -495,6 +496,20 @@ namespace {
                                pos.pieces(Us, ROOK, BISHOP),
                                pos.square<QUEEN>(Them)))
         score += WeakQueen;
+
+    // Bonus for pin or discovered attack on opponent rooks
+    if (pos.count<ROOK>(Them) > 0)
+    {
+        const Square* rsq = pos.squares<ROOK>(Them);
+        Square s;
+        while ((s = *rsq++) != SQ_NONE)
+        {
+            if (pos.slider_blockers(pos.pieces(),
+                                    pos.pieces(Us, BISHOP),
+                                    s))
+            score += WeakRook;
+        }
+    }
 
     // Non-pawn enemies attacked by a pawn
     weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & ei.attackedBy[Us][PAWN];
