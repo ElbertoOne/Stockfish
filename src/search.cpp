@@ -1022,7 +1022,7 @@ moves_loop: // When in check search starts from here
               r -= 2 * ONE_PLY;
 
           // Decrease/increase reduction for moves with a good/bad history
-          int rHist = (val + (val < 0 ? -30000 : 0)) / 20000;
+          int rHist = (val + (val < 0 ? -20000 : 0)) / 20000;
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
 
           Depth d = std::max(newDepth - r, ONE_PLY);
