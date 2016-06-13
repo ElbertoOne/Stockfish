@@ -855,7 +855,7 @@ namespace {
     {
         Depth d = depth - 2 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
         ss->skipEarlyPruning = true;
-        search<NT>(pos, ss, alpha, beta, d, true);
+        search<NT>(pos, ss, alpha, beta, d, !PvNode);
         ss->skipEarlyPruning = false;
 
         tte = TT.probe(posKey, ttHit);
