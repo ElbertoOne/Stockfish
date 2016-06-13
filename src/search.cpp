@@ -810,7 +810,7 @@ namespace {
     {
         Depth d = depth - 2 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
         ss->skipEarlyPruning = true;
-        search<NT>(pos, ss, alpha, beta, d, true);
+        search<NT>(pos, ss, alpha, beta, d, !PvNode);
         ss->skipEarlyPruning = false;
 
         tte = TT.probe(posKey, ttHit);
@@ -968,7 +968,7 @@ moves_loop: // When in check search starts from here
                      +    (fmh2 ? (*fmh2)[moved_piece][to_sq(move)] : VALUE_ZERO);
 
           // Increase reduction for cut nodes
-          if (!PvNode && cutNode)
+          if (cutNode)
               r += 2 * ONE_PLY;
 
           // Decrease reduction for moves that escape a capture. Filter out
