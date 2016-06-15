@@ -691,7 +691,7 @@ namespace {
                       + popcount(pos.pieces(BLACK, PAWN) & shift_bb<DELTA_N>(pos.pieces()));
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * (pawns - blockedPawns);
+    int initiative = 8 * (asymmetry + kingDistance - 10) + 12 * (pawns - blockedPawns);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
