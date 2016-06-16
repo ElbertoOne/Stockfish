@@ -697,10 +697,10 @@ namespace {
 
     // Compute the initiative bonus for the attacking side
     int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
-    if (blockedPawns >= 5)
+    if (blockedPawns > 4)
     {
         //penalty when the strong side has a lot of blocked pawns
-        initiative -= 3 * blockedPawns;
+        initiative -= 5 * (blockedPawns - 4);
     }
 
     // Now apply the bonus: note that we carefully cap the bonus so
