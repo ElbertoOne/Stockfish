@@ -978,7 +978,9 @@ moves_loop: // When in check search starts from here
           // Decrease/increase reduction for moves with a good/bad history
           int rHist = (val - 10000) / 20000;
 
-          if (rHist < 0 && givesCheck && !cutNode)
+          if (cutNode && rHist < 0)
+              rHist--;
+          else if (cutNode && rHist > 0)
               rHist++;
 
           r = std::max(DEPTH_ZERO, r - rHist * ONE_PLY);
