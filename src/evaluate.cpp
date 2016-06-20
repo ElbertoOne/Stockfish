@@ -736,7 +736,8 @@ namespace {
                  && pos.count<PAWN>(strongSide) <= pos.count<PAWN>(~strongSide) + 1
                  && ei.pi->pawn_asymmetry() <= 1
                  && ei.pi->passed_pawns(WHITE) == 0
-                 && ei.pi->passed_pawns(BLACK) == 0)
+                 && ei.pi->passed_pawns(BLACK) == 0
+                 && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             sf = ScaleFactor(37);
     }
 
