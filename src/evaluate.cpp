@@ -731,26 +731,14 @@ namespace {
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(51) : ScaleFactor(37);
         else if (   pos.non_pawn_material(WHITE) == RookValueMg
-                 && pos.non_pawn_material(BLACK) == RookValueMg)
+                 && pos.non_pawn_material(BLACK) == RookValueMg
+                 && pos.count<PAWN>(strongSide) <= pos.count<PAWN>(~strongSide) + 1
+                 && ei.pi->pawn_asymmetry() <= 1
+                 && ei.pi->passed_pawns(WHITE) == 0
+                 && ei.pi->passed_pawns(BLACK) == 0)
         {
-            int spanStrong = ei.pi->pawn_span(strongSide);
-            int spanWeak = ei.pi->pawn_span(~strongSide);
-
-            if (   spanStrong <= 4
-                && (spanWeak == (spanStrong - 1) || spanWeak == spanStrong)
-                && pos.count<PAWN>(strongSide) == spanStrong
-                && pos.count<PAWN>(~strongSide) == spanWeak)
-            {
-                Bitboard strongPawns = pos.pieces(strongSide, PAWN);
-                Bitboard weakPawns = pos.pieces(~strongSide, PAWN);
-
-                if (   ((strongPawns & file_bb(FILE_A)) && (weakPawns & file_bb(FILE_A)))
-                    || ((strongPawns & file_bb(FILE_H)) && (weakPawns & file_bb(FILE_H))))
-                {
-                    //drawish when R vs. R and pawn chains on left or right side of the board
-                    sf = ScaleFactor(10);
-                }
-            }
+            //drawish when R vs. R and more or less opposite pawn chains
+            sf = ScaleFactor(20);
         }
     }
 
