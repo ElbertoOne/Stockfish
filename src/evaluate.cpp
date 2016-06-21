@@ -731,11 +731,13 @@ namespace {
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(51) : ScaleFactor(37);
         //Drawish when R vs. R and more or less opposite pawn chains
-        else if (   pos.non_pawn_material(WHITE) == RookValueMg
-                 && pos.non_pawn_material(BLACK) == RookValueMg
+        else if (   pos.non_pawn_material(strongSide) == RookValueMg
+                 && pos.non_pawn_material(~strongSide) == RookValueMg
+                 && pos.count<PAWN>(strongSide) <= pos.count<PAWN>(~strongSide) + 1
                  && ei.pi->pawn_asymmetry() <= 1
-                 && ei.pi->passed_pawns(strongSide) == 0)
-            sf = ScaleFactor(37);
+                 && ei.pi->passed_pawns(strongSide) == 0
+                 && ei.pi->passed_pawns(~strongSide) == 0)
+            sf = ScaleFactor(10);
     }
 
     return sf;
