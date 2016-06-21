@@ -733,11 +733,8 @@ namespace {
         //Drawish when R vs. R and more or less opposite pawn chains
         else if (   pos.non_pawn_material(WHITE) == RookValueMg
                  && pos.non_pawn_material(BLACK) == RookValueMg
-                 && pos.count<PAWN>(strongSide) <= pos.count<PAWN>(~strongSide) + 1
                  && ei.pi->pawn_asymmetry() <= 1
-                 && ei.pi->passed_pawns(WHITE) == 0
-                 && ei.pi->passed_pawns(BLACK) == 0
-                 && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
+                 && ei.pi->passed_pawns(strongSide) == 0)
             sf = ScaleFactor(37);
     }
 
