@@ -731,15 +731,23 @@ namespace {
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(51) : ScaleFactor(37);
         // Rook endings with (almost) equal opposing pawn chains are drawish
-        else if (   pos.non_pawn_material(strongSide) == RookValueMg
-                 && pos.non_pawn_material(~strongSide) == RookValueMg
-                 && pos.count<PAWN>(strongSide) <= pos.count<PAWN>(~strongSide) + 1
+        else if (   pos.count<ROOK>(strongSide) == 1
+                 && pos.count<ROOK>(~strongSide) == 1
                  && ei.pi->pawn_asymmetry() <= 1
+                 && pos.non_pawn_material(strongSide) <= RookValueMg + BishopValueMg
+                 && pos.non_pawn_material(~strongSide) <= RookValueMg + BishopValueMg
+                 && pos.count<PAWN>(strongSide) <= pos.count<PAWN>(~strongSide) + 1
                  && ei.pi->passed_pawns(strongSide) == 0
                  && ei.pi->passed_pawns(~strongSide) == 0
                  && pos.count<PAWN>(strongSide) == ei.pi->pawn_span(strongSide) + 1
                  && pos.count<PAWN>(~strongSide) == ei.pi->pawn_span(~strongSide) + 1)
-            sf = ScaleFactor(37);
+        {
+            if (   pos.non_pawn_material(strongSide) == RookValueMg
+                && pos.non_pawn_material(~strongSide) == RookValueMg)
+                sf = ScaleFactor(37);
+            else
+                sf = ScaleFactor(51);
+        }
     }
 
     return sf;
