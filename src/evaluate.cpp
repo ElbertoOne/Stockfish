@@ -704,11 +704,6 @@ namespace {
     // Compute the initiative bonus for the attacking side
     int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
 
-    // in single rook endgames, give small bonus for centralized king
-    if (   pos.non_pawn_material(WHITE) == RookValueMg
-        && pos.non_pawn_material(BLACK) == RookValueMg)
-        initiative += KingCentral[file_of(wksq), rank_of(wksq)] - KingCentral[file_of(bksq), rank_of(bksq)];
-
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never be divided by more than two.
@@ -811,6 +806,13 @@ Value Eval::evaluate(const Position& pos) {
   // information when computing the king safety evaluation.
   score +=  evaluate_king<WHITE, DoTrace>(pos, ei)
           - evaluate_king<BLACK, DoTrace>(pos, ei);
+
+  Square wksq = pos.square<KING>(WHITE);
+  Square bksq = pos.square<KING>(BLACK);
+  // in single rook endgames, give small bonus for centralized king
+  if (   pos.non_pawn_material(WHITE) == RookValueMg
+      && pos.non_pawn_material(BLACK) == RookValueMg)
+      score += make_score(0, KingCentral[file_of(wksq), rank_of(wksq)] - KingCentral[file_of(bksq), rank_of(bksq)]);
 
   // Evaluate tactical threats, we need full attack information including king
   score +=  evaluate_threats<WHITE, DoTrace>(pos, ei)
