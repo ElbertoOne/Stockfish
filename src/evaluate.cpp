@@ -735,7 +735,7 @@ namespace {
                  && pos.count<ROOK>(~strongSide) == 1
                  && ei.pi->pawn_asymmetry() <= 1
                  && pos.non_pawn_material(strongSide) <= RookValueMg + BishopValueMg
-                 && pos.non_pawn_material(~strongSide) <= RookValueMg + BishopValueMg
+                 && pos.non_pawn_material(strongSide) == pos.non_pawn_material(~strongSide)
                  && pos.count<PAWN>(strongSide) <= pos.count<PAWN>(~strongSide) + 1
                  && ei.pi->passed_pawns(strongSide) == 0
                  && ei.pi->passed_pawns(~strongSide) == 0
