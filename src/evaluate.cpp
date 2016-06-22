@@ -178,6 +178,17 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
 
+  const int KingCentral[FILE_NB][RANK_NB] = {
+    { 0, 0, 0,  0,  0, 0, 0, 0 },
+    { 0, 0, 0,  0,  0, 0, 0, 0 },
+    { 0, 0, 4,  7,  7, 4, 0, 0 },
+    { 0, 0, 7, 10, 10, 7, 0, 0 },
+    { 0, 0, 7, 10, 10, 7, 0, 0 },
+    { 0, 0, 4,  7,  7, 4, 0, 0 },
+    { 0, 0, 0,  0,  0, 0, 0, 0 },
+    { 0, 0, 0,  0,  0, 0, 0, 0 }
+  };
+
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
@@ -684,12 +695,19 @@ namespace {
   // status of the players.
   Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
 
-    int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    Square wksq = pos.square<KING>(WHITE);
+    Square bksq = pos.square<KING>(BLACK);
+    int kingDistance =  distance<File>(wksq, bksq)
+                      - distance<Rank>(wksq, bksq);
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
 
     // Compute the initiative bonus for the attacking side
     int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
+
+    // in single rook endgames, give small bonus for centralized king
+    if (   pos.non_pawn_material(WHITE) == RookValueMg
+        && pos.non_pawn_material(BLACK) == RookValueMg)
+        initiative += KingCentral[file_of(wksq), rank_of(wksq)] - KingCentral[file_of(bksq), rank_of(bksq)];
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
