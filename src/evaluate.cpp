@@ -179,14 +179,14 @@ namespace {
   };
 
   const int KingCentral[FILE_NB][RANK_NB] = {
-    { 0, 0, 0,  0,  0, 0, 0, 0 },
-    { 0, 0, 0,  0,  0, 0, 0, 0 },
-    { 0, 0, 4,  7,  7, 4, 0, 0 },
-    { 0, 0, 7, 10, 10, 7, 0, 0 },
-    { 0, 0, 7, 10, 10, 7, 0, 0 },
-    { 0, 0, 4,  7,  7, 4, 0, 0 },
-    { 0, 0, 0,  0,  0, 0, 0, 0 },
-    { 0, 0, 0,  0,  0, 0, 0, 0 }
+    { -5, -4, -3, -2, -2, -3, -4, -5 },
+    { -3, -1,  0,  0,  0,  0, -1, -3 },
+    { -1,  0,  2,  3,  3,  2,  0, -1 },
+    {  0,  1,  3,  5,  5,  3,  1,  0 },
+    {  0,  1,  3,  5,  5,  3,  1,  0 },
+    { -1,  0,  2,  3,  3,  2,  0, -1 },
+    { -3, -1,  0,  0,  0,  0, -1, -3 },
+    { -5, -4, -3, -2, -2, -3, -4, -5 }
   };
 
   // Assorted bonuses and penalties used by evaluation
@@ -805,12 +805,27 @@ Value Eval::evaluate(const Position& pos) {
   score +=  evaluate_king<WHITE, DoTrace>(pos, ei)
           - evaluate_king<BLACK, DoTrace>(pos, ei);
 
-  Square wksq = pos.square<KING>(WHITE);
-  Square bksq = pos.square<KING>(BLACK);
   // in single rook endgames, give small bonus for centralized king
   if (   pos.non_pawn_material(WHITE) == RookValueMg
       && pos.non_pawn_material(BLACK) == RookValueMg)
-      score += make_score(0, KingCentral[file_of(wksq), rank_of(wksq)] - KingCentral[file_of(bksq), rank_of(bksq)]);
+  {
+      Square wksq = pos.square<KING>(WHITE);
+      Square bksq = pos.square<KING>(BLACK);
+      int minWhiteKingPawnDistance = 0;
+      int minBlackKingPawnDistance = 0;
+
+      Bitboard wPawns = pos.pieces(WHITE, PAWN);
+      Bitboard bPawns = pos.pieces(BLACK, PAWN);
+      if (wPawns)
+          while (!(DistanceRingBB[wksq][minWhiteKingPawnDistance++] & wPawns)) {}
+
+      if (bPawns)
+          while (!(DistanceRingBB[bksq][minBlackKingPawnDistance++] & bPawns)) {}
+
+      int wScore = minWhiteKingPawnDistance <= 2 ? KingCentral[file_of(wksq)][rank_of(wksq)] : 0;
+      int bScore = minBlackKingPawnDistance <= 2 ? KingCentral[file_of(bksq)][rank_of(bksq)] : 0;
+      score += make_score(0, wScore - bScore);
+  }
 
   // Evaluate tactical threats, we need full attack information including king
   score +=  evaluate_threats<WHITE, DoTrace>(pos, ei)
