@@ -178,17 +178,6 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
 
-  const int KingCentral[FILE_NB][RANK_NB] = {
-    { -5, -4, -3, -2, -2, -3, -4, -5 },
-    { -3, -1,  0,  0,  0,  0, -1, -3 },
-    { -1,  0,  2,  3,  3,  2,  0, -1 },
-    {  0,  1,  3,  5,  5,  3,  1,  0 },
-    {  0,  1,  3,  5,  5,  3,  1,  0 },
-    { -1,  0,  2,  3,  3,  2,  0, -1 },
-    { -3, -1,  0,  0,  0,  0, -1, -3 },
-    { -5, -4, -3, -2, -2, -3, -4, -5 }
-  };
-
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
@@ -202,6 +191,7 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
+  const Score KingOnEdge          = S( 0, -10);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -481,6 +471,27 @@ namespace {
         Trace::add(KING, Us, score);
 
     return score;
+  }
+
+  // evaluate_center() computes the correction value for the
+  // king position in certain endgames.
+  Score evaluate_endgame(const Position& pos) {
+      if (   (pos.non_pawn_material(WHITE) == RookValueMg
+           && pos.non_pawn_material(BLACK) == RookValueMg)
+          || (pos.non_pawn_material(WHITE) == 2 * RookValueMg
+             && pos.non_pawn_material(BLACK) == 2 * RookValueMg))
+      {
+          Square wksq = pos.square<KING>(WHITE);
+          Square bksq = pos.square<KING>(BLACK);
+
+          bool wOnEdge = file_of(wksq) == FILE_A || file_of (wksq) == FILE_H || rank_of(wksq) == RANK_1 || rank_of(wksq) == RANK_8;
+          bool bOnEdge = file_of(bksq) == FILE_A || file_of (bksq) == FILE_H || rank_of(bksq) == RANK_1 || rank_of(bksq) == RANK_8;
+
+          int wScore = wOnEdge ? KingOnEdge : make_score(0, 0);
+          int bScore = bOnEdge ? KingOnEdge : make_score(0, 0);
+          return make_score(0, wScore - bScore);
+      }
+      return make_score(0, 0);
   }
 
 
@@ -805,27 +816,8 @@ Value Eval::evaluate(const Position& pos) {
   score +=  evaluate_king<WHITE, DoTrace>(pos, ei)
           - evaluate_king<BLACK, DoTrace>(pos, ei);
 
-  // in single rook endgames, give small bonus for centralized king
-  if (   pos.non_pawn_material(WHITE) == RookValueMg
-      && pos.non_pawn_material(BLACK) == RookValueMg)
-  {
-      Square wksq = pos.square<KING>(WHITE);
-      Square bksq = pos.square<KING>(BLACK);
-      int minWhiteKingPawnDistance = 0;
-      int minBlackKingPawnDistance = 0;
-
-      Bitboard wPawns = pos.pieces(WHITE, PAWN);
-      Bitboard bPawns = pos.pieces(BLACK, PAWN);
-      if (wPawns)
-          while (!(DistanceRingBB[wksq][minWhiteKingPawnDistance++] & wPawns)) {}
-
-      if (bPawns)
-          while (!(DistanceRingBB[bksq][minBlackKingPawnDistance++] & bPawns)) {}
-
-      int wScore = minWhiteKingPawnDistance <= 2 ? KingCentral[file_of(wksq)][rank_of(wksq)] : 0;
-      int bScore = minBlackKingPawnDistance <= 2 ? KingCentral[file_of(bksq)][rank_of(bksq)] : 0;
-      score += make_score(0, wScore - bScore);
-  }
+  // Evaluate king position in certain endgames.
+  score += evaluate_endgame(pos);
 
   // Evaluate tactical threats, we need full attack information including king
   score +=  evaluate_threats<WHITE, DoTrace>(pos, ei)
