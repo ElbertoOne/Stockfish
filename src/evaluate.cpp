@@ -178,6 +178,17 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
 
+  const int KingCentral[FILE_NB][RANK_NB] = {
+    { -5, -4, -3, -2, -2, -3, -4, -5 },
+    { -3, -1,  0,  0,  0,  0, -1, -3 },
+    { -1,  0,  2,  3,  3,  2,  0, -1 },
+    {  0,  1,  3,  5,  5,  3,  1,  0 },
+    {  0,  1,  3,  5,  5,  3,  1,  0 },
+    { -1,  0,  2,  3,  3,  2,  0, -1 },
+    { -3, -1,  0,  0,  0,  0, -1, -3 },
+    { -5, -4, -3, -2, -2, -3, -4, -5 }
+  };
+
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
@@ -470,6 +481,37 @@ namespace {
         Trace::add(KING, Us, score);
 
     return score;
+  }
+
+  // evaluate_center() computes the correction value for the
+  // king position in certain endgames, i.e., endgames which have at most
+  // 1 rook plus bishop value on each side. The king gets a bonus if it is
+  // located near the center and gets a penalty when it is in a corner.
+  // The correction value is only given if the king doesn't neglect the defense
+  // of its pawns.
+  Score evaluate_center(const Position& pos, const EvalInfo& ei) {
+      if (   pos.non_pawn_material(WHITE) <= RookValueMg + BishopValueMg
+          && pos.non_pawn_material(BLACK) <= RookValueMg + BishopValueMg)
+      {
+          Square wksq = pos.square<KING>(WHITE);
+          Square bksq = pos.square<KING>(BLACK);
+          int minWhiteKingPawnDistance = 0;
+          int minBlackKingPawnDistance = 0;
+
+          Bitboard wPawns = pos.pieces(WHITE, PAWN);
+          Bitboard bPawns = pos.pieces(BLACK, PAWN);
+          if (wPawns)
+              while (!(DistanceRingBB[wksq][minWhiteKingPawnDistance++] & wPawns)) {}
+
+          if (bPawns)
+              while (!(DistanceRingBB[bksq][minBlackKingPawnDistance++] & bPawns)) {}
+
+          //only give score if king doesn't neglect defense of pawns
+          int wScore = minWhiteKingPawnDistance <= 2 ? KingCentral[file_of(wksq)][rank_of(wksq)] : 0;
+          int bScore = minBlackKingPawnDistance <= 2 ? KingCentral[file_of(bksq)][rank_of(bksq)] : 0;
+          return make_score(0, wScore - bScore);
+      }
+      return make_score(0, 0);
   }
 
 
@@ -793,6 +835,9 @@ Value Eval::evaluate(const Position& pos) {
   // information when computing the king safety evaluation.
   score +=  evaluate_king<WHITE, DoTrace>(pos, ei)
           - evaluate_king<BLACK, DoTrace>(pos, ei);
+
+  // Evaluate king position in certain endgames.
+  score += evaluate_center(pos, ei);
 
   // Evaluate tactical threats, we need full attack information including king
   score +=  evaluate_threats<WHITE, DoTrace>(pos, ei)
