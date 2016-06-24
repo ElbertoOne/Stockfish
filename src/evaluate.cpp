@@ -483,11 +483,11 @@ namespace {
           int kingDist = distance(pos.square<KING>(strongSide), pos.square<KING>(~strongSide));
           if (strongSide == WHITE)
           {
-              score = 8 - kingDist;
+              score = 2 * (7 - kingDist);
           }
           else
           {
-              score = kingDist - 8;
+              score = 2 * (kingDist - 7);
           }
       }
       return make_score(0, score);
