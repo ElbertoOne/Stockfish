@@ -472,6 +472,27 @@ namespace {
     return score;
   }
 
+  // evaluate_endgame() gives a bonus for the strong side if its
+  // king is closer to the king of the weak side.
+  Score evaluate_endgame(const Position& pos, Value eg)
+  {
+      Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
+      int score = 0;
+      if (pos.non_pawn_material(strongSide) <= 2 * RookValueMg)
+      {
+          int kingDist = distance(pos.square<KING>(strongSide), pos.square<KING>(~strongSide));
+          if (strongSide == WHITE)
+          {
+              score = 8 - kingDist;
+          }
+          else
+          {
+              score = kingDist - 8;
+          }
+      }
+      return make_score(0, score);
+  }
+
 
   // evaluate_threats() assigns bonuses according to the types of the attacking
   // and the attacked pieces.
@@ -820,6 +841,9 @@ Value Eval::evaluate(const Position& pos) {
 
   // Evaluate position potential for the winning side
   score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
+
+  // Evaluate endgame king position
+  score += evaluate_endgame(pos, eg_value(score));
 
   // Evaluate scale factor for the winning side
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));
