@@ -385,7 +385,7 @@ namespace {
     const Square  Up = (Us == WHITE ? DELTA_N : DELTA_S);
 
     Bitboard undefended, b, b1, b2, safe, other;
-    int attackUnits;
+    int attackUnits, defenders;
     const Square ksq = pos.square<KING>(Us);
 
     // King shelter and enemy pawns storm
@@ -403,6 +403,13 @@ namespace {
         b =  ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES]
            & ei.kingRing[Us] & ~pos.pieces(Them);
 
+        // ... and those which are not defended by a pawn in the larger king ring
+        b1 = ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][PAWN] & ei.kingRing[Us];
+        defenders =  !!(ei.attackedBy[Us][KNIGHT] & b1)
+                   + !!(ei.attackedBy[Us][BISHOP] & b1)
+                   + !!(ei.attackedBy[Us][ROOK  ] & b1)
+                   + !!(ei.attackedBy[Us][QUEEN ] & b1);
+
         // Initialize the 'attackUnits' variable, which is used later on as an
         // index into the KingDanger[] array. The initial value is based on the
         // number and types of the enemy's attacking pieces, the number of
@@ -412,6 +419,7 @@ namespace {
                      +  9 * ei.kingAdjacentZoneAttacksCount[Them]
                      + 21 * popcount(undefended)
                      + 12 * (popcount(b) + !!ei.pinnedPieces[Us])
+                     -      (b1 ? 10 * (defenders - 1) : 0)
                      - 64 * !pos.count<QUEEN>(Them)
                      - mg_value(score) / 8;
 
