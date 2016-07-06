@@ -700,6 +700,29 @@ namespace {
     return make_score(0, value);
   }
 
+  // Returns the non pawn material value for positions that have opposing symmetrical
+  // pawn chains and a defending king that is placed in front of the opponents pawns.
+  // If this is not the case, return -1.
+  int nonPawnMaterialSymmetricPawnChains(const Position& pos, const EvalInfo& ei, Color strongSide) {
+      if (    pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK)
+           && !ei.pi->passed_pawns(WHITE)
+           && !ei.pi->passed_pawns(BLACK)
+           &&  ei.pi->pawn_asymmetry() <= 1)
+      {
+          int spanStrong = ei.pi->pawn_span(strongSide);
+          int spanWeak = ei.pi->pawn_span(~strongSide);
+
+          if (    spanStrong <= 4
+              && (spanWeak == spanStrong - 1 || spanWeak == spanStrong)
+              &&  pos.count<PAWN>(strongSide) >= spanStrong + 1
+              &&  pos.count<PAWN>(~strongSide) >= spanWeak + 1
+              && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
+          {
+               return pos.non_pawn_material(WHITE) / PawnValueMg;
+          }
+      }
+      return -1;
+  }
 
   // evaluate_scale_factor() computes the scale factor for the winning side
   ScaleFactor evaluate_scale_factor(const Position& pos, const EvalInfo& ei, Value eg) {
@@ -725,12 +748,22 @@ namespace {
             else
                 sf = ScaleFactor(46);
         }
-        // Endings where weaker side can place his king in front of the opponent's
-        // pawns are drawish.
-        else if (    abs(eg) <= BishopValueEg
-                 &&  ei.pi->pawn_span(strongSide) <= 1
-                 && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-            sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(51) : ScaleFactor(37);
+        else
+        {
+            int material = nonPawnMaterialSymmetricPawnChains(pos, ei, strongSide);
+
+            if (material > -1)
+            {
+                // Positions with equal material and compact symmetrical pawn chains are drawish
+                sf = ScaleFactor(25 + material);
+            }
+            // Endings where weaker side can place his king in front of the opponent's
+            // pawns are drawish.
+            else if (    abs(eg) <= BishopValueEg
+                     &&  ei.pi->pawn_span(strongSide) <= 1
+                     && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
+                sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(51) : ScaleFactor(37);
+        }
     }
 
     return sf;
