@@ -557,7 +557,7 @@ namespace {
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth, predictedDepth;
-    Value bestValue, value, ttValue, eval, nullValue;
+    Value bestValue, value, ttValue, eval, nullValue, futilityValue;
     bool ttHit, inCheck, givesCheck, singularExtensionNode, improving;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning;
     Piece moved_piece;
@@ -723,9 +723,16 @@ namespace {
     if (   !rootNode
         &&  depth < 7 * ONE_PLY
         &&  eval - futility_margin(depth) >= beta
-        &&  eval < VALUE_KNOWN_WIN  // Do not return unproven wins
         &&  pos.non_pawn_material(pos.side_to_move()))
-        return eval - futility_margin(depth);
+    {
+        if (eval < VALUE_KNOWN_WIN)
+            return eval - futility_margin(depth);
+        else {
+            futilityValue = qsearch<NonPV, false>(pos, ss, beta + futility_margin(depth) - 1, beta + futility_margin(depth), DEPTH_ZERO) - futility_margin(depth);
+            if(futilityValue >= beta)
+                return futilityValue;
+        }
+    }
 
     // Step 8. Null move search with verification search (is omitted in PV nodes)
     if (   !PvNode
