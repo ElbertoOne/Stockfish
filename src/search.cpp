@@ -966,8 +966,8 @@ moves_loop: // When in check search starts from here
           bool isKiller = (move == ss->killers[0] || move == ss->killers[1]);
 
           // Increase reduction for cut nodes that are not killers
-          if (cutNode && !isKiller)
-              r += 2 * ONE_PLY;
+          if (cutNode)
+              r += !isKiller * 2 * ONE_PLY;
 
           // Decrease reduction for:
           // 1. Killers
