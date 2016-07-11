@@ -974,7 +974,7 @@ moves_loop: // When in check search starts from here
           else if (   type_of(move) == NORMAL
                    && type_of(pos.piece_on(to_sq(move))) != PAWN
                    && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
-              r -= 2 * ONE_PLY;
+              r -= 3 * ONE_PLY;
 
           // Decrease/increase reduction for moves with a good/bad history
           int rHist = (val - 10000) / 20000;
