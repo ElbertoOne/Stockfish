@@ -719,8 +719,11 @@ namespace {
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
 
+    int blockedPawns =  popcount( (pos.pieces(WHITE, PAWN) & shift_bb<DELTA_S>(pos.pieces()))
+                                | (pos.pieces(BLACK, PAWN) & shift_bb<DELTA_N>(pos.pieces())) );
+
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
+    int initiative = 8 * (asymmetry + kingDistance - 15) + 14 * pawns - 4 * blockedPawns;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
