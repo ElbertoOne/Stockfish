@@ -753,7 +753,10 @@ namespace {
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
             else
-                sf = ScaleFactor(46);
+            {
+                int material = pos.non_pawn_material(strongSide) / PawnValueMg;
+                sf = ScaleFactor(19 + material);
+            }
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
