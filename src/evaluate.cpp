@@ -23,7 +23,6 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -755,7 +754,7 @@ namespace {
             // a bit drawish, but not as drawish as with only the two bishops.
             else
             {
-                sf = (pos.count<QUEEN>(strongSide)  >= 1 || pos.count<ROOK>(strongSide) >= 1) ? ScaleFactor(55) : ScaleFactor(40);
+                sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(55) : ScaleFactor(31);
             }
         }
         // Endings where weaker side can place his king in front of the opponent's
