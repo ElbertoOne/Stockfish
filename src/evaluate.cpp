@@ -663,6 +663,23 @@ namespace {
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
     }
 
+    //Give a penalty when there is a threat of a passed pawn because of an undefended attacked pawn with an enemy pawn opposing it.
+    b = pos.pieces(Us, PAWN) & (ei.attackedBy[Them][BISHOP] | ei.attackedBy[Them][KNIGHT] | ei.attackedBy[Them][QUEEN] | ei.attackedBy[Them][ROOK] | ei.attackedBy[Them][KING]) & ~ei.attackedBy[Us][ALL_PIECES];
+    Square s;
+
+    if (b)
+    {
+        Bitboard theirPawns = pos.pieces(Them, PAWN);
+        const Square* pl = pos.squares<PAWN>(Us);
+        while ((s = *pl++) != SQ_NONE)
+        {
+            if (theirPawns & forward_bb(Us, s))
+            {
+                score += make_score(-20, -20);
+            }
+        }
+    }
+
     if (DoTrace)
         Trace::add(PASSED, Us, score);
 
