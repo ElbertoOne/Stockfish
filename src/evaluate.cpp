@@ -685,10 +685,19 @@ namespace {
       Us == WHITE ? (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank2BB | Rank3BB | Rank4BB)
                   : (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank7BB | Rank6BB | Rank5BB);
 
+    const Bitboard SpaceMask2 =
+      Us == WHITE ? ((FileABB | FileBBB | FileGBB | FileHBB) & (Rank2BB | Rank3BB)) | ((FileBBB | FileCBB | FileDBB | FileEBB | FileFBB | FileGBB) & (Rank1BB))
+                  : ((FileABB | FileBBB | FileGBB | FileHBB) & (Rank7BB | Rank6BB)) | ((FileBBB | FileCBB | FileDBB | FileEBB | FileFBB | FileGBB) & (Rank8BB));
+
     // Find the safe squares for our pieces inside the area defined by
     // SpaceMask. A square is unsafe if it is attacked by an enemy
     // pawn, or if it is undefended and attacked by an enemy piece.
     Bitboard safe =   SpaceMask
+                   & ~pos.pieces(Us, PAWN)
+                   & ~ei.attackedBy[Them][PAWN]
+                   & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
+
+    Bitboard safe2 =   SpaceMask2
                    & ~pos.pieces(Us, PAWN)
                    & ~ei.attackedBy[Them][PAWN]
                    & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
@@ -700,13 +709,18 @@ namespace {
 
     // Since SpaceMask[Us] is fully on our half of the board...
     assert(unsigned(safe >> (Us == WHITE ? 32 : 0)) == 0);
+    assert(unsigned(safe2 >> (Us == WHITE ? 32 : 0)) == 0);
 
     // ...count safe + (behind & safe) with a single popcount
     int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
     int weight =  pos.count<KNIGHT>(Us) + pos.count<BISHOP>(Us)
                 + pos.count<KNIGHT>(Them) + pos.count<BISHOP>(Them);
 
-    return make_score(bonus * weight * weight * 2 / 11, 0);
+    // ...count safe2 + (behind & safe2) with a single popcount
+    int bonus2 = popcount((Us == WHITE ? safe2 << 32 : safe2 >> 32) | (behind & safe));
+    int weight2 =  pos.count<ROOK>(Us) + pos.count<ROOK>(Them);
+
+    return make_score(bonus * weight * weight * 2 / 11 + bonus2 * weight2 * weight2 * 2 / 11, 0);
   }
 
 
