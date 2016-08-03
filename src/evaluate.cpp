@@ -720,7 +720,7 @@ namespace {
     int bonus2 = popcount((Us == WHITE ? safe2 << 32 : safe2 >> 32) | (behind & safe));
     int weight2 =  pos.count<ROOK>(Us) + pos.count<ROOK>(Them);
 
-    return make_score(bonus * weight * weight * 2 / 11 + bonus2 * weight2 * weight2 * 2 / 11, 0);
+    return make_score(bonus * weight * weight * 2 / 11 + bonus2 * weight2 * weight2 / 11, 0);
   }
 
 
