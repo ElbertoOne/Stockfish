@@ -687,8 +687,8 @@ namespace {
                   : (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank7BB | Rank6BB | Rank5BB);
 
     const Bitboard SpaceMaskRooks =
-      Us == WHITE ? ((Rank2BB | Rank3BB)) | ((FileBBB | FileCBB | FileDBB | FileEBB | FileFBB | FileGBB) & (Rank1BB))
-                  : ((Rank7BB | Rank6BB)) | ((FileBBB | FileCBB | FileDBB | FileEBB | FileFBB | FileGBB) & (Rank8BB));
+      Us == WHITE ? ((FileBBB | FileCBB | FileDBB | FileEBB | FileFBB | FileGBB) & (Rank1BB))
+                  : ((FileBBB | FileCBB | FileDBB | FileEBB | FileFBB | FileGBB) & (Rank8BB));
 
     // Find the safe squares for our pieces inside the area defined by
     // SpaceMaskMinors and SpaceMaskRooks.
@@ -722,7 +722,7 @@ namespace {
     int bonusRooks = popcount((Us == WHITE ? safeRooks << 32 : safeRooks >> 32) | (behind & safeRooks));
     int weightRooks =  pos.count<ROOK>(Us) + pos.count<ROOK>(Them);
 
-    return make_score(bonusMinors * weightMinors * weightMinors * 2 / 11 + bonusRooks * weightRooks * weightRooks / 20, 0);
+    return make_score(bonusMinors * weightMinors * weightMinors * 2 / 11 + bonusRooks * weightRooks * weightRooks / 11, 0);
   }
 
 
