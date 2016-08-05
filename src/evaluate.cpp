@@ -221,6 +221,14 @@ namespace {
   const int BishopCheck       = 48;
   const int KnightCheck       = 78;
 
+  int OppBishopA = 31;
+  int OppBishopB = 21;
+  int OppBishopC = 41;
+  int OppBishopD = 46;
+  int OppBishopE = 41;
+  int OppBishopF = 51;
+  TUNE(OppBishopA, OppBishopB, OppBishopC, OppBishopD, OppBishopE, OppBishopF);
+
 
   // eval_init() initializes king and attack bitboards for a given color
   // adding pawn attacks. To be done at the beginning of the evaluation.
@@ -744,16 +752,27 @@ namespace {
     {
         if (pos.opposite_bishops())
         {
+            bool hasWeakPawns = pos.count<PAWN>(~strongSide) > 0;
+            //If the pawns of the weaker side are on squares of the same color
+            //as the weaker side's bishop, then it has more chances of drawing
+            bool pawnBishopSameColor = ei.pi->pawns_on_same_color_squares(~strongSide, pos.square<BISHOP>(~strongSide)) == pos.count<PAWN>(~strongSide);
+
             // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
-            // is almost a draw, in case of KBP vs KB, it is even more a draw.
+            // is almost a draw, in case of KBP vs KB or KBPP vs KB with doubled pawns, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
-
+            {
+                if (ei.pi->pawn_span(strongSide))
+                {
+                    sf = !hasWeakPawns ? ScaleFactor(OppBishopA) : pawnBishopSameColor ? ScaleFactor(OppBishopB) : ScaleFactor(OppBishopC);
+                }
+                else
+                    sf = ScaleFactor(9);
+            }
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
             else
-                sf = ScaleFactor(46);
+                sf = !hasWeakPawns ? ScaleFactor(OppBishopD) : pawnBishopSameColor ? ScaleFactor(OppBishopE) : ScaleFactor(OppBishopF);
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
