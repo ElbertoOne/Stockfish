@@ -748,33 +748,7 @@ namespace {
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-            {
-                if (more_than_one(pos.pieces(PAWN)))
-                {
-                    bool wrongRookPawn = false;
-                    Bitboard strongPawns = pos.pieces(strongSide, PAWN);
-                    Bitboard rookPawn = strongPawns & (FileABB | FileHBB);
-                    if (popcount(rookPawn) == 1)
-                    {
-                        File rookFile = FILE_A;
-                        if (file_of(lsb(strongPawns)) == FILE_H || file_of(msb(strongPawns)) == FILE_H)
-                        {
-                            rookFile = FILE_H;
-                        }
-                        Square bishopSq = pos.square<BISHOP>(~strongSide);
-                        Square queeningSq = relative_square(strongSide, make_square(rookFile, RANK_8));
-                        if (!opposite_colors(queeningSq, bishopSq))
-                        {
-                            wrongRookPawn = true;
-                        }
-                    }
-                    sf = wrongRookPawn ? ScaleFactor(15) : ScaleFactor(32);
-                }
-                else
-                {
-                    sf = ScaleFactor(9);
-                }
-            }
+                sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(11 + 10 * ei.pi->pawn_span(strongSide)) : ScaleFactor(9);
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
