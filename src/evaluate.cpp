@@ -752,24 +752,9 @@ namespace {
                 if (ei.pi->pawn_span(strongSide))
                 {
                     bool hasWeakPawns = pos.count<PAWN>(~strongSide) > 0;
-                    bool pawnBishopSameColor = hasWeakPawns;
                     //If the pawns of the weaker side are on squares of the same color
                     //as the weaker side's bishop, then it has more chances of drawing
-                    if (hasWeakPawns)
-                    {
-                        const Square* weakPawns = pos.squares<PAWN>(~strongSide);
-                        Square bishopSq = pos.square<BISHOP>(~strongSide);
-                        Square s;
-
-                        while ((s = *weakPawns++) != SQ_NONE)
-                        {
-                            if (opposite_colors(s, bishopSq))
-                            {
-                                pawnBishopSameColor = false;
-                                break;
-                            }
-                        }
-                    }
+                    bool pawnBishopSameColor = ei.pi->pawns_on_same_color_squares(~strongSide, pos.square<BISHOP>(~strongSide)) == pos.count<PAWN>(~strongSide);
                     sf = !hasWeakPawns ? ScaleFactor(31) : pawnBishopSameColor ? ScaleFactor(21) : ScaleFactor(41);
                 }
                 else
