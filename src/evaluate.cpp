@@ -745,11 +745,36 @@ namespace {
         if (pos.opposite_bishops())
         {
             // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
-            // is almost a draw, in case of KBP vs KB, it is even more a draw.
+            // is almost a draw, in case of KBP vs KB or KBPP vs KB with doubled pawns, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(11 + 10 * ei.pi->pawn_span(strongSide)) : ScaleFactor(9);
+            {
+                if (ei.pi->pawn_span(strongSide))
+                {
+                    bool hasWeakPawns = pos.count<PAWN>(~strongSide) > 0;
+                    bool pawnBishopSameColor = hasWeakPawns;
+                    //If the pawns of the weaker side are on squares of the same color
+                    //as the weaker side's bishop, then it has more chances of drawing
+                    if (hasWeakPawns)
+                    {
+                        const Square* weakPawns = pos.squares<PAWN>(~strongSide);
+                        Square bishopSq = pos.square<BISHOP>(~strongSide);
+                        Square s;
 
+                        while ((s = *weakPawns++) != SQ_NONE)
+                        {
+                            if (opposite_colors(s, bishopSq))
+                            {
+                                pawnBishopSameColor = false;
+                                break;
+                            }
+                        }
+                    }
+                    sf = !hasWeakPawns ? ScaleFactor(31) : pawnBishopSameColor ? ScaleFactor(21) : ScaleFactor(41);
+                }
+                else
+                    sf = ScaleFactor(9);
+            }
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
             else
