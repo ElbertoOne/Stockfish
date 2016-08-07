@@ -744,6 +744,11 @@ namespace {
     {
         if (pos.opposite_bishops())
         {
+            bool hasWeakPawns = pos.count<PAWN>(~strongSide) > 0;
+            //If the pawns of the weaker side are on squares of the same color
+            //as the weaker side's bishop, then it has more chances of drawing
+            bool pawnBishopSameColor = ei.pi->pawns_on_same_color_squares(~strongSide, pos.square<BISHOP>(~strongSide)) == pos.count<PAWN>(~strongSide);
+
             // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
             // is almost a draw, in case of KBP vs KB or KBPP vs KB with doubled pawns, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
@@ -751,11 +756,7 @@ namespace {
             {
                 if (ei.pi->pawn_span(strongSide))
                 {
-                    bool hasWeakPawns = pos.count<PAWN>(~strongSide) > 0;
-                    //If the pawns of the weaker side are on squares of the same color
-                    //as the weaker side's bishop, then it has more chances of drawing
-                    bool pawnBishopSameColor = ei.pi->pawns_on_same_color_squares(~strongSide, pos.square<BISHOP>(~strongSide)) == pos.count<PAWN>(~strongSide);
-                    sf = !hasWeakPawns ? ScaleFactor(31) : pawnBishopSameColor ? ScaleFactor(21) : ScaleFactor(41);
+                    sf = !hasWeakPawns ? ScaleFactor(31) : pawnBishopSameColor ? ScaleFactor(22) : ScaleFactor(40);
                 }
                 else
                     sf = ScaleFactor(9);
@@ -763,7 +764,7 @@ namespace {
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
             else
-                sf = ScaleFactor(46);
+                sf = !hasWeakPawns ? ScaleFactor(45) : pawnBishopSameColor ? ScaleFactor(41) : ScaleFactor(49);
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
