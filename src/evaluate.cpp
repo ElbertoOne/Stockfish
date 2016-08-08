@@ -765,7 +765,7 @@ namespace {
                     if (ei.pi->pawn_asymmetry() <= 1)
                         sfValue -= 5;
                     else
-                        sfValue += 5;
+                       sfValue += 5;
                     //if there is no passed pawn, more chances of drawing, otherwise less chances
                     if (!pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
                         sfValue -= 5;
@@ -792,9 +792,9 @@ namespace {
                 }
                 //if the pawn asymmetry is small, more chances of drawing, otherwise less chances
                 if (ei.pi->pawn_asymmetry() <= 1)
-                    sfValue -= 2;
+                    sfValue -= 3;
                 else
-                    sfValue += 2;
+                   sfValue += 3;
                 //if there is no passed pawn, more chances of drawing, otherwise less chances
                 if (!pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
                     sfValue -= 2;
