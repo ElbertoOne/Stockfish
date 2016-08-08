@@ -757,20 +757,17 @@ namespace {
                         //If the pawns of the weaker side are on squares of the same color
                         //as the weaker side's bishop, then it has more chances of drawing
                         if (ei.pi->pawns_on_same_color_squares(~strongSide, pos.square<BISHOP>(~strongSide)) == pos.count<PAWN>(~strongSide))
-                            sfValue -= 9;
+                            sfValue -= 10;
                         else
-                            sfValue += 9;
+                            sfValue += 10;
+                        //if all pawns of the strong side are blocked, more drawish
+                        if ((strongSide == WHITE
+                                && popcount(pos.pieces(WHITE, PAWN) & (shift_bb<DELTA_S>(pos.pieces()))) == pos.count<PAWN>(strongSide))
+                            || (strongSide == BLACK
+                                && popcount(pos.pieces(BLACK, PAWN) & (shift_bb<DELTA_N>(pos.pieces()))) == pos.count<PAWN>(strongSide)))
+                            sfValue -= 5;
                     }
-                    //if the pawn asymmetry is small, more chances of drawing, otherwise less chances
-                    if (ei.pi->pawn_asymmetry() <= 1)
-                        sfValue -= 5;
-                    else
-                       sfValue += 5;
-                    //if there is no passed pawn, more chances of drawing, otherwise less chances
-                    if (!pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-                        sfValue -= 5;
-                    else
-                        sfValue += 5;
+
                     sf = ScaleFactor(sfValue);
                 }
                 else
@@ -780,26 +777,24 @@ namespace {
             // a bit drawish, but not as drawish as with only the two bishops.
             else
             {
-                int sfValue = 46;
+                int sfValue = 44;
                 if (pos.count<PAWN>(~strongSide) > 0)
                 {
                     //If the pawns of the weaker side are on squares of the same color
                     //as the weaker side's bishop, then it has more chances of drawing
                     if (ei.pi->pawns_on_same_color_squares(~strongSide, pos.square<BISHOP>(~strongSide)) == pos.count<PAWN>(~strongSide))
-                        sfValue -= 5;
+                        sfValue -= 4;
                     else
-                        sfValue += 3;
+                        sfValue += 4;
+
+                    //if all pawns of the strong side are blocked, more drawish
+                    if ((strongSide == WHITE
+                            && popcount(pos.pieces(WHITE, PAWN) & (shift_bb<DELTA_S>(pos.pieces()))) == pos.count<PAWN>(strongSide))
+                        || (strongSide == BLACK
+                            && popcount(pos.pieces(BLACK, PAWN) & (shift_bb<DELTA_N>(pos.pieces()))) == pos.count<PAWN>(strongSide)))
+                        sfValue -= 5;
                 }
-                //if the pawn asymmetry is small, more chances of drawing, otherwise less chances
-                if (ei.pi->pawn_asymmetry() <= 1)
-                    sfValue -= 3;
-                else
-                   sfValue += 3;
-                //if there is no passed pawn, more chances of drawing, otherwise less chances
-                if (!pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-                    sfValue -= 2;
-                else
-                    sfValue += 2;
+
                 sf = ScaleFactor(sfValue);
             }
         }
