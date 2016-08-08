@@ -757,16 +757,15 @@ namespace {
                         //If the pawns of the weaker side are on squares of the same color
                         //as the weaker side's bishop, then it has more chances of drawing
                         if (ei.pi->pawns_on_same_color_squares(~strongSide, pos.square<BISHOP>(~strongSide)) == pos.count<PAWN>(~strongSide))
-                            sfValue -= 10;
+                            sfValue -= 9;
                         else
-                            sfValue += 10;
-                        //if all pawns of the strong side are blocked, more drawish
-                        if ((strongSide == WHITE
-                                && popcount(pos.pieces(WHITE, PAWN) & (shift_bb<DELTA_S>(pos.pieces()))) == pos.count<PAWN>(strongSide))
-                            || (strongSide == BLACK
-                                && popcount(pos.pieces(BLACK, PAWN) & (shift_bb<DELTA_N>(pos.pieces()))) == pos.count<PAWN>(strongSide)))
-                            sfValue -= 5;
+                            sfValue += 9;
                     }
+
+                    //If there are pawns on the stronger side that are on squares of the same color
+                    //as the weaker side's bishop, then it has more chances of drawing
+                    if (ei.pi->pawns_on_same_color_squares(strongSide, pos.square<BISHOP>(~strongSide)) > 0)
+                        sfValue -= 4;
 
                     sf = ScaleFactor(sfValue);
                 }
@@ -777,7 +776,7 @@ namespace {
             // a bit drawish, but not as drawish as with only the two bishops.
             else
             {
-                int sfValue = 44;
+                int sfValue = 45;
                 if (pos.count<PAWN>(~strongSide) > 0)
                 {
                     //If the pawns of the weaker side are on squares of the same color
@@ -786,14 +785,12 @@ namespace {
                         sfValue -= 4;
                     else
                         sfValue += 4;
-
-                    //if all pawns of the strong side are blocked, more drawish
-                    if ((strongSide == WHITE
-                            && popcount(pos.pieces(WHITE, PAWN) & (shift_bb<DELTA_S>(pos.pieces()))) == pos.count<PAWN>(strongSide))
-                        || (strongSide == BLACK
-                            && popcount(pos.pieces(BLACK, PAWN) & (shift_bb<DELTA_N>(pos.pieces()))) == pos.count<PAWN>(strongSide)))
-                        sfValue -= 5;
                 }
+
+                //If there are pawns on the stronger side that are on squares of the same color
+                //as the weaker side's bishop, then it has more chances of drawing
+                if (ei.pi->pawns_on_same_color_squares(strongSide, pos.square<BISHOP>(~strongSide)) > 0)
+                    sfValue -= 2;
 
                 sf = ScaleFactor(sfValue);
             }
