@@ -745,15 +745,55 @@ namespace {
         if (pos.opposite_bishops())
         {
             // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
-            // is almost a draw, in case of KBP vs KB, it is even more a draw.
+            // is almost a draw, in case of KBP vs KB or KBPP vs KB with doubled pawns, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
+            {
+                if (ei.pi->pawn_span(strongSide))
+                {
+                    int sfValue = 31;
+                    if (pos.count<PAWN>(~strongSide) > 0)
+                    {
+                        //If the pawns of the weaker side are on squares of the same color
+                        //as the weaker side's bishop, then it has more chances of drawing
+                        if (ei.pi->pawns_on_same_color_squares(~strongSide, pos.square<BISHOP>(~strongSide)) == pos.count<PAWN>(~strongSide))
+                            sfValue -= 9;
+                        else
+                            sfValue += 9;
+                    }
 
+                    //If there are pawns on the stronger side that are on squares of the same color
+                    //as the weaker side's bishop, then it has more chances of drawing
+                    if (ei.pi->pawns_on_same_color_squares(strongSide, pos.square<BISHOP>(~strongSide)) > 0)
+                        sfValue -= 4;
+
+                    sf = ScaleFactor(sfValue);
+                }
+                else
+                    sf = ScaleFactor(9);
+            }
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
             else
-                sf = ScaleFactor(46);
+           {
+                int sfValue = 45;
+                if (pos.count<PAWN>(~strongSide) > 0)
+                {
+                    //If the pawns of the weaker side are on squares of the same color
+                    //as the weaker side's bishop, then it has more chances of drawing
+                    if (ei.pi->pawns_on_same_color_squares(~strongSide, pos.square<BISHOP>(~strongSide)) == pos.count<PAWN>(~strongSide))
+                        sfValue -= 4;
+                    else
+                        sfValue += 4;
+                }
+
+                //If there are pawns on the stronger side that are on squares of the same color
+                //as the weaker side's bishop, then it has more chances of drawing
+                if (ei.pi->pawns_on_same_color_squares(strongSide, pos.square<BISHOP>(~strongSide)) > 0)
+                    sfValue -= 2;
+
+                sf = ScaleFactor(sfValue);
+            }
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
