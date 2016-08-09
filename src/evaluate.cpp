@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -765,7 +766,9 @@ namespace {
                     //If there are pawns on the stronger side that are on squares of the same color
                     //as the weaker side's bishop, then it has more chances of drawing
                     if (ei.pi->pawns_on_same_color_squares(strongSide, pos.square<BISHOP>(~strongSide)) > 0)
-                        sfValue -= 4;
+                        sfValue -= 6;
+                    else
+                        sfValue += 3;
 
                     sf = ScaleFactor(sfValue);
                 }
@@ -790,7 +793,9 @@ namespace {
                 //If there are pawns on the stronger side that are on squares of the same color
                 //as the weaker side's bishop, then it has more chances of drawing
                 if (ei.pi->pawns_on_same_color_squares(strongSide, pos.square<BISHOP>(~strongSide)) > 0)
-                    sfValue -= 2;
+                    sfValue -= 4;
+                else
+                    sfValue += 2;
 
                 sf = ScaleFactor(sfValue);
             }
