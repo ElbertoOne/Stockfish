@@ -765,9 +765,7 @@ namespace {
                     //If there are pawns on the stronger side that are on squares of the same color
                     //as the weaker side's bishop, then it has more chances of drawing
                     if (ei.pi->pawns_on_same_color_squares(strongSide, pos.square<BISHOP>(~strongSide)) > 0)
-                        sfValue -= 6;
-                    else
-                        sfValue += 3;
+                        sfValue -= 4;
 
                     sf = ScaleFactor(sfValue);
                 }
@@ -777,27 +775,7 @@ namespace {
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
             else
-            {
-                int sfValue = 45;
-                if (pos.count<PAWN>(~strongSide) > 0)
-                {
-                    //If the pawns of the weaker side are on squares of the same color
-                    //as the weaker side's bishop, then it has more chances of drawing
-                    if (ei.pi->pawns_on_same_color_squares(~strongSide, pos.square<BISHOP>(~strongSide)) == pos.count<PAWN>(~strongSide))
-                        sfValue -= 4;
-                    else
-                        sfValue += 4;
-                }
-
-                //If there are pawns on the stronger side that are on squares of the same color
-                //as the weaker side's bishop, then it has more chances of drawing
-                if (ei.pi->pawns_on_same_color_squares(strongSide, pos.square<BISHOP>(~strongSide)) > 0)
-                    sfValue -= 4;
-                else
-                    sfValue += 2;
-
-                sf = ScaleFactor(sfValue);
-            }
+                sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(55) : ScaleFactor(46);
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
