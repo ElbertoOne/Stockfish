@@ -748,7 +748,45 @@ namespace {
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
+            {
+                if (ei.pi->pawn_span(strongSide))
+                {
+                    //Check for fortress. This is the case if all
+                    //pawns of the weak side are on the same color of the bishop
+                    //and when all pawns of the strong side are blocked or it's up square is under control.
+                    bool fortress = true;
+                    if (pos.count<PAWN>(~strongSide) > 0)
+                    {
+                        //Check if all pawns of the weak side are on the same color of the bishop
+                        if (ei.pi->pawns_on_same_color_squares(~strongSide, pos.square<BISHOP>(~strongSide)) != pos.count<PAWN>(~strongSide))
+                            fortress = false;
+                    }
+
+                    if (fortress)
+                    {
+                        const Square* pl = pos.squares<PAWN>(strongSide);
+                        Square s = SQ_NONE;
+
+                        while ((s = *pl++) != SQ_NONE)
+                        {
+                            Square blockSq = s + pawn_push(strongSide);
+                            if (!((pos.pieces(~strongSide) & blockSq)
+                                || (ei.attackedBy[~strongSide][ALL_PIECES] & ~ei.attackedBy[~strongSide][PAWN] & blockSq)))
+                            {
+                                fortress = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (fortress)
+                        sf = ScaleFactor(9);
+                    else
+                        sf = ScaleFactor(31);
+                }
+                else
+                    sf = ScaleFactor(9);
+            }
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
@@ -761,6 +799,39 @@ namespace {
                  &&  ei.pi->pawn_span(strongSide) <= 1
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(51) : ScaleFactor(37);
+        // Check for fortress if the strong side has a bishop and the weak side
+        // can block it's pawns.
+        else if ( pos.non_pawn_material(strongSide) == BishopValueMg
+                 && pos.non_pawn_material(~strongSide) < BishopValueMg)
+        {
+            bool fortress = true;
+
+            if (pos.count<PAWN>(~strongSide) > 0)
+            {
+                //Check if all pawns of the weak side are not on the same color of the bishop of the strongSide
+                if (ei.pi->pawns_on_same_color_squares(~strongSide, pos.square<BISHOP>(strongSide)) != 0)
+                    fortress = false;
+            }
+
+            if (fortress)
+            {
+                const Square* pl = pos.squares<PAWN>(strongSide);
+                Square s = SQ_NONE;
+
+                while ((s = *pl++) != SQ_NONE)
+                {
+                    Square blockSq = s + pawn_push(strongSide);
+                    if (!((pos.pieces(~strongSide) & blockSq)
+                        || (ei.attackedBy[~strongSide][ALL_PIECES] & ~ei.attackedBy[~strongSide][PAWN] & blockSq)))
+                    {
+                        fortress = false;
+                        break;
+                    }
+                }
+            }
+            if (fortress)
+                sf = ScaleFactor(9);
+        }
     }
 
     return sf;
