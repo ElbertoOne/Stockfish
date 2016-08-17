@@ -137,7 +137,7 @@ namespace {
   // Outpost[knight/bishop][supported by pawn] contains bonuses for knights and
   // bishops outposts, bigger if outpost piece is supported by a pawn.
   const Score Outpost[][2] = {
-    { S(43,11), S(65,20) }, // Knights
+    { S(48,13), S(70,23) }, // Knights
     { S(20, 3), S(29, 8) }  // Bishops
   };
 
