@@ -137,7 +137,7 @@ namespace {
   // Outpost[knight/bishop][supported by pawn] contains bonuses for knights and
   // bishops outposts, bigger if outpost piece is supported by a pawn.
   const Score Outpost[][2] = {
-    { S(48,13), S(70,23) }, // Knights
+    { S(42,11), S(63,20) }, // Knights
     { S(20, 3), S(29, 8) }  // Bishops
   };
 
@@ -302,7 +302,13 @@ namespace {
             // Bonus for outpost squares
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
             if (bb & s)
-                score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+            {
+                bool supportedByPawn = !!(ei.attackedBy[Us][PAWN] & s);
+                score += Outpost[Pt == BISHOP][supportedByPawn];
+                // Give additional bonus if a knight on an outpost square cannot be attacked by minors.
+                if (Pt == KNIGHT && pos.count<KNIGHT>(Them) == 0 && (pos.count<BISHOP>(Them) == 0 || (pos.count<BISHOP>(Them) == 1 && opposite_colors(pos.square<BISHOP>(Them), s))))
+                    score += supportedByPawn ? make_score(9, 3) : make_score(4, 1);
+            }
             else
             {
                 bb &= b & ~pos.pieces(Us);
