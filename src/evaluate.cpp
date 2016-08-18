@@ -136,11 +136,20 @@ namespace {
 
   // Outpost[knight/bishop][supported by pawn] contains bonuses for knights and
   // bishops outposts, bigger if outpost piece is supported by a pawn.
-  const Score Outpost[][2] = {
+  Score Outpost[][2] = {
     { S(43,11), S(65,20) }, // Knights
     { S(20, 3), S(29, 8) }  // Bishops
   };
 
+  // SafeOutpost[knight/bishop][supported by pawn] contains bonuses for knights and
+  // bishops outposts that cannot be attacked by minors,
+  // bigger bonus if outpost piece is supported by a pawn.
+  Score SafeOutpost[][2] = {
+    { S(47,12), S(74,23) }, // Knights
+    { S(20, 3), S(29, 8) }  // Bishops
+  };
+
+  TUNE(Outpost, SafeOutpost);
   // ReachableOutpost[knight/bishop][supported by pawn] contains bonuses for
   // knights and bishops which can reach an outpost square in one move, bigger
   // if outpost square is supported by a pawn.
@@ -302,7 +311,12 @@ namespace {
             // Bonus for outpost squares
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
             if (bb & s)
-                score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+            {
+                if (pos.count<KNIGHT>(Them) == 0 && (pos.count<BISHOP>(Them) == 0 || (pos.count<BISHOP>(Them) == 1 && opposite_colors(pos.square<BISHOP>(Them), s))))
+                    score += SafeOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+                else
+                    score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+            }
             else
             {
                 bb &= b & ~pos.pieces(Us);
