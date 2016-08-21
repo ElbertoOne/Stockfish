@@ -966,7 +966,7 @@ moves_loop: // When in check search starts from here
           Depth r = reduction<PvNode>(improving, depth, moveCount);
 
           if (captureOrPromotion)
-              r -= r ? 2 * ONE_PLY : DEPTH_ZERO;
+              r -= r && !cutNode ? ONE_PLY : DEPTH_ZERO;
           else
           {
               Value val = thisThread->history[moved_piece][to_sq(move)]
