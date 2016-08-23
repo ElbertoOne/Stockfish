@@ -195,6 +195,7 @@ namespace {
   const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
+  const Score PawnHoles           = S( 5,  0);
   const Score Unstoppable         = S( 0, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -503,6 +504,7 @@ namespace {
     const Square Right      = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB  : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB  : Rank2BB);
+    const Bitboard TRank6BB = (Us == WHITE ? Rank6BB  : Rank3BB);
 
     enum { Minor, Rook };
 
@@ -570,6 +572,12 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    // Penalty if our pawn structure has holes: empty squares in front of or next
+    // to a pawn that is attacked by them, but not defended by us.
+    b = pos.pieces(Us, PAWN) & ~TRank7BB & ~TRank6BB;
+    b = (shift_bb<Up>(b) | shift_bb<Left>(b) | shift_bb<Right>(b)) & ~pos.pieces(Us, ALL_PIECES) & ~pos.pieces(Them, ALL_PIECES);
+    score -= PawnHoles * popcount(b & ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES]);
 
     // King tropism: firstly, find squares that we attack in the enemy king flank
     b = ei.attackedBy[Us][ALL_PIECES] & KingFlank[Us][file_of(pos.square<KING>(Them))];
