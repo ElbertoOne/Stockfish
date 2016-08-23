@@ -503,7 +503,6 @@ namespace {
     const Square Right      = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB  : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB  : Rank2BB);
-    const Bitboard TRank6BB = (Us == WHITE ? Rank6BB  : Rank3BB);
 
     enum { Minor, Rook };
 
@@ -574,15 +573,15 @@ namespace {
 
     // Penalty if our pawn structure has holes: empty squares in front of or next
     // to a pawn that are attacked by them, but not defended by us.
-    // Only do this in opening and middle game.
-    if (ei.me->game_phase() >= PHASE_MIDGAME)
+    // Only do this in endgame.
+    if (ei.me->game_phase() < PHASE_MIDGAME)
     {
-        // First get our pawns that are not on 6th or 7th rank
-        b = pos.pieces(Us, PAWN) & ~TRank7BB & ~TRank6BB;
+        // First get our pawns
+        b = pos.pieces(Us, PAWN);
         // Then find the empty squares in front and next to it.
         b = (shift_bb<Up>(b) | shift_bb<Left>(b) | shift_bb<Right>(b)) & ~pos.pieces();
         // Count these squares if they are attacked by them and not defended by us.
-        score -= make_score(5 * popcount(b & ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES]), 0);
+        score -= make_score(0, 5 * popcount(b & ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES]));
     }
 
     // King tropism: firstly, find squares that we attack in the enemy king flank
