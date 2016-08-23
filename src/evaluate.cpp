@@ -195,7 +195,6 @@ namespace {
   const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
-  const Score PawnHoles           = S( 5,  0);
   const Score Unstoppable         = S( 0, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -574,10 +573,17 @@ namespace {
     score += ThreatByPawnPush * popcount(b);
 
     // Penalty if our pawn structure has holes: empty squares in front of or next
-    // to a pawn that is attacked by them, but not defended by us.
-    b = pos.pieces(Us, PAWN) & ~TRank7BB & ~TRank6BB;
-    b = (shift_bb<Up>(b) | shift_bb<Left>(b) | shift_bb<Right>(b)) & ~pos.pieces(Us, ALL_PIECES) & ~pos.pieces(Them, ALL_PIECES);
-    score -= PawnHoles * popcount(b & ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES]);
+    // to a pawn that are attacked by them, but not defended by us.
+    // Only do this in opening and middle game.
+    if (ei.me->game_phase() >= PHASE_MIDGAME)
+    {
+        // First get our pawns that are not on 6th or 7th rank
+        b = pos.pieces(Us, PAWN) & ~TRank7BB & ~TRank6BB;
+        // Then find the empty squares in front and next to it.
+        b = (shift_bb<Up>(b) | shift_bb<Left>(b) | shift_bb<Right>(b)) & ~pos.pieces();
+        // Count these squares if they are attacked by them and not defended by us.
+        score -= make_score(5 * popcount(b & ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES]), 0);
+    }
 
     // King tropism: firstly, find squares that we attack in the enemy king flank
     b = ei.attackedBy[Us][ALL_PIECES] & KingFlank[Us][file_of(pos.square<KING>(Them))];
