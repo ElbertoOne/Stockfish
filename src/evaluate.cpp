@@ -748,7 +748,7 @@ namespace {
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = ScaleFactor(std::min(4 + 15 * popcount((strongSide == WHITE ? shift_bb<DELTA_N>(pos.pieces(strongSide, PAWN)) : shift_bb<DELTA_S>(pos.pieces(strongSide, PAWN))) & ~pos.pieces() & ~ei.attackedBy[~strongSide][ALL_PIECES]), 64));
+                sf = ((strongSide == WHITE ? shift_bb<DELTA_N>(pos.pieces(strongSide, PAWN)) : shift_bb<DELTA_S>(pos.pieces(strongSide, PAWN))) & ~pos.pieces() & ~ei.attackedBy[~strongSide][ALL_PIECES]) > 0 ? ScaleFactor(35) : ScaleFactor(5);
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
