@@ -221,6 +221,10 @@ namespace {
   const int BishopCheck       = 48;
   const int KnightCheck       = 78;
 
+  int scaleA = 900;
+  int scaleB = 1300;
+  TUNE(scaleA, scaleB);
+
 
   // eval_init() initializes king and attack bitboards for a given color
   // adding pawn attacks. To be done at the beginning of the evaluation.
@@ -748,8 +752,10 @@ namespace {
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
-
+            {
+                int value = (scaleA + scaleB * popcount((strongSide == WHITE ? shift_bb<DELTA_N>(pos.pieces(strongSide, PAWN)) : shift_bb<DELTA_S>(pos.pieces(strongSide, PAWN))) & ~pos.pieces() & ~ei.attackedBy[~strongSide][ALL_PIECES]))/100;
+                sf = ScaleFactor(std::min(value, 64));
+            }
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
             else
