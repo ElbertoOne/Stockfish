@@ -356,6 +356,10 @@ ScaleFactor Endgame<KBPsK>::operator()(const Position& pos) const {
   assert(pos.non_pawn_material(strongSide) == BishopValueMg);
   assert(pos.count<PAWN>(strongSide) >= 1);
 
+  // Stalemate detection with lone king
+  if (pos.side_to_move() == weakSide && !MoveList<LEGAL>(pos).size())
+    return SCALE_FACTOR_DRAW;
+
   // No assertions about the material of weakSide, because we want draws to
   // be detected even when the weaker side has some pawns.
 
@@ -408,6 +412,23 @@ ScaleFactor Endgame<KBPsK>::operator()(const Position& pos) const {
               && weakKingDist <= strongKingDist)
               return SCALE_FACTOR_DRAW;
       }
+  }
+
+  // Detect drawish opposite bishop endings. If all squares in front of pawns are defended, then the position is drawish.
+  if (pos.non_pawn_material(weakSide) == BishopValueMg && opposite_colors(pos.square<BISHOP>(strongSide), pos.square<BISHOP>(weakSide)))
+  {
+      const Square* pl = pos.squares<PAWN>(strongSide);
+      Square s;
+      while ((s = *pl++) != SQ_NONE)
+      {
+          Square blockSq = s + pawn_push(strongSide);
+          Bitboard blocked = blockSq & pos.pieces();
+          Bitboard protection = pos.attackers_to(blockSq) & pos.pieces(weakSide) & ~pos.pieces(strongSide);
+          bool defended = (blocked | protection) > 0;
+          if (!defended)
+              return SCALE_FACTOR_NONE; //undefended square
+      }
+      return SCALE_FACTOR_DRAW;
   }
 
   return SCALE_FACTOR_NONE;
@@ -700,59 +721,31 @@ ScaleFactor Endgame<KBPPKB>::operator()(const Position& pos) const {
   if (!opposite_colors(wbsq, bbsq))
       return SCALE_FACTOR_NONE;
 
-  Square ksq = pos.square<KING>(weakSide);
   Square psq1 = pos.squares<PAWN>(strongSide)[0];
   Square psq2 = pos.squares<PAWN>(strongSide)[1];
-  Rank r1 = rank_of(psq1);
-  Rank r2 = rank_of(psq2);
   Square blockSq1, blockSq2;
 
   if (relative_rank(strongSide, psq1) > relative_rank(strongSide, psq2))
   {
       blockSq1 = psq1 + pawn_push(strongSide);
-      blockSq2 = make_square(file_of(psq2), rank_of(psq1));
+      blockSq2 = psq2 + pawn_push(strongSide);
   }
   else
   {
       blockSq1 = psq2 + pawn_push(strongSide);
-      blockSq2 = make_square(file_of(psq1), rank_of(psq2));
+      blockSq2 = psq1 + pawn_push(strongSide);
   }
 
-  switch (distance<File>(psq1, psq2))
-  {
-  case 0:
-    // Both pawns are on the same file. It's an easy draw if the defender firmly
-    // controls some square in the frontmost pawn's path.
-    if (   file_of(ksq) == file_of(blockSq1)
-        && relative_rank(strongSide, ksq) >= relative_rank(strongSide, blockSq1)
-        && opposite_colors(ksq, wbsq))
-        return SCALE_FACTOR_DRAW;
-    else
-        return SCALE_FACTOR_NONE;
+  // It's a draw if the square in front of the frontmost pawn is either blocked by the weak side or attacked by it
+  // and either both pawns are on the same file or the square in front of the backward pawn is either blocked by the
+  // weak side or attacked by it.
+  if (   ((blockSq1 & pos.pieces(weakSide)) | (pos.attackers_to(blockSq1) & pos.pieces(weakSide) & ~pos.pieces(strongSide))) > 0
+      && (distance<File>(psq1, psq2) == 0
+         || ((blockSq2 & pos.pieces(weakSide)) | (pos.attackers_to(blockSq2) & pos.pieces(weakSide) & ~pos.pieces(strongSide))) > 0))
+      return SCALE_FACTOR_DRAW;
 
-  case 1:
-    // Pawns on adjacent files. It's a draw if the defender firmly controls the
-    // square in front of the frontmost pawn's path, and the square diagonally
-    // behind this square on the file of the other pawn.
-    if (   ksq == blockSq1
-        && opposite_colors(ksq, wbsq)
-        && (   bbsq == blockSq2
-            || (pos.attacks_from<BISHOP>(blockSq2) & pos.pieces(weakSide, BISHOP))
-            || distance(r1, r2) >= 2))
-        return SCALE_FACTOR_DRAW;
-
-    else if (   ksq == blockSq2
-             && opposite_colors(ksq, wbsq)
-             && (   bbsq == blockSq1
-                 || (pos.attacks_from<BISHOP>(blockSq1) & pos.pieces(weakSide, BISHOP))))
-        return SCALE_FACTOR_DRAW;
-    else
-        return SCALE_FACTOR_NONE;
-
-  default:
-    // The pawns are not on the same file or adjacent files. No scaling.
-    return SCALE_FACTOR_NONE;
-  }
+  else
+      return SCALE_FACTOR_NONE;
 }
 
 
