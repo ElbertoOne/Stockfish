@@ -418,14 +418,19 @@ ScaleFactor Endgame<KBPsK>::operator()(const Position& pos) const {
   if (pos.non_pawn_material(weakSide) == BishopValueMg && opposite_colors(pos.square<BISHOP>(strongSide), pos.square<BISHOP>(weakSide)))
   {
       const Square* pl = pos.squares<PAWN>(strongSide);
-      Square s;
-      while ((s = *pl++) != SQ_NONE)
+      const Square* wl = pos.squares<PAWN>(weakSide);
+      Square s1, s2;
+      while ((s2 = *wl++) != SQ_NONE)
       {
-          Square blockSq = s + pawn_push(strongSide);
-          Bitboard blocked = blockSq & pos.pieces();
+          if ((pos.attackers_to(s2) & pos.pieces(strongSide) & ~pos.pieces(weakSide)) > 0)
+              return SCALE_FACTOR_NONE; //weak side pawn under attack
+      }
+      while ((s1 = *pl++) != SQ_NONE)
+      {
+          Square blockSq = s1 + pawn_push(strongSide);
+          Bitboard blocked = pos.pieces(weakSide) & blockSq;
           Bitboard protection = pos.attackers_to(blockSq) & pos.pieces(weakSide) & ~pos.pieces(strongSide);
-          bool defended = (blocked | protection) > 0;
-          if (!defended)
+          if (!((blocked | protection) > 0))
               return SCALE_FACTOR_NONE; //undefended square
       }
       return SCALE_FACTOR_DRAW;
@@ -739,9 +744,9 @@ ScaleFactor Endgame<KBPPKB>::operator()(const Position& pos) const {
   // It's a draw if the square in front of the frontmost pawn is either blocked by the weak side or attacked by it
   // and either both pawns are on the same file or the square in front of the backward pawn is either blocked by the
   // weak side or attacked by it.
-  if (   ((blockSq1 & pos.pieces(weakSide)) | (pos.attackers_to(blockSq1) & pos.pieces(weakSide) & ~pos.pieces(strongSide))) > 0
+  if (   ((pos.pieces(weakSide) & blockSq1) | (pos.attackers_to(blockSq1) & pos.pieces(weakSide) & ~pos.pieces(strongSide))) > 0
       && (distance<File>(psq1, psq2) == 0
-         || ((blockSq2 & pos.pieces(weakSide)) | (pos.attackers_to(blockSq2) & pos.pieces(weakSide) & ~pos.pieces(strongSide))) > 0))
+         || ((pos.pieces(weakSide) & blockSq2) | (pos.attackers_to(blockSq2) & pos.pieces(weakSide) & ~pos.pieces(strongSide))) > 0))
       return SCALE_FACTOR_DRAW;
 
   else
