@@ -125,7 +125,6 @@ Endgames::Endgames() {
   add<KRPKB>("KRPKB");
   add<KBPKB>("KBPKB");
   add<KBPKN>("KBPKN");
-  add<KBPPKB>("KBPPKB");
   add<KRPPKRP>("KRPPKRP");
 }
 
@@ -427,6 +426,10 @@ ScaleFactor Endgame<KBPsK>::operator()(const Position& pos) const {
       }
       while ((s1 = *pl++) != SQ_NONE)
       {
+          Bitboard path = forward_bb(strongSide, s1);
+          if (path & pos.pieces(strongSide, PAWN))
+              continue; // there is a strong pawn further up the file, skip this one in the evaluation
+
           Square blockSq = s1 + pawn_push(strongSide);
           Bitboard blocked = pos.pieces(weakSide) & blockSq;
           Bitboard protection = pos.attackers_to(blockSq) & pos.pieces(weakSide) & ~pos.pieces(strongSide);
@@ -710,47 +713,6 @@ ScaleFactor Endgame<KBPKB>::operator()(const Position& pos) const {
       }
   }
   return SCALE_FACTOR_NONE;
-}
-
-
-/// KBPP vs KB. It detects a few basic draws with opposite-colored bishops
-template<>
-ScaleFactor Endgame<KBPPKB>::operator()(const Position& pos) const {
-
-  assert(verify_material(pos, strongSide, BishopValueMg, 2));
-  assert(verify_material(pos, weakSide,   BishopValueMg, 0));
-
-  Square wbsq = pos.square<BISHOP>(strongSide);
-  Square bbsq = pos.square<BISHOP>(weakSide);
-
-  if (!opposite_colors(wbsq, bbsq))
-      return SCALE_FACTOR_NONE;
-
-  Square psq1 = pos.squares<PAWN>(strongSide)[0];
-  Square psq2 = pos.squares<PAWN>(strongSide)[1];
-  Square blockSq1, blockSq2;
-
-  if (relative_rank(strongSide, psq1) > relative_rank(strongSide, psq2))
-  {
-      blockSq1 = psq1 + pawn_push(strongSide);
-      blockSq2 = psq2 + pawn_push(strongSide);
-  }
-  else
-  {
-      blockSq1 = psq2 + pawn_push(strongSide);
-      blockSq2 = psq1 + pawn_push(strongSide);
-  }
-
-  // It's a draw if the square in front of the frontmost pawn is either blocked by the weak side or attacked by it
-  // and either both pawns are on the same file or the square in front of the backward pawn is either blocked by the
-  // weak side or attacked by it.
-  if (   ((pos.pieces(weakSide) & blockSq1) | (pos.attackers_to(blockSq1) & pos.pieces(weakSide) & ~pos.pieces(strongSide))) > 0
-      && (distance<File>(psq1, psq2) == 0
-         || ((pos.pieces(weakSide) & blockSq2) | (pos.attackers_to(blockSq2) & pos.pieces(weakSide) & ~pos.pieces(strongSide))) > 0))
-      return SCALE_FACTOR_DRAW;
-
-  else
-      return SCALE_FACTOR_NONE;
 }
 
 
