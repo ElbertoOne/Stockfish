@@ -761,6 +761,14 @@ namespace {
                  &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             sf = ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+        else if (   pos.non_pawn_material(WHITE) == RookValueMg
+                 && pos.non_pawn_material(BLACK) == RookValueMg)
+        {
+            if ((pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide)) == 1)
+                sf = ScaleFactor(40);
+            else
+                sf = ScaleFactor(50);
+        }
     }
 
     return sf;
