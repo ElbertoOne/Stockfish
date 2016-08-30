@@ -716,13 +716,19 @@ namespace {
   // position, i.e., second order bonus/malus based on the known attacking/defending
   // status of the players.
   Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
-
-    int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    Square whiteKingSq = pos.square<KING>(WHITE);
+    Square blackKingSq = pos.square<KING>(BLACK);
+    int kingDistance =  distance<File>(whiteKingSq, blackKingSq)
+                      - distance<Rank>(whiteKingSq, blackKingSq);
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
 
+    // Give bonus for strong side if the king is centralized
+    int wd = distance(whiteKingSq, SQ_D4) + distance(whiteKingSq, SQ_D5) + distance(whiteKingSq, SQ_E4) + distance(whiteKingSq, SQ_E5);
+    int bd = distance(blackKingSq, SQ_D4) + distance(blackKingSq, SQ_D5) + distance(blackKingSq, SQ_E4) + distance(blackKingSq, SQ_E5);
+    int centrality = eg > 0 ? (bd - wd) : (wd - bd);
+
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
+    int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns + centrality;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
