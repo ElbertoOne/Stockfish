@@ -185,7 +185,7 @@ namespace {
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
-  const Score BishopPawns[2]      = {S(8, 14), S(7, -1)};
+  const Score BishopPawns[2]      = {S(8, 14), S(8, 6)};
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
   const Score CloseEnemies        = S( 7,  0);
