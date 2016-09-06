@@ -998,6 +998,11 @@ moves_loop: // When in check search starts from here
                        && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
                   r -= 2 * ONE_PLY;
 
+              // Increase reduction when there is not much non-pawn material on the board
+              if (r >= 2 && pos.count<QUEEN>(WHITE) == 0 && pos.count<QUEEN>(BLACK) == 0
+                         && (pos.count<ALL_PIECES>(WHITE) + pos.count<ALL_PIECES>(BLACK) - pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) <= 4)
+                  r += r / 2;
+
               // Decrease/increase reduction for moves with a good/bad history
               Value val = thisThread->history[moved_piece][to_sq(move)]
                          +    (cmh  ? (*cmh )[moved_piece][to_sq(move)] : VALUE_ZERO)
