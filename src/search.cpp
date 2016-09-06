@@ -987,7 +987,14 @@ moves_loop: // When in check search starts from here
           {
               // Increase reduction for cut nodes
               if (cutNode)
+              {
                   r += 2 * ONE_PLY;
+
+                  // Increase reduction even more when there is not much non-pawn material on the board
+                  if (pos.count<QUEEN>(WHITE) == 0 && pos.count<QUEEN>(BLACK) == 0
+                          && (pos.count<ALL_PIECES>(WHITE) + pos.count<ALL_PIECES>(BLACK) - pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) <= 4)
+                      r += ONE_PLY;
+              }
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
@@ -997,11 +1004,6 @@ moves_loop: // When in check search starts from here
                        && type_of(pos.piece_on(to_sq(move))) != PAWN
                        && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
                   r -= 2 * ONE_PLY;
-
-              // Increase reduction when there is not much non-pawn material on the board
-              if (r >= 2 && pos.count<QUEEN>(WHITE) == 0 && pos.count<QUEEN>(BLACK) == 0
-                         && (pos.count<ALL_PIECES>(WHITE) + pos.count<ALL_PIECES>(BLACK) - pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) <= 4)
-                  r += r / 2;
 
               // Decrease/increase reduction for moves with a good/bad history
               Value val = thisThread->history[moved_piece][to_sq(move)]
