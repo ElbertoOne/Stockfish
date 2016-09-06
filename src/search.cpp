@@ -981,7 +981,7 @@ moves_loop: // When in check search starts from here
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
 
-          if (captureOrPromotion || move == ss->killers[0] || move == ss->killers[1])
+          if (captureOrPromotion || (PvNode && (move == ss->killers[0] || move == ss->killers[1])))
               r -= r ? ONE_PLY : DEPTH_ZERO;
           else
           {
