@@ -981,13 +981,13 @@ moves_loop: // When in check search starts from here
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
 
-          if (captureOrPromotion || (PvNode && (move == ss->killers[0] || move == ss->killers[1])))
+          if (captureOrPromotion)
               r -= r ? ONE_PLY : DEPTH_ZERO;
           else
           {
               // Increase reduction for cut nodes
               if (cutNode)
-                  r += 2 * ONE_PLY;
+                  r += (move != ss->killers[0] && move != ss->killers[1]) * 2 * ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
@@ -1006,6 +1006,10 @@ moves_loop: // When in check search starts from here
                          +    thisThread->fromTo.get(~pos.side_to_move(), move);
               int rHist = (val - 8000) / 20000;
               r = std::max(DEPTH_ZERO, (r / ONE_PLY - rHist) * ONE_PLY);
+
+              // Decrease reduction for killers
+              if (PvNode && (move == ss->killers[0] || move == ss->killers[1]))
+                  r = std::max(DEPTH_ZERO, r - ONE_PLY);
           }
 
           Depth d = std::max(newDepth - r, ONE_PLY);
