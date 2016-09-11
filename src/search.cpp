@@ -563,7 +563,7 @@ namespace {
     Depth extension, newDepth, predictedDepth;
     Value bestValue, value, ttValue, eval, nullValue;
     bool ttHit, inCheck, givesCheck, singularExtensionNode, improving;
-    bool captureOrPromotion, isKiller, isPvKiller, doFullDepthSearch, moveCountPruning;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning;
     Piece moved_piece;
     int moveCount, quietCount;
 
@@ -879,8 +879,6 @@ moves_loop: // When in check search starts from here
 
       extension = DEPTH_ZERO;
       captureOrPromotion = pos.capture_or_promotion(move);
-      isKiller = move == ss->killers[0] || move == ss->killers[1];
-      isPvKiller = PvNode && isKiller;
       moved_piece = pos.moved_piece(move);
 
       givesCheck =  type_of(move) == NORMAL && !pos.discovered_check_candidates()
@@ -927,7 +925,6 @@ moves_loop: // When in check search starts from here
          &&  bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           if (   !captureOrPromotion
-              && !isPvKiller
               && !givesCheck
               && !pos.advanced_pawn_push(move))
           {
@@ -986,17 +983,17 @@ moves_loop: // When in check search starts from here
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
           &&  moveCount > 1
-          && (!captureOrPromotion || !isPvKiller || moveCountPruning))
+          && (!captureOrPromotion || moveCountPruning))
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
 
-          if (captureOrPromotion || isPvKiller)
+          if (captureOrPromotion)
               r -= r ? ONE_PLY : DEPTH_ZERO;
           else
           {
               // Increase reduction for cut nodes
               if (cutNode)
-                  r += !isKiller * 2 * ONE_PLY;
+                  r += 2 * ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
@@ -1005,6 +1002,9 @@ moves_loop: // When in check search starts from here
               else if (   type_of(move) == NORMAL
                        && type_of(pos.piece_on(to_sq(move))) != PAWN
                        && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
+                  r -= 2 * ONE_PLY;
+
+              if (move == ss->killers[0] || move == ss->killers[1])
                   r -= 2 * ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history
@@ -1116,7 +1116,7 @@ moves_loop: // When in check search starts from here
           }
       }
 
-      if (!captureOrPromotion && !isPvKiller && move != bestMove && quietCount < 64)
+      if (!captureOrPromotion && move != bestMove && quietCount < 64)
           quietsSearched[quietCount++] = move;
     }
 
