@@ -993,7 +993,7 @@ moves_loop: // When in check search starts from here
           {
               // Increase reduction for cut nodes
               if (cutNode)
-                  r += 2 * ONE_PLY;
+                  r += (move != ss->killers[0] && move != ss->killers[1]) * 2 * ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
@@ -1002,9 +1002,6 @@ moves_loop: // When in check search starts from here
               else if (   type_of(move) == NORMAL
                        && type_of(pos.piece_on(to_sq(move))) != PAWN
                        && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
-                  r -= 2 * ONE_PLY;
-
-              if (move == ss->killers[0] || move == ss->killers[1])
                   r -= 2 * ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history
