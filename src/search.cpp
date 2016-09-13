@@ -1012,6 +1012,10 @@ moves_loop: // When in check search starts from here
                          +    thisThread->fromTo.get(~pos.side_to_move(), move);
               int rHist = (val - 8000) / 20000;
               r = std::max(DEPTH_ZERO, (r / ONE_PLY - rHist) * ONE_PLY);
+
+              // Decrease reduction for killers
+              if (PvNode && (move == ss->killers[0] || move == ss->killers[1]))
+                  r = std::max(DEPTH_ZERO, r - 2 * ONE_PLY);
           }
 
           Depth d = std::max(newDepth - r, ONE_PLY);
