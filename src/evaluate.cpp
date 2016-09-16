@@ -717,7 +717,8 @@ namespace {
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
+    int r = 100 - pos.rule50_count();
+    int initiative = (8 * (asymmetry + kingDistance - 15) + 12 * pawns) * r * r / 9801;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
@@ -853,13 +854,9 @@ Value Eval::evaluate(const Position& pos) {
   // Evaluate scale factor for the winning side
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));
 
-  // Scale the endgame score with the 50 moves value.
-  double division = double(99) / double(100 - pos.rule50_count());
-  Score egScore = score / division;
-
   // Interpolate between a middlegame and a (scaled by 'sf') endgame score
   Value v =  mg_value(score) * int(ei.me->game_phase())
-           + eg_value(egScore) * int(PHASE_MIDGAME - ei.me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
+           + eg_value(score) * int(PHASE_MIDGAME - ei.me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 
   v /= int(PHASE_MIDGAME);
 
