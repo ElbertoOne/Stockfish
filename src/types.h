@@ -329,6 +329,11 @@ inline Score operator/(Score s, int i) {
   return make_score(mg_value(s) / i, eg_value(s) / i);
 }
 
+/// Division of a Score must be handled separately for each term
+inline Score operator/(Score s, double i) {
+  return make_score(int(double(mg_value(s)) / i), int(double(eg_value(s)) / i));
+}
+
 extern Value PieceValue[PHASE_NB][PIECE_NB];
 
 inline Color operator~(Color c) {
