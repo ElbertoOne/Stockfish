@@ -997,7 +997,7 @@ moves_loop: // When in check search starts from here
                        && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
                   r -= 2 * ONE_PLY;
 
-              r += pos.rule50_count() * ONE_PLY / 8;
+              r -= std::min(2, pos.rule50_count() / 20) * ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history
               Value val = thisThread->history[moved_piece][to_sq(move)]
