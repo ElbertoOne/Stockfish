@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -187,6 +188,7 @@ namespace {
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
+  const Score RookOnFree          = S( 0, 20);
   const Score TrappedRook         = S(92,  0);
   const Score CloseEnemies        = S( 7,  0);
   const Score SafeCheck           = S(20, 20);
@@ -334,6 +336,13 @@ namespace {
             // Bonus for aligning with enemy pawns on the same rank/file
             if (relative_rank(Us, s) >= RANK_5)
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
+
+            // Small bonus if a rook is behind one of our pawns that has no opposing pawns.
+            if (   !pos.attackers_to(s)
+                && (forward_bb(Us, s) & pos.pieces(Us, PAWN))
+                && !(forward_bb(Us, s) & pos.pieces(Them, PAWN))
+                && !(adjacent_files_bb(file_of(s)) & pos.pieces(Them, PAWN)))
+                score += RookOnFree;
 
             // Bonus when on an open or semi-open file
             if (ei.pi->semiopen_file(Us, file_of(s)))
