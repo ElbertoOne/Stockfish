@@ -193,6 +193,7 @@ namespace {
   const Score OtherCheck          = S(10, 10);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
+  const Score WeakPawns           = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
@@ -540,13 +541,14 @@ namespace {
             score += ThreatBySafePawn[type_of(pos.piece_on(pop_lsb(&safeThreats)))];
     }
 
-    // Non-pawn enemies defended by a pawn
-    defended = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & ei.attackedBy[Them][PAWN];
+    // Non-pawn enemies strongly defended
+    defended =   (pos.pieces(Them) ^ pos.pieces(Them, PAWN))
+               & (ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]);
 
-    // Enemies not defended by a pawn and under our attack
+    // Enemies under our attack and not strongly defended
     weak =   pos.pieces(Them)
-          & ~ei.attackedBy[Them][PAWN]
-          &  ei.attackedBy[Us][ALL_PIECES];
+          &  ei.attackedBy[Us][ALL_PIECES]
+          & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]);
 
     // Add a bonus according to the kind of attacking pieces
     if (defended | weak)
@@ -560,6 +562,10 @@ namespace {
             score += Threat[Rook ][type_of(pos.piece_on(pop_lsb(&b)))];
 
         score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
+
+        b = weak & pos.pieces(PAWN) & ei.attackedBy2[Us];
+        if (b)
+            score += WeakPawns;
 
         b = weak & ei.attackedBy[Us][KING];
         if (b)
