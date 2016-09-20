@@ -740,18 +740,9 @@ namespace {
         && (sf == SCALE_FACTOR_NORMAL || sf == SCALE_FACTOR_ONEPAWN))
     {
         if (pos.opposite_bishops())
-        {
-            // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
-            // is almost a draw, in case of KBP vs KB, it is even more a draw.
-            if (   pos.non_pawn_material(WHITE) == BishopValueMg
-                && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = ScaleFactor(4 + 7 * pos.count<PAWN>(strongSide));
+            // Endgame with opposite-colored bishops. More drawish with less material.
+            sf = ScaleFactor(pos.non_pawn_material(strongSide) / PawnValueMg + 5 * pos.count<PAWN>(strongSide));
 
-            // Endgame with opposite-colored bishops, but also other pieces. Still
-            // a bit drawish, but not as drawish as with only the two bishops.
-            else
-                sf = ScaleFactor(15 + 7 * pos.count<PAWN>(strongSide));
-        }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
         else if (    abs(eg) <= BishopValueEg
