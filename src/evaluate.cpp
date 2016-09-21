@@ -741,16 +741,25 @@ namespace {
     {
         if (pos.opposite_bishops())
         {
-            // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
-            // is almost a draw, in case of KBP vs KB, it is even more a draw.
-            if (   pos.non_pawn_material(WHITE) == BishopValueMg
-                && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
+            int whiteMaterial = pos.non_pawn_material(WHITE);
+            int blackMaterial = pos.non_pawn_material(BLACK);
+            if (whiteMaterial == blackMaterial)
+            {
+                // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
+                // is almost a draw, in case of KBP vs KB, it is even more a draw.
+                if (   whiteMaterial == BishopValueMg
+                    && blackMaterial == BishopValueMg)
+                    sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
 
-            // Endgame with opposite-colored bishops, but also other pieces. Still
-            // a bit drawish, but not as drawish as with only the two bishops.
-            else if (pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide) >= 0)
-                sf = ScaleFactor(46);
+                // Endgame with opposite-colored bishops, but also other pieces (equal non-pawn material). Still
+                // a bit drawish, but not as drawish as with only the two bishops.
+                else
+                    sf = ScaleFactor(41);
+            }
+            // Endgame with opposite colored bishops, but also other pieces (uneven material).
+            // Even less drawish.
+            else
+                sf = ScaleFactor(51);
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
