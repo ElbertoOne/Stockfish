@@ -758,17 +758,16 @@ namespace {
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
         {
             int strongCount = pos.count<PAWN>(strongSide);
-            if (strongCount <= 2)
+            if (strongCount < 3)
                 sf = ScaleFactor(37 + 7 * strongCount);
 
-            // Rook endings where the pawn structures are almost symmetrical
+            // Endings where the pawn structures are almost symmetrical
             // and where the pawns are not advanced, are drawish.
-            else if (   pos.non_pawn_material(WHITE) == RookValueMg
-                     && pos.non_pawn_material(BLACK) == RookValueMg
-                     && ei.pi->pawn_asymmetry() <= 1
-                     && strongCount - pos.count<PAWN>(~strongSide) <= 1
+            else if (   pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK)
+                     && ei.pi->pawn_asymmetry() < 2
+                     && strongCount - pos.count<PAWN>(~strongSide) < 2
                      && relative_rank(strongSide, frontmost_sq(strongSide, pos.pieces(strongSide, PAWN))) < RANK_5)
-                sf = ScaleFactor(31);
+                sf = ScaleFactor(51);
         }
     }
 
