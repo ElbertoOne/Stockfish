@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -743,7 +744,7 @@ namespace {
         {
             // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
-            if (   pos.non_pawn_material(WHITE) == BishopValueMg
+            if (pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
                 sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
 
@@ -755,9 +756,24 @@ namespace {
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
         else if (    abs(eg) <= BishopValueEg
-                 &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-            sf = ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+        {
+            int strongCount = pos.count<PAWN>(strongSide);
+            if (strongCount <= 2)
+                sf = ScaleFactor(37 + 7 * strongCount);
+
+            // Rook endings where the pawn structures are almost symmetrical
+            // and where the pawns are not advanced, are drawish.
+            else if (   pos.non_pawn_material(WHITE) == RookValueMg
+                     && pos.non_pawn_material(BLACK) == RookValueMg
+                     && ei.pi->pawn_asymmetry() <= 1
+                     && strongCount - pos.count<PAWN>(~strongSide) <= 1)
+            {
+                Bitboard b = pos.pieces(PAWN) & pos.pieces(strongSide);
+                if (relative_rank(strongSide, frontmost_sq(strongSide, b)) < RANK_5)
+                    sf = ScaleFactor(46);
+            }
+        }
     }
 
     return sf;
