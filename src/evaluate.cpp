@@ -850,8 +850,10 @@ Value Eval::evaluate(const Position& pos) {
   // Evaluate position potential for the winning side
   score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
 
-  // Attenuate score as a function of rule50_count().
-  if (pos.rule50_count() > 20)
+  // Attenuate score as a function of rule50_count() in endgame.
+  if (   ei.me->game_phase() < PHASE_MIDGAME
+      && pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK)
+      && pos.rule50_count() > 20)
       score *= -pos.rule50_count() / 80.0 + 1.25;
 
   // Evaluate scale factor for the winning side
