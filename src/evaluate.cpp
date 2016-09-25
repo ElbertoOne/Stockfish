@@ -136,9 +136,17 @@ namespace {
 
   // Outpost[knight/bishop][supported by pawn] contains bonuses for knights and
   // bishops outposts, bigger if outpost piece is supported by a pawn.
-  const Score Outpost[][2] = {
-    { S(43,11), S(65,20) }, // Knights
-    { S(20, 3), S(29, 8) }  // Bishops
+
+  Score KnightOutpost[][2] = {
+    { S(42,11), S(61,19) },
+    { S(44,11), S(66,20) },
+    { S(38,11), S(69,22) }
+  };
+
+  Score BishopOutpost[][2] = {
+    { S(22, 3), S(31,  8) },
+    { S(21, 3), S(29, 10) },
+    { S(19, 3), S(27,  8) }
   };
 
   // ReachableOutpost[knight/bishop][supported by pawn] contains bonuses for
@@ -294,10 +302,16 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+            Rank rank = relative_rank(Us, s);
             // Bonus for outpost squares
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
             if (bb & s)
-                score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+            {
+                if (Pt == BISHOP)
+                    score += BishopOutpost[rank - RANK_4][!!(ei.attackedBy[Us][PAWN] & s)];
+                else
+                    score += KnightOutpost[rank - RANK_4][!!(ei.attackedBy[Us][PAWN] & s)];
+            }
             else
             {
                 bb &= b & ~pos.pieces(Us);
@@ -306,7 +320,7 @@ namespace {
             }
 
             // Bonus when behind a pawn
-            if (    relative_rank(Us, s) < RANK_5
+            if (    rank < RANK_5
                 && (pos.pieces(PAWN) & (s + pawn_push(Us))))
                 score += MinorBehindPawn;
 
