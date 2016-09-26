@@ -141,6 +141,10 @@ namespace {
     { S(20, 3), S(29, 8) }  // Bishops
   };
 
+  // OutpostBishop7th[suppote by pawn] contains a bonus for bishop outpost on
+  // the 7th rank, if outpost piece is supported by a pawn.
+  const Score OutpostBishop7th    = S( 10,  0);
+
   // ReachableOutpost[knight/bishop][supported by pawn] contains bonuses for
   // knights and bishops which can reach an outpost square in one move, bigger
   // if outpost square is supported by a pawn.
@@ -311,9 +315,15 @@ namespace {
                 && (pos.pieces(PAWN) & (s + pawn_push(Us))))
                 score += MinorBehindPawn;
 
-            // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
+            {
+				// Penalty for pawns on the same color square as the bishop
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
+
+                // Bonus for bishop on 7th rank when supported by a pawn.
+                if (   relative_rank(Us, s) == RANK_7 && !!(ei.attackedBy[Us][PAWN] & s))
+                    score += OutpostBishop7th;
+			}
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
