@@ -314,11 +314,14 @@ namespace {
             // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
             {
-                int pawnsSameColorSq = ei.pi->pawns_on_same_color_squares(Us, s);
-                if (pawnsSameColorSq > 0 && relative_rank(Us, s) < relative_rank(Us, frontmost_sq(Us, ei.pi->pawns_on_same_color_squaresBB(Us, s))))
-                {
-                    score -= BishopPawns * pawnsSameColorSq;
-                }
+                Rank frontRank = relative_rank(Us, frontmost_sq(Us, in_front_bb(Us, rank_of(s)) & pos.attacks_from<BISHOP>(s) & ~pos.pieces(Us) & ~ei.attackedBy[Them][ALL_PIECES]));
+                frontRank = frontRank ? frontRank : relative_rank(Us, s);
+                Rank pawnRank = relative_rank(Us, frontmost_sq(Us, ei.pi->pawns_on_same_color_squaresBB(Us, s)));
+                //increase penalty for inactive bishops (bishops inside their own pawnchains)
+                if (frontRank < pawnRank)
+                    score -= 3 * BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s) / 2;
+                else
+                    score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
