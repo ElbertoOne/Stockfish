@@ -110,7 +110,9 @@ namespace {
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = shift<Right>(ourPawns) | shift<Left>(ourPawns);
-    e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
+    e->pawnsOnSquaresBB[Us][BLACK] = ourPawns & DarkSquares;
+    e->pawnsOnSquaresBB[Us][WHITE] = ourPawns & ~DarkSquares;
+    e->pawnsOnSquares[Us][BLACK] = popcount(e->pawnsOnSquaresBB[Us][BLACK]);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
     // Loop through all pawns of the current color and score each pawn
