@@ -306,17 +306,26 @@ namespace {
                    score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
             }
 
+            Rank rank = relative_rank(Us, s);
+
             // Bonus when behind a pawn
-            if (    relative_rank(Us, s) < RANK_5
+            if (    rank < RANK_5
                 && (pos.pieces(PAWN) & (s + pawn_push(Us))))
                 score += MinorBehindPawn;
 
             // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
             {
-                Rank frontRank = relative_rank(Us, frontmost_sq(Us, in_front_bb(Us, rank_of(s)) & pos.attacks_from<BISHOP>(s) & ~pos.pieces(Us) & ~ei.attackedBy[Them][ALL_PIECES]));
-                frontRank = frontRank ? frontRank : relative_rank(Us, s);
-                Rank pawnRank = relative_rank(Us, frontmost_sq(Us, ei.pi->pawns_on_same_color_squaresBB(Us, s)));
+                Rank frontRank, pawnRank;
+                frontRank = pawnRank = rank;
+                Bitboard freeForwardAttack = in_front_bb(Us, rank_of(s)) & pos.attacks_from<BISHOP>(s) & ~pos.pieces(Us) & ~ei.attackedBy[Them][ALL_PIECES];
+                Bitboard pawnsOnSameColor = ei.pi->pawns_on_same_color_squaresBB(Us, s);
+                if (freeForwardAttack)
+                    frontRank = relative_rank(Us, frontmost_sq(Us, freeForwardAttack));
+
+                if (pawnsOnSameColor)
+                    pawnRank = relative_rank(Us, frontmost_sq(Us, pawnsOnSameColor));
+
                 //increase penalty for inactive bishops (bishops inside their own pawnchains)
                 if (frontRank < pawnRank)
                     score -= 3 * BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s) / 2;
