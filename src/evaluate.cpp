@@ -186,7 +186,7 @@ namespace {
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
-  const Score BishopPawns         = S( 8, 12);
+  const Score BishopPawns         = S(12, 18);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
   const Score CloseEnemies        = S( 7,  0);
@@ -328,8 +328,6 @@ namespace {
 
                 //increase penalty for inactive bishops (bishops inside their own pawnchains)
                 if (frontRank < pawnRank)
-                    score -= 3 * BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s) / 2;
-                else
                     score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
             }
 
