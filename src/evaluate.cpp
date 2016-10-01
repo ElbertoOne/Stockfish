@@ -185,7 +185,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties used by evaluation
-  const Score MinorBehindPawn     = S(16,  0);
+  Score MinorBehindPawn[]   = { S(15, 0), S(20,0) };
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
@@ -198,6 +198,7 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
+  TUNE(MinorBehindPawn);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -306,10 +307,13 @@ namespace {
                    score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
             }
 
-            // Bonus when behind a pawn
-            if (    relative_rank(Us, s) < RANK_5
-                && (pos.pieces(PAWN) & (s + pawn_push(Us))))
-                score += MinorBehindPawn;
+            // Bonus when behind a pawn, more when the pawn is ours and is protected by another pawn.
+            if (    relative_rank(Us, s) < RANK_5)
+            {
+                Square infrontSq = s + pawn_push(Us);
+                if (pos.pieces(PAWN) & infrontSq)
+                    score += MinorBehindPawn[!!(pos.pieces(Us, PAWN) & ei.attackedBy[Us][PAWN] & infrontSq)];
+            }
 
             // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
