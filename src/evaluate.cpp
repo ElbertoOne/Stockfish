@@ -185,7 +185,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties used by evaluation
-  const Score MinorBehindPawn     = S(16,  0);
+  const Score MinorBehindPawn[]   = { S(12, 0), S(20,0) };
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
@@ -306,11 +306,6 @@ namespace {
                    score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
             }
 
-            // Bonus when behind a pawn
-            if (    relative_rank(Us, s) < RANK_5
-                && (pos.pieces(PAWN) & (s + pawn_push(Us))))
-                score += MinorBehindPawn;
-
             // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
@@ -372,6 +367,24 @@ namespace {
   Score evaluate_pieces<false, WHITE, KING>(const Position&, EvalInfo&, Score*, const Bitboard*) { return SCORE_ZERO; }
   template<>
   Score evaluate_pieces< true, WHITE, KING>(const Position&, EvalInfo&, Score*, const Bitboard*) { return SCORE_ZERO; }
+
+  template<Color Us, PieceType Pt>
+  Score evaluate_minors(const Position& pos, EvalInfo& ei)
+  {
+    Square s;
+    Score score = SCORE_ZERO;
+
+    const Square* pl = pos.squares<Pt>(Us);
+
+    while ((s = *pl++) != SQ_NONE)
+    {
+        // Bonus when behind a pawn
+        Square infrontSq = s + pawn_push(Us);
+        if (pos.pieces(PAWN) & infrontSq)
+            score += MinorBehindPawn[!!(pos.pieces(Us, PAWN) & ei.attackedBy[Us][ALL_PIECES] & infrontSq)];
+    }
+      return score;
+  }
 
 
   // evaluate_king() assigns bonuses and penalties to a king of a given color
@@ -817,6 +830,10 @@ Value Eval::evaluate(const Position& pos) {
 
   // Evaluate all pieces but king and pawns
   score += evaluate_pieces<DoTrace>(pos, ei, mobility, mobilityArea);
+  score +=  evaluate_minors<WHITE, BISHOP>(pos, ei)
+          - evaluate_minors<BLACK, BISHOP>(pos, ei);
+  score +=  evaluate_minors<WHITE, KNIGHT>(pos, ei)
+          - evaluate_minors<BLACK, KNIGHT>(pos, ei);
   score += mobility[WHITE] - mobility[BLACK];
 
   // Evaluate kings after all other pieces because we need full attack
