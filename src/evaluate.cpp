@@ -378,10 +378,13 @@ namespace {
 
     while ((s = *pl++) != SQ_NONE)
     {
-        // Bonus when behind a pawn, more if the pawn is attacked/defended by us.
-        Bitboard behindPawnBB = pos.pieces(PAWN) & (s + pawn_push(Us));
-        if (behindPawnBB)
-            score += MinorBehindPawn[!!(ei.attackedBy[Us][ALL_PIECES] & behindPawnBB)];
+        if (relative_rank(Us, s) < RANK_5)
+        {
+            // Bonus when behind a pawn, more if the pawn is attacked/defended by us.
+            Bitboard behindPawnBB = pos.pieces(PAWN) & (s + pawn_push(Us));
+            if (behindPawnBB)
+                score += MinorBehindPawn[!!(ei.attackedBy[Us][ALL_PIECES] & behindPawnBB)];
+        }
     }
       return score;
   }
