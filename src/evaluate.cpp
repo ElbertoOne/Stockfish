@@ -185,7 +185,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties used by evaluation
-  const Score MinorBehindPawn[]   = { S(12, 0), S(20,0) };
+  const Score MinorBehindPawn[]   = { S(14, 0), S(18,0) };
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
@@ -378,10 +378,10 @@ namespace {
 
     while ((s = *pl++) != SQ_NONE)
     {
-        // Bonus when behind a pawn
-        Square infrontSq = s + pawn_push(Us);
-        if (pos.pieces(PAWN) & infrontSq)
-            score += MinorBehindPawn[!!(pos.pieces(Us, PAWN) & ei.attackedBy[Us][ALL_PIECES] & infrontSq)];
+        // Bonus when behind a pawn, more if the pawn is attacked/defended by us.
+        Bitboard behindPawnBB = pos.pieces(PAWN) & (s + pawn_push(Us));
+        if (behindPawnBB)
+            score += MinorBehindPawn[!!(ei.attackedBy[Us][ALL_PIECES] & behindPawnBB)];
     }
       return score;
   }
@@ -830,10 +830,13 @@ Value Eval::evaluate(const Position& pos) {
 
   // Evaluate all pieces but king and pawns
   score += evaluate_pieces<DoTrace>(pos, ei, mobility, mobilityArea);
-  score +=  evaluate_minors<WHITE, BISHOP>(pos, ei)
-          - evaluate_minors<BLACK, BISHOP>(pos, ei);
+
+  // Evaluate minors with full attack information.
   score +=  evaluate_minors<WHITE, KNIGHT>(pos, ei)
           - evaluate_minors<BLACK, KNIGHT>(pos, ei);
+  score +=  evaluate_minors<WHITE, BISHOP>(pos, ei)
+          - evaluate_minors<BLACK, BISHOP>(pos, ei);
+
   score += mobility[WHITE] - mobility[BLACK];
 
   // Evaluate kings after all other pieces because we need full attack
