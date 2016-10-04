@@ -198,6 +198,7 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
+  const Score KnightProximity     = S(10,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -306,10 +307,14 @@ namespace {
                    score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
             }
 
-            // Bonus when behind a pawn or another minor of current type
+            // Bonus when behind a pawn or another minor
             if (    relative_rank(Us, s) < RANK_5
-                && ((pos.pieces(PAWN) | pos.pieces(Us, Pt)) & (s + pawn_push(Us))))
+                && (pos.pieces(PAWN) & (s + pawn_push(Us))))
                 score += MinorBehindPawn;
+
+            // Bonus when a knight is close to enemy king.
+            if (Pt == KNIGHT && distance(s, pos.square<KING>(Them)) < 4)
+                score += KnightProximity;
 
             // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
