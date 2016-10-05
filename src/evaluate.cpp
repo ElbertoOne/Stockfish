@@ -373,13 +373,9 @@ namespace {
   Score evaluate_minors(const Position& pos)
   {
       Score score = SCORE_ZERO;
-      if (pos.count<KNIGHT>(Us) == 2)
-      {
-          Square knsq1 = pos.squares<KNIGHT>(Us)[0];
-          Square knsq2 = pos.squares<KNIGHT>(Us)[1];
-          if (distance(knsq1, knsq2) < 2 && (distance<Rank>(knsq1, knsq2) == 0 || distance<File>(knsq1, knsq2) == 0))
+      if (   pos.count<KNIGHT>(Us) == 2
+          && distance(pos.squares<KNIGHT>(Us)[0], pos.squares<KNIGHT>(Us)[1]) < 2)
               score += CloseKnights;
-      }
       return score;
   }
 
