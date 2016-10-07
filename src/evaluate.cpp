@@ -198,7 +198,7 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
-  const Score CloseKnights        = S(30, 30);
+  const Score CloseMinors         = S(18, 18);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -378,8 +378,11 @@ namespace {
           Square knsq1 = pos.squares<KNIGHT>(Us)[0];
           Square knsq2 = pos.squares<KNIGHT>(Us)[1];
           if (distance(knsq1, knsq2) < 2 && (distance<Rank>(knsq1, knsq2) == 0 || distance<File>(knsq1, knsq2) == 0))
-              score += CloseKnights;
+              score += CloseMinors;
       }
+      if (pos.count<BISHOP>(Us) == 2 && distance(pos.squares<BISHOP>(Us)[0], pos.squares<BISHOP>(Us)[1]) < 2)
+              score += CloseMinors;
+
       return score;
   }
 
