@@ -185,8 +185,9 @@ namespace {
   };
 
   // Assorted bonuses and penalties used by evaluation
-  const Score MinorBehindPawn     = S(15,  0);
-  const Score MinorBehindUnsupported = S(22, 0);
+  const Score MinorBehindPawn     = S(14,  0);
+  const Score MinorBehindSupported = S(18, 0);
+  const Score MinorBehindOpposing = S(22,  0);
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
@@ -311,10 +312,14 @@ namespace {
             if (relative_rank(Us, s) < RANK_5)
             {
                 Square blockSq = (s + pawn_push(Us));
-                if (pos.pieces(Them, PAWN) & ~ei.attackedBy[Them][PAWN] & blockSq)
-                    score += MinorBehindUnsupported;
-                else if (pos.pieces(PAWN) & blockSq)
+                Bitboard ourPawns = pos.pieces(Us, PAWN);
+
+                if (ourPawns & ~ei.attackedBy[Us][PAWN] & blockSq)
                     score += MinorBehindPawn;
+                else if (ourPawns & ei.attackedBy[Us][PAWN] & blockSq)
+                    score += MinorBehindSupported;
+                else if (pos.pieces(Them, PAWN) & blockSq)
+                    score += MinorBehindOpposing;
             }
 
             // Penalty for pawns on the same color square as the bishop
