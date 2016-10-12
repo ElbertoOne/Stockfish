@@ -561,10 +561,12 @@ namespace {
             score += Threat[Rook ][type_of(pos.piece_on(pop_lsb(&b)))];
 
         b =  weak & (  ~ei.attackedBy[Them][ALL_PIECES]
-                     | (ei.attackedBy[Them][QUEEN]  & ~ei.attackedBy2[Them] & ei.attackedBy2[Us])
-                     | (ei.attackedBy[Them][ROOK]   & ~ei.attackedBy2[Them] & ei.attackedBy2[Us] & (ei.attackedBy[Us][ROOK]   | ei.attackedBy[Us][BISHOP] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][PAWN]))
-                     | (ei.attackedBy[Them][BISHOP] & ~ei.attackedBy2[Them] & ei.attackedBy2[Us] & (ei.attackedBy[Us][BISHOP] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][PAWN]))
-                     | (ei.attackedBy[Them][KNIGHT] & ~ei.attackedBy2[Them] & ei.attackedBy2[Us] & (ei.attackedBy[Us][BISHOP] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][PAWN])));
+                     | (~ei.attackedBy2[Them] & ei.attackedBy2[Us] &
+                       (   ei.attackedBy[Them][QUEEN]
+                     	| (ei.attackedBy[Them][ROOK] & (ei.attackedBy[Us][ROOK] | ei.attackedBy[Us][BISHOP] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][PAWN]))
+                     	| ((ei.attackedBy[Them][BISHOP] | ei.attackedBy[Them][KNIGHT]) & (ei.attackedBy[Us][BISHOP] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][PAWN]))
+                       )
+                    ));
         score += Hanging * popcount(b);
 
         b = weak & ei.attackedBy[Us][KING];
