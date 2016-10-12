@@ -564,7 +564,6 @@ namespace {
                      | (~ei.attackedBy2[Them] & ei.attackedBy2[Us] &
                        (   ei.attackedBy[Them][QUEEN]
                      	| (ei.attackedBy[Them][ROOK] & (ei.attackedBy[Us][ROOK] | ei.attackedBy[Us][BISHOP] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][PAWN]))
-                     	| ((ei.attackedBy[Them][BISHOP] | ei.attackedBy[Them][KNIGHT]) & (ei.attackedBy[Us][BISHOP] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][PAWN]))
                        )
                     ));
         score += Hanging * popcount(b);
