@@ -65,7 +65,8 @@ namespace {
   enum NodeType { NonPV, PV };
 
   // Razoring and futility margin based on depth
-  const int razor_margin[4] = { 483, 570, 603, 554 };
+  int razor_margin[4] = { 483, 570, 603, 554 };
+  TUNE(razor_margin);
   Value futility_margin(Depth d) { return Value(150 * d / ONE_PLY); }
 
   // Futility and reductions lookup tables, initialized at startup
