@@ -189,6 +189,7 @@ namespace {
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
+  const Score TrappedKnight       = S(41,  0);
   const Score CloseEnemies        = S( 7,  0);
   const Score SafeCheck           = S(20, 20);
   const Score OtherCheck          = S(10, 10);
@@ -327,6 +328,15 @@ namespace {
                     score -= !pos.empty(s + d + pawn_push(Us))                ? TrappedBishopA1H1 * 4
                             : pos.piece_on(s + d + d) == make_piece(Us, PAWN) ? TrappedBishopA1H1 * 2
                                                                               : TrappedBishopA1H1;
+            }
+
+            if (Pt == KNIGHT)
+            {
+                if (   (s == relative_square(Us, SQ_A8) && (pos.pieces(Them, PAWN) & SQ_A7))
+                    || (s == relative_square(Us, SQ_H8) && (pos.pieces(Them, PAWN) & SQ_H7))
+                    || (s == relative_square(Us, SQ_A7) && (pos.pieces(Them, PAWN) & SQ_A6) && (pos.pieces(Them, PAWN) & SQ_B7))
+                    || (s == relative_square(Us, SQ_H7) && (pos.pieces(Them, PAWN) & SQ_H6) && (pos.pieces(Them, PAWN) & SQ_G7)))
+                    score -= TrappedKnight;
             }
         }
 
