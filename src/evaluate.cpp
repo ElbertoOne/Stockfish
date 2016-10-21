@@ -759,6 +759,12 @@ namespace {
                  &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             sf = ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+        // Endings with a lot of pawns and where the non-pawn difference is B vs N are drawish.
+        else if (   pos.count<BISHOP>(strongSide) == 1
+                 && pos.count<PAWN>(~strongSide) >= 5
+                 && pos.count<PAWN>(strongSide) == pos.count<PAWN>(~strongSide)
+                 && (pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide)) == (BishopValueMg - KnightValueMg))
+            sf = ScaleFactor(46);
     }
 
     return sf;
