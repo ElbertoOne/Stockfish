@@ -46,6 +46,9 @@ namespace {
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
 
+  // Penalty for center pawns that are blockaded on their start positions.
+  const Score StopBlocked = S(20, 20);
+
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
@@ -97,7 +100,7 @@ namespace {
 
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
     Square s;
-    bool opposed, lever, connected, backward;
+    bool opposed, lever, connected, backward, stopBlocked;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
     const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
@@ -131,6 +134,7 @@ namespace {
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
         connected  = supported | phalanx;
+        stopBlocked = (f == FILE_D || f == FILE_E) && relative_rank(Us, s) == RANK_2 ? pos.pieces() & (s + Up) : false;
 
         // A pawn is backward when it is behind all pawns of the same color on the
         // adjacent files and cannot be safely advanced.
@@ -172,6 +176,9 @@ namespace {
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
+
+        if (stopBlocked)
+            score -= StopBlocked;
     }
 
     return score;
