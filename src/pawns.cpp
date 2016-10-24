@@ -46,10 +46,6 @@ namespace {
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
 
-  // Penalty for center pawns that are blocked on their start positions
-  // and which are not doubled pawns or backward pawns.
-  const Score StopBlocked = S(18, 38);
-
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
@@ -110,6 +106,7 @@ namespace {
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
     e->passedPawns[Us]   = e->pawnAttacksSpan[Us] = 0;
+    e->startPawns[Us]    = 0;
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = shift<Right>(ourPawns) | shift<Left>(ourPawns);
@@ -174,8 +171,8 @@ namespace {
         if (doubled)
             score -= Doubled;
 
-        else if (!backward && ((f == FILE_D || f == FILE_E) && relative_rank(Us, s) == RANK_2) && (pos.pieces() & (s + Up)))
-            score -= StopBlocked;
+        else if (!backward && ((f == FILE_D || f == FILE_E) && relative_rank(Us, s) == RANK_2))
+            e->startPawns[Us] |= s;
 
         if (lever)
             score += Lever[relative_rank(Us, s)];

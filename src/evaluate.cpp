@@ -198,6 +198,7 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
+  const Score StopBlocked         = S(18, 38);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -587,6 +588,26 @@ namespace {
     return score;
   }
 
+  // evaluate_start_pawns() evaluates the pawns on the center squares which are at their start positions.
+
+  template<Color Us, bool DoTrace>
+  Score evaluate_start_pawns(const Position& pos, const EvalInfo& ei) {
+
+    Score score = SCORE_ZERO;
+    Bitboard b = ei.pi->start_pawns(Us);
+
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+
+        // Penalty for center pawns that are blocked on their start positions
+        // and which are not doubled pawns or backward pawns.
+        if (pos.pieces() & (s + pawn_push(Us)))
+            score -= StopBlocked;
+    }
+
+    return score;
+  }
 
   // evaluate_passed_pawns() evaluates the passed pawns of the given color
 
@@ -827,6 +848,9 @@ Value Eval::evaluate(const Position& pos) {
   // Evaluate tactical threats, we need full attack information including king
   score +=  evaluate_threats<WHITE, DoTrace>(pos, ei)
           - evaluate_threats<BLACK, DoTrace>(pos, ei);
+
+  score +=  evaluate_start_pawns<WHITE, DoTrace>(pos, ei)
+          - evaluate_start_pawns<BLACK, DoTrace>(pos, ei);
 
   // Evaluate passed pawns, we need full attack information including king
   score +=  evaluate_passed_pawns<WHITE, DoTrace>(pos, ei)
