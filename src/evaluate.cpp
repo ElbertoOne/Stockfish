@@ -198,6 +198,7 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
+  const Score BishopCenterControl = S(20, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -580,6 +581,11 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    b = ei.attackedBy[Us][BISHOP];
+    // Give a bonus if all 4 central squares are attacked by our bishops.
+    if ((b & SQ_D4) && (b & SQ_E5) && (b & SQ_D5) && (b & SQ_E4))
+        score += BishopCenterControl;
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
