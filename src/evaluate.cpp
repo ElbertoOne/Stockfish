@@ -185,8 +185,8 @@ namespace {
   };
 
   Score StopBlocked[FILE_NB] = {
-    S( 0, 0), S(0, 0), S(0, 0), S(18,38),
-    S(18,38), S(0, 0), S(0, 0), S( 0, 0)
+    S( 1, 1), S(1, 1), S(1, 1), S(18,38),
+    S(18,38), S(1, 1), S(1, 1), S( 1, 1)
   };
 
   TUNE(StopBlocked);
