@@ -199,6 +199,7 @@ namespace {
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
+  const Score BishopCenterControl = S(25,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -586,6 +587,16 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    // Give bonus for bishops on adjacent diagonals, with exactly 3 central square control.
+    const Bitboard Center = (1ULL << SQ_E4) | (1ULL << SQ_D4) | (1ULL << SQ_E5) | (1ULL << SQ_D5);
+    if (!more_than_one(Center & ~ei.attackedBy[Us][BISHOP]))
+    {
+        Square b0 = pos.squares<BISHOP>(Us)[0];
+        Square b1 = pos.squares<BISHOP>(Us)[1];
+        if (DistanceRingBB[b0][0] & PseudoAttacks[BISHOP][b1])
+            score += BishopCenterControl;
+    }
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
