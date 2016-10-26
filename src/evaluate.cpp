@@ -199,7 +199,7 @@ namespace {
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
-  const Score BishopCenterControl = S(20,  0);
+  const Score BishopCenterControl = S(50, 10);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -590,7 +590,7 @@ namespace {
     score += ThreatByPawnPush * popcount(b);
 
     // Give bonus for bishops on adjacent diagonals, with exactly 3 central square control.
-    if (!more_than_one(Center & ~(ei.attackedBy[Us][BISHOP] & ~pos.pieces())))
+    if (!more_than_one(Center & ~((ei.attackedBy[Us][BISHOP] & ~pos.pieces()) | pos.pieces(Us, BISHOP))))
     {
         Square b0 = pos.squares<BISHOP>(Us)[0];
         Square b1 = pos.squares<BISHOP>(Us)[1];
