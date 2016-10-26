@@ -199,6 +199,7 @@ namespace {
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
+  const Score BishopPairAttack    = S(25,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -410,6 +411,15 @@ namespace {
         undefended =   ei.attackedBy[Them][ALL_PIECES]
                     &  ei.attackedBy[Us][KING]
                     & ~ei.attackedBy2[Us];
+
+        if (pos.count<BISHOP>(Them) == 2)
+        {
+            Square bb0 = pos.squares<BISHOP>(Them)[0];
+            Square bb1 = pos.squares<BISHOP>(Them)[1];
+            if (  (pos.attacks_from<BISHOP>(bb0) & undefended)
+                && (pos.attacks_from<BISHOP>(bb1) & undefended))
+                score -= BishopPairAttack;
+        }
 
         // ... and those which are not defended at all in the larger king ring
         b =  ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES]
