@@ -184,6 +184,12 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
 
+  // StopBlocked[Them/Us][File] contains a penalty for pawns that are blocked on their start position
+  const Score StopBlocked[][FILE_NB] = {
+    { S( 1, 0), S(0, 0), S(2, 0), S(21,43), S(20,41), S(0, 3), S(0, 0), S( 2, 0) },
+    { S( 0, 4), S(2, 3), S(0, 0), S(21,39), S(20,40), S(0, 1), S(1, 1), S( 0, 0) }
+  };
+
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
@@ -593,6 +599,31 @@ namespace {
     return score;
   }
 
+  // evaluate_start_pawns() evaluates the pawns which are at their start positions.
+
+  template<Color Us, bool DoTrace>
+  Score evaluate_start_pawns(const Position& pos, const EvalInfo& ei) {
+
+    const Color Them = (Us == WHITE ? BLACK : WHITE);
+    Score score = SCORE_ZERO;
+    Bitboard b = ei.pi->start_pawns(Us);
+
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+        Square blockSq = s + pawn_push(Us);
+
+        // Penalty for pawns that are blocked on their start positions
+        // and which are not doubled pawns or backward pawns.
+        if (pos.pieces(Them) & blockSq)
+            score -= StopBlocked[0][file_of(s)];
+        else if (pos.pieces(Us) & blockSq)
+            score -= StopBlocked[1][file_of(s)];
+    }
+
+    return score;
+  }
+
 
   // evaluate_passed_pawns() evaluates the passed pawns of the given color
 
@@ -833,6 +864,10 @@ Value Eval::evaluate(const Position& pos) {
   // Evaluate tactical threats, we need full attack information including king
   score +=  evaluate_threats<WHITE, DoTrace>(pos, ei)
           - evaluate_threats<BLACK, DoTrace>(pos, ei);
+
+  // Evaluate start pawns, we need to know if they are stuck on their start position
+  score +=  evaluate_start_pawns<WHITE, DoTrace>(pos, ei)
+          - evaluate_start_pawns<BLACK, DoTrace>(pos, ei);
 
   // Evaluate passed pawns, we need full attack information including king
   score +=  evaluate_passed_pawns<WHITE, DoTrace>(pos, ei)
