@@ -592,10 +592,13 @@ namespace {
     // Give bonus for bishops on adjacent diagonals, with exactly 3 central square control.
     if (!more_than_one(Center & ~ei.attackedBy[Us][BISHOP] & ~pos.pieces()))
     {
-        Square b0 = pos.squares<BISHOP>(Us)[0];
-        Square b1 = pos.squares<BISHOP>(Us)[1];
-        if (DistanceRingBB[b0][0] & PseudoAttacks[BISHOP][b1])
-            score += BishopCenterControl;
+        if (pos.count<BISHOP>(Us) > 1)
+        {
+            Square b0 = pos.squares<BISHOP>(Us)[0];
+            Square b1 = pos.squares<BISHOP>(Us)[1];
+            if (DistanceRingBB[b0][0] & PseudoAttacks[BISHOP][b1])
+                score += BishopCenterControl;
+        }
     }
 
     if (DoTrace)
