@@ -184,12 +184,13 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
 
-  Score StopBlocked[FILE_NB] = {
-    S( 1, 1), S(1, 1), S(1, 1), S(18,38),
-    S(18,38), S(1, 1), S(1, 1), S( 1, 1)
+  // StopBlocked[Them/Us][File] contains a penalty for pawns that are blocked on their start position
+  Score StopBlocked[][FILE_NB] = {
+    { S( 0, 0), S(0, 0), S(0, 0), S(20,40), S(20,40), S(0, 0), S(0, 0), S( 0, 0) },
+    { S( 0, 0), S(0, 0), S(0, 0), S(20,40), S(20,40), S(0, 0), S(0, 0), S( 0, 0) }
   };
 
-  TUNE(StopBlocked);
+  TUNE(SetRange(-40, 80), StopBlocked);
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
@@ -605,17 +606,21 @@ namespace {
   template<Color Us, bool DoTrace>
   Score evaluate_start_pawns(const Position& pos, const EvalInfo& ei) {
 
+    const Color Them = (Us == WHITE ? BLACK : WHITE);
     Score score = SCORE_ZERO;
     Bitboard b = ei.pi->start_pawns(Us);
 
     while (b)
     {
         Square s = pop_lsb(&b);
+        Square blockSq = s + pawn_push(Us);
 
         // Penalty for pawns that are blocked on their start positions
         // and which are not doubled pawns or backward pawns.
-        if (pos.pieces() & (s + pawn_push(Us)))
-            score -= StopBlocked[file_of(s)];
+        if (pos.pieces(Them) & blockSq)
+            score -= StopBlocked[0][file_of(s)];
+        else if (pos.pieces(Us) & blockSq)
+            score -= StopBlocked[1][file_of(s)];
     }
 
     return score;
