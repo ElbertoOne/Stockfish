@@ -199,7 +199,7 @@ namespace {
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
-  const Score ColorWeakness       = S( 5,  1);
+  const Score ColorWeakness       = S( 4,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -598,10 +598,10 @@ namespace {
     Bitboard darkColoredBishop   = pos.pieces(Us, BISHOP) & DarkSquares;
 
     if (!lightColoredBishop)
-        score -= ColorWeakness * popcount(LightSq & ~ei.attackedBy[Us][ALL_PIECES] & ei.attackedBy[Them][ALL_PIECES]);
+        score -= ColorWeakness * popcount(LightSq & ~(ei.attackedBy[Us][ALL_PIECES] | pos.pieces(Us)) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them)));
 
     if (!darkColoredBishop)
-        score -= ColorWeakness * popcount(DarkSq & ~ei.attackedBy[Us][ALL_PIECES] & ei.attackedBy[Them][ALL_PIECES]);
+        score -= ColorWeakness * popcount(DarkSq & ~(ei.attackedBy[Us][ALL_PIECES] | pos.pieces(Us)) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them)));
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
