@@ -598,10 +598,10 @@ namespace {
     Bitboard darkColoredBishop   = pos.pieces(Us, BISHOP) & DarkSquares;
 
     if (!lightColoredBishop)
-        score -= ColorWeakness * popcount(LightSq & ~ei.attackedBy[Us][ALL_PIECES]);
+        score -= ColorWeakness * popcount(LightSq & ~ei.attackedBy[Us][ALL_PIECES] & ~pos.pieces(Us));
 
     if (!darkColoredBishop)
-        score -= ColorWeakness * popcount(DarkSq & ~ei.attackedBy[Us][ALL_PIECES]);
+        score -= ColorWeakness * popcount(DarkSq & ~ei.attackedBy[Us][ALL_PIECES] & ~pos.pieces(Us));
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
