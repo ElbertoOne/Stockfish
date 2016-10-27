@@ -594,14 +594,18 @@ namespace {
 
     score += ThreatByPawnPush * popcount(b);
 
-    Bitboard lightColoredBishop   = pos.pieces(Us, BISHOP) & ~DarkSquares;
-    Bitboard darkColoredBishop   = pos.pieces(Us, BISHOP) & DarkSquares;
+    // penalty for the squares that the enemy can attack without us having a bishop to defend them
+    Bitboard lightColoredBishop = pos.pieces(Us, BISHOP) & ~DarkSquares;
+    Bitboard darkColoredBishop  = pos.pieces(Us, BISHOP) & DarkSquares;
+    Bitboard weakC = 0;
 
     if (!lightColoredBishop)
-        score -= ColorWeakness * popcount(LightSq & ~(ei.attackedBy[Us][ALL_PIECES] | pos.pieces(Us)) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them)));
+        weakC |= LightSq & ~ei.attackedBy[Us][ALL_PIECES] & ei.attackedBy[Them][ALL_PIECES];
 
     if (!darkColoredBishop)
-        score -= ColorWeakness * popcount(DarkSq & ~(ei.attackedBy[Us][ALL_PIECES] | pos.pieces(Us)) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them)));
+        weakC |= DarkSq & ~ei.attackedBy[Us][ALL_PIECES] & ei.attackedBy[Them][ALL_PIECES];
+
+    score -= ColorWeakness * popcount(weakC);
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
