@@ -199,6 +199,7 @@ namespace {
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
+  const Score ColorWeakness       = S( 2,  1);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -378,7 +379,11 @@ namespace {
   // evaluate_king() assigns bonuses and penalties to a king of a given color
 
   const Bitboard WhiteCamp = Rank1BB | Rank2BB | Rank3BB | Rank4BB | Rank5BB;
+  const Bitboard WhiteCampLightSquares = WhiteCamp & ~DarkSquares;
+  const Bitboard WhiteCampDarkSquares = WhiteCamp & DarkSquares;
   const Bitboard BlackCamp = Rank8BB | Rank7BB | Rank6BB | Rank5BB | Rank4BB;
+  const Bitboard BlackCampLightSquares = BlackCamp & ~DarkSquares;
+  const Bitboard BlackCampDarkSquares = BlackCamp & DarkSquares;
   const Bitboard QueenSide   = FileABB | FileBBB | FileCBB | FileDBB;
   const Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
   const Bitboard KingSide    = FileEBB | FileFBB | FileGBB | FileHBB;
@@ -519,6 +524,8 @@ namespace {
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
+    const Bitboard LightSq  = (Us == WHITE ? WhiteCampLightSquares : BlackCampLightSquares);
+    const Bitboard DarkSq   = (Us == WHITE ? WhiteCampDarkSquares : BlackCampDarkSquares);
 
     enum { Minor, Rook };
 
@@ -586,6 +593,15 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    Bitboard lightColoredBishop   = pos.pieces(Us, BISHOP) & ~DarkSquares;
+    Bitboard darkColoredBishop   = pos.pieces(Us, BISHOP) & DarkSquares;
+
+    if (!lightColoredBishop)
+        score -= ColorWeakness * popcount(LightSq & ~ei.attackedBy[Us][ALL_PIECES]);
+
+    if (!darkColoredBishop)
+        score -= ColorWeakness * popcount(DarkSq & ~ei.attackedBy[Us][ALL_PIECES]);
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
