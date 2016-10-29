@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -188,6 +189,7 @@ namespace {
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
+  const Score RookOnClosed        = S( 5,  5);
   const Score TrappedRook         = S(92,  0);
   const Score CloseEnemies        = S( 7,  0);
   const Score SafeCheck           = S(20, 20);
@@ -340,6 +342,10 @@ namespace {
             // Bonus when on an open or semi-open file
             if (ei.pi->semiopen_file(Us, file_of(s)))
                 score += RookOnFile[!!ei.pi->semiopen_file(Them, file_of(s))];
+
+            // Penalty when there are multiple open files and the rook isn't on one of them.
+            else if (ei.pi-> open_files() > 2)
+                score -= RookOnClosed * ei.pi->open_files();
 
             // Penalize when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
