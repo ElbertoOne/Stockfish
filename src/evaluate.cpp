@@ -200,6 +200,7 @@ namespace {
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
   const Score HinderPassedPawn    = S( 7,  0);
+  const Score ReachableOpenFile   = S(10,  5);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -351,6 +352,23 @@ namespace {
                     && (rank_of(ksq) == rank_of(s) || relative_rank(Us, ksq) == RANK_1)
                     && !ei.pi->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+            }
+
+            // Give bonus if rook can reach a (semi) open file.
+            else if (ei.pi->open_files() > 0)
+            {
+                Rank rrank = rank_of(s);
+                for (File f = FILE_A; f <= FILE_H; ++f)
+                {
+                    if (   (~pos.pieces() & make_square(f, rrank))
+                        && ei.pi->semiopen_file(Us, f)
+                        && !ei.pi->semiopen_file(Them, f)
+                        && ei.pi->semiopen_side(Us, f, file_of(s) < f))
+                    {
+                        score += ReachableOpenFile;
+                        break;
+                    }
+                }
             }
         }
 
