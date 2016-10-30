@@ -44,6 +44,10 @@ struct Entry {
     return semiopenFiles[c] & (1 << f);
   }
 
+  Bitboard semiopen_files(Color c) const {
+	  return semiopenFiles[c];
+
+}
   int semiopen_side(Color c, File f, bool leftSide) const {
     return semiopenFiles[c] & (leftSide ? (1 << f) - 1 : ~((1 << (f + 1)) - 1));
   }
@@ -73,6 +77,7 @@ struct Entry {
   Score kingSafety[COLOR_NB];
   int castlingRights[COLOR_NB];
   int semiopenFiles[COLOR_NB];
+  int semiopenFilesBB[COLOR_NB];
   int pawnsOnSquares[COLOR_NB][COLOR_NB]; // [color][light/dark squares]
   int asymmetry;
   int openFiles;
