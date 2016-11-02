@@ -761,7 +761,7 @@ namespace {
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
             else
-                sf = ScaleFactor(std::min(64, 39 + 7 * popcount(ei.pi->passed_pawns(strongSide) - ei.pi->passed_pawns(~strongSide))));
+                sf = ScaleFactor(std::min(64, 39 + 7 * (popcount(ei.pi->passed_pawns(strongSide)) - popcount(ei.pi->passed_pawns(~strongSide)))));
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
