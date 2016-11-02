@@ -769,6 +769,27 @@ namespace {
                  &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             sf = ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+
+        // Endings where the weaker side can set up a dense pawn defense and
+        // the strong side has no knights are drawish
+        else
+        {
+            if (   ei.pi->open_files() == 0
+                && ei.pi->passed_pawns(strongSide) == 0
+                && pos.count<KNIGHT>(strongSide) == 0
+                && pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) <= 2 * (BishopValueMg - KnightValueMg)
+                && relative_rank(~strongSide, frontmost_sq(~strongSide, pos.pieces(~strongSide, PAWN))) - relative_rank(~strongSide, backmost_sq(~strongSide, pos.pieces(~strongSide, PAWN))) < 4
+                && !(pos.pieces(~strongSide, PAWN) & ei.attackedBy[strongSide][PAWN]))
+            {
+                Bitboard pasWeak = ei.pi->pawn_attacks_span(~strongSide);
+                bool weakCovered =    (pasWeak & FileABB) && (pasWeak & FileBBB)
+                                   && (pasWeak & FileCBB) && (pasWeak & FileDBB)
+                                   && (pasWeak & FileEBB) && (pasWeak & FileFBB)
+                                   && (pasWeak & FileGBB) && (pasWeak & FileHBB);
+                if (weakCovered)
+                    sf = ScaleFactor(42);
+            }
+        }
     }
 
     return sf;
