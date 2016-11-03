@@ -831,8 +831,8 @@ Value Eval::evaluate(const Position& pos) {
 
   // Evaluate kings after all other pieces because we need full attack
   // information when computing the king safety evaluation.
-  score +=  evaluate_king<WHITE, DoTrace>(pos, ei)
-          - evaluate_king<BLACK, DoTrace>(pos, ei);
+  score +=  (5 * (evaluate_king<WHITE, DoTrace>(pos, ei)
+          - evaluate_king<BLACK, DoTrace>(pos, ei))) / 4;
 
   // Evaluate tactical threats, we need full attack information including king
   score +=  evaluate_threats<WHITE, DoTrace>(pos, ei)
