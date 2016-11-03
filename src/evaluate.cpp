@@ -730,6 +730,9 @@ namespace {
     // Compute the initiative bonus for the attacking side
     int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
 
+    if (pawns > 10)
+        initiative += 5 * ((eg > 0) - (eg < 0)) *(pos.count<KNIGHT>(WHITE) - pos.count<KNIGHT>(BLACK));
+
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never be divided by more than two.
