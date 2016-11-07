@@ -1005,6 +1005,10 @@ moves_loop: // When in check search starts from here
               else if (ss->history < VALUE_ZERO && (ss-1)->history > VALUE_ZERO)
                   r += ONE_PLY;
 
+              else if (   (ss-1)->moveCount == 1 && (ss-3)->moveCount == 1
+                       && (ss-4)->moveCount > 3 && (ss-2)->moveCount > 3)
+                  r += ONE_PLY;
+
               // Decrease/increase reduction for moves with a good/bad history
               r = std::max(DEPTH_ZERO, (r / ONE_PLY - ss->history / 20000) * ONE_PLY);
           }
