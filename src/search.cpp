@@ -999,7 +999,7 @@ moves_loop: // When in check search starts from here
                            -    8000; // Correction factor
 
               // Decrease/increase reduction by comparing opponent's stat score
-              int histDiff = (ss->history - (ss-1)->history) / 40000;
+              int histDiff = (ss->history - (ss-1)->history) / 60000;
               r += histDiff * ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history
