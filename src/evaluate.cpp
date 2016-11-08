@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -769,6 +770,12 @@ namespace {
                  &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             sf = ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+        // Endings that take place on a single flank are drawish.
+        else if (   pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK)
+                 && pos.count<PAWN>(strongSide) < pos.count<PAWN>(~strongSide) + 2
+                 && (!(pos.pieces(KING, PAWN) & KingSide) || !(pos.pieces(KING, PAWN) & QueenSide))
+                 && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
+            sf = ScaleFactor(32);
     }
 
     return sf;
