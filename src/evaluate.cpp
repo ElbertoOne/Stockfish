@@ -23,7 +23,6 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -767,15 +766,16 @@ namespace {
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
         else if (    abs(eg) <= BishopValueEg
-                 &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-            sf = ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
-        // Endings that take place on a single flank are drawish.
-        else if (   pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK)
-                 && pos.count<PAWN>(strongSide) < pos.count<PAWN>(~strongSide) + 2
-                 && (!(pos.pieces(KING, PAWN) & KingSide) || !(pos.pieces(KING, PAWN) & QueenSide))
-                 && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-            sf = ScaleFactor(32);
+        {
+            if (pos.count<PAWN>(strongSide) <= 2)
+                sf = ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+            // Endings that take place on a single flank are drawish.
+            else if (   !ei.pi->passed_pawns(strongSide)
+                     && pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) <= (BishopValueMg - KnightValueMg)
+                     && (!(pos.pieces(KING, PAWN) & KingSide) || !(pos.pieces(KING, PAWN) & QueenSide)))
+                sf = ScaleFactor(36 + 7 * pos.count<PAWN>(strongSide));
+        }
     }
 
     return sf;
