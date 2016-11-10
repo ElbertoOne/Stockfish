@@ -239,7 +239,13 @@ template<typename T, int LE> T number(void* addr)
     const union { uint32_t i; char c[4]; } Le = { 0x01020304 };
     const bool IsLittleEndian = (Le.c[0] == 4);
 
-    T v = *((T*)addr);
+    T v;
+
+    if ((uintptr_t)addr & (alignof(T) - 1)) // Unaligned pointer (very rare)
+        std::memcpy(&v, addr, sizeof(T));
+    else
+        v = *((T*)addr);
+
     if (LE != IsLittleEndian)
         swap_byte(v);
     return v;
@@ -1061,10 +1067,10 @@ void do_init(Entry& e, T& p, uint8_t* data) {
 
     enum { Split = 1, HasPawns = 2 };
 
-    uint8_t flags = *data++;
+    assert(e.hasPawns        == !!(*data & HasPawns));
+    assert((e.key != e.key2) == !!(*data & Split));
 
-    assert(e.hasPawns        == !!(flags & HasPawns));
-    assert((e.key != e.key2) == !!(flags & Split));
+    data++; // First byte stores flags
 
     const int Sides = IsWDL && (e.key != e.key2) ? 2 : 1;
     const File MaxFile = e.hasPawns ? FILE_D : FILE_A;
@@ -1285,6 +1291,7 @@ void Tablebases::init(const std::string& paths) {
     for (int idx = 0; idx < 10; idx++)
         for (Square s1 = SQ_A1; s1 <= SQ_D4; ++s1)
             if (MapA1D1D4[s1] == idx && (idx || s1 == SQ_B1)) // SQ_B1 is mapped to 0
+            {
                 for (Square s2 = SQ_A1; s2 <= SQ_H8; ++s2)
                     if ((StepAttacksBB[KING][s1] | s1) & s2)
                         continue; // Illegal position
@@ -1297,6 +1304,7 @@ void Tablebases::init(const std::string& paths) {
 
                     else
                         MapKK[idx][s2] = code++;
+            }
 
     // Legal positions with both kings on diagonal are encoded as last ones
     for (auto p : bothOnDiagonal)
