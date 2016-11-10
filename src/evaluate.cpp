@@ -774,7 +774,7 @@ namespace {
             else if (   !ei.pi->passed_pawns(strongSide)
                      && pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) <= (BishopValueMg - KnightValueMg)
                      && (!(pos.pieces(KING, PAWN) & KingSide) || !(pos.pieces(KING, PAWN) & QueenSide)))
-                sf = ScaleFactor(36 + 7 * pos.count<PAWN>(strongSide));
+                sf = ScaleFactor(24 + 8 * pos.count<PAWN>(strongSide));
         }
     }
 
