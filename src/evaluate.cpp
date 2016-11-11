@@ -184,6 +184,10 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
 
+  // BishopFlanks[only bishop] contains a bonus if we have a B-N endgame
+  // with pawns on both flanks. Bonus is lower if there are also other pieces.
+  const Score BishopFlanks[2]     = { S( 0, 10), S( 0, 20) };
+
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
@@ -717,6 +721,24 @@ namespace {
     return make_score(bonus * weight * weight / 18, 0);
   }
 
+  // evaluate_space() computes the space evaluation for a given side. The
+  // space evaluation is a simple bonus based on the number of safe squares
+  // available for minor pieces on the central four files on ranks 2--4. Safe
+  // squares one, two or three squares behind a friendly pawn are counted
+  // twice. Finally, the space bonus is multiplied by a weight. The aim is to
+  // improve play on game opening.
+  template<Color Us>
+  Score evaluate_minors(const Position& pos) {
+    const Color Them = (Us == WHITE ? BLACK : WHITE);
+
+    if (   (pos.non_pawn_material(Us) - pos.non_pawn_material(Them)) == (BishopValueMg - KnightValueMg)
+        && (pos.pieces(Us, PAWN) & QueenSide)
+        && (pos.pieces(Us, PAWN) & KingSide))
+        return BishopFlanks[pos.non_pawn_material(Us) == BishopValueMg];
+
+    return SCORE_ZERO;
+
+  }
 
   // evaluate_initiative() computes the initiative correction value for the
   // position, i.e., second order bonus/malus based on the known attacking/defending
@@ -857,6 +879,10 @@ Value Eval::evaluate(const Position& pos) {
   if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
       score +=  evaluate_space<WHITE>(pos, ei)
               - evaluate_space<BLACK>(pos, ei);
+
+  // Evaluate minors.
+  score +=  evaluate_minors<WHITE>(pos)
+          - evaluate_minors<BLACK>(pos);
 
   // Evaluate position potential for the winning side
   score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
