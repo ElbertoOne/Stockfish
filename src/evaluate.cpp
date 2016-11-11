@@ -145,8 +145,8 @@ namespace {
   // knights and bishops which can reach an outpost square in one move, bigger
   // if outpost square is supported by a pawn.
   const Score ReachableOutpost[][2] = {
-    { S(19, 4), S(31, 7) }, // Knights
-    { S( 7, 0), S(12, 3) }  // Bishops
+    { S(21, 5), S(35, 8) }, // Knights
+    { S( 8, 0), S(14, 4) }  // Bishops
   };
 
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is no
@@ -305,10 +305,7 @@ namespace {
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
-                {
-                   Score reachable = ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
-                   score += reachable + (popcount(bb) - 1) * (reachable/5);
-                }
+                   score += popcount(bb) * ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
             }
 
             // Bonus when behind a pawn
