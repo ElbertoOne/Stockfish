@@ -186,7 +186,7 @@ namespace {
 
   // BishopFlanks[only bishop] contains a bonus if we have a B-N endgame
   // with pawns on both flanks. Bonus is lower if there are also other pieces.
-  const Score BishopFlanks[2]     = { S( 0, 10), S( 0, 20) };
+  const Score BishopFlanks[2]     = { S( 0, 10), S( 0, 40) };
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
@@ -721,12 +721,6 @@ namespace {
     return make_score(bonus * weight * weight / 18, 0);
   }
 
-  // evaluate_space() computes the space evaluation for a given side. The
-  // space evaluation is a simple bonus based on the number of safe squares
-  // available for minor pieces on the central four files on ranks 2--4. Safe
-  // squares one, two or three squares behind a friendly pawn are counted
-  // twice. Finally, the space bonus is multiplied by a weight. The aim is to
-  // improve play on game opening.
   template<Color Us>
   Score evaluate_minors(const Position& pos) {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
