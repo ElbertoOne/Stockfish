@@ -186,7 +186,7 @@ namespace {
 
   // BishopFlanks[only bishop] contains a bonus if we have a B-N endgame
   // with pawns on both flanks. Bonus is lower if there are also other pieces.
-  const Score BishopFlanks[2]     = { S( 0, 10), S( 0, 40) };
+  const Score BishopFlanks[2]     = { S( 0, 10), S( 0, 20) };
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
@@ -721,14 +721,13 @@ namespace {
     return make_score(bonus * weight * weight / 18, 0);
   }
 
-  template<Color Us>
-  Score evaluate_minors(const Position& pos) {
-    const Color Them = (Us == WHITE ? BLACK : WHITE);
+  Score evaluate_minors(const Position& pos, Value eg) {
+    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
 
-    if (   (pos.non_pawn_material(Us) - pos.non_pawn_material(Them)) == (BishopValueMg - KnightValueMg)
-        && (pos.pieces(Us, PAWN) & QueenSide)
-        && (pos.pieces(Us, PAWN) & KingSide))
-        return BishopFlanks[pos.non_pawn_material(Us) == BishopValueMg];
+    if (   (pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide)) == (BishopValueMg - KnightValueMg)
+        && (pos.pieces(strongSide, PAWN) & QueenSide)
+        && (pos.pieces(strongSide, PAWN) & KingSide))
+        return ((eg > 0) - (eg < 0)) * BishopFlanks[pos.non_pawn_material(strongSide) == BishopValueMg];
 
     return SCORE_ZERO;
 
@@ -874,12 +873,11 @@ Value Eval::evaluate(const Position& pos) {
       score +=  evaluate_space<WHITE>(pos, ei)
               - evaluate_space<BLACK>(pos, ei);
 
-  // Evaluate minors.
-  score +=  evaluate_minors<WHITE>(pos)
-          - evaluate_minors<BLACK>(pos);
-
   // Evaluate position potential for the winning side
   score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
+
+  // Evaluate minors.
+  score +=  evaluate_minors(pos, eg_value(score));
 
   // Evaluate scale factor for the winning side
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));
