@@ -49,7 +49,7 @@ namespace {
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
-    S(17, 16), S(33, 32), S(0, 0), S(0, 0)
+    S(19, 22), S(40, 34), S(0, 0), S(0, 0)
   };
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
