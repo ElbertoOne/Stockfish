@@ -184,10 +184,6 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
 
-  // BishopFlanks[only bishop] contains a bonus if we have a B-N endgame
-  // with pawns on both flanks. Bonus is lower if there are also other pieces.
-  const Score BishopFlanks[2]     = { S( 0, 10), S( 0, 20) };
-
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
@@ -204,6 +200,7 @@ namespace {
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
   const Score HinderPassedPawn    = S( 7,  0);
+  const Score BishopFlanks        = S( 0, 40);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -724,10 +721,11 @@ namespace {
   Score evaluate_minors(const Position& pos, Value eg) {
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
 
-    if (   (pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide)) == (BishopValueMg - KnightValueMg)
+    if (   pos.non_pawn_material(strongSide) == BishopValueMg
+        && pos.non_pawn_material(~strongSide) == KnightValueMg
         && (pos.pieces(strongSide, PAWN) & QueenSide)
         && (pos.pieces(strongSide, PAWN) & KingSide))
-        return ((eg > 0) - (eg < 0)) * BishopFlanks[pos.non_pawn_material(strongSide) == BishopValueMg];
+        return ((eg > 0) - (eg < 0)) * BishopFlanks;
 
     return SCORE_ZERO;
 
