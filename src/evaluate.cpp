@@ -336,7 +336,7 @@ namespace {
         {
             // Bonus for aligning with enemy pawns on the same rank/file
             if (relative_rank(Us, s) >= RANK_5)
-                score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & (forward_bb(Them, s) | rank_bb(s)));
+                score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s] & ~ei.attackedBy[Them][PAWN]);
 
             // Bonus when on an open or semi-open file
             if (ei.pi->semiopen_file(Us, file_of(s)))
