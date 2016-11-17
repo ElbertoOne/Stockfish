@@ -187,7 +187,8 @@ namespace {
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
-  const Score RookOnPawn          = S( 8, 24);
+  const Score RookOnPawn          = S( 9, 26);
+  const Score RookOnPawnDefended  = S( 0,-10);
   const Score TrappedRook         = S(92,  0);
   const Score CloseEnemies        = S( 7,  0);
   const Score SafeCheck           = S(20, 20);
@@ -336,7 +337,13 @@ namespace {
         {
             // Bonus for aligning with enemy pawns on the same rank/file
             if (relative_rank(Us, s) >= RANK_5)
-                score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s] & ~ei.attackedBy[Them][PAWN]);
+            {
+                bb = pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s];
+                if (bb & ~ei.attackedBy[Them][PAWN])
+                    score += RookOnPawn * popcount(bb & ~ei.attackedBy[Them][PAWN]);
+                else
+                    score += RookOnPawnDefended * popcount(bb);
+            }
 
             // Bonus when on an open or semi-open file
             if (ei.pi->semiopen_file(Us, file_of(s)))
