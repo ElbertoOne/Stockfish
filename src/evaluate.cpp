@@ -184,11 +184,18 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
 
+  //TrappedRook[mob][byKing]
+  Score TrappedRook[][2]         = {
+    { S(88,  6), S(187, 11) },
+    { S(79,  9), S(129,  2) },
+    { S(43, 10), S( 91, 12) },
+    { S(37,  7), S( 54,  2) }
+  };
+
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
-  const Score TrappedRook         = S(92,  0);
   const Score CloseEnemies        = S( 7,  0);
   const Score SafeCheck           = S(20, 20);
   const Score OtherCheck          = S(10, 10);
@@ -348,9 +355,8 @@ namespace {
                 Square ksq = pos.square<KING>(Us);
 
                 if (   ((file_of(ksq) < FILE_E) == (file_of(s) < file_of(ksq)))
-                    && (rank_of(ksq) == rank_of(s) || relative_rank(Us, ksq) == RANK_1)
                     && !ei.pi->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
-                    score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+                    score -= TrappedRook[mob][!pos.can_castle(Us) && rank_of(ksq) == rank_of(s) && relative_rank(Us, ksq) == RANK_1];
             }
         }
 
