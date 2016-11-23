@@ -200,6 +200,7 @@ namespace {
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
   const Score HinderPassedPawn    = S( 7,  0);
+  const Score IsolatedOutpost     = S(20,  5);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -311,13 +312,13 @@ namespace {
             }
 
             // Penalty for (extended) outpost squares from which the minor piece doesn't attack
-            // non pawns and from which it can't return easily. Penalty is a portion of the Outpost bonus.
+            // non pawns and from which it can't return easily.
             if ((ExtendedOutpostRanks & ~ei.pi->pawn_attacks_span(Them) & s) && !(b & (pos.pieces(Them) ^ pos.pieces(Them, PAWN))))
             {
                 Bitboard backwardSq = in_front_bb(Them, rank_of(s)) & b;
 
-                if (backwardSq && popcount(backwardSq & ~(backwardSq & (ei.attackedBy[Them][PAWN] | pos.pieces(Us, PAWN)))) == 0)
-                    score -= Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)]/3;
+                if (backwardSq && !(backwardSq & ~(backwardSq & (ei.attackedBy[Them][PAWN] | pos.pieces(Us, PAWN)))))
+                    score -= IsolatedOutpost;
             }
 
             // Bonus when behind a pawn
