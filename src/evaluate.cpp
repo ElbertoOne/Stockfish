@@ -262,6 +262,8 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                : Rank5BB | Rank4BB | Rank3BB);
+    const Bitboard ExtendedOutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
+                                               : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     ei.attackedBy[Us][Pt] = 0;
@@ -306,6 +308,16 @@ namespace {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
                    score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
+            }
+
+            // Penalty for (extended) outpost squares from which the minor piece doesn't attack
+            // non pawns and from which it can't return easily. Penalty is a portion of the Outpost bonus.
+            if ((ExtendedOutpostRanks & ~ei.pi->pawn_attacks_span(Them) & s) && !(b & (pos.pieces(Them) ^ pos.pieces(Them, PAWN))))
+            {
+                Bitboard backwardSq = in_front_bb(Them, rank_of(s)) & b;
+
+                if (backwardSq && popcount(backwardSq & ~(backwardSq & (ei.attackedBy[Them][PAWN] | pos.pieces(Us, PAWN)))) == 0)
+                    score -= Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)]/3;
             }
 
             // Bonus when behind a pawn
