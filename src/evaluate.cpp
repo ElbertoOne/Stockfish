@@ -200,7 +200,7 @@ namespace {
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
   const Score HinderPassedPawn    = S( 7,  0);
-  const Score IsolatedOutpost     = S(20,  5);
+  const Score IsolatedOutpost     = S(15,  5);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -263,8 +263,6 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                : Rank5BB | Rank4BB | Rank3BB);
-    const Bitboard ExtendedOutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
-                                               : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     ei.attackedBy[Us][Pt] = 0;
@@ -303,22 +301,24 @@ namespace {
             // Bonus for outpost squares
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
             if (bb & s)
+            {
                 score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+
+                // Penalty for outpost squares from which the minor piece doesn't attack
+                // anything and from which it can't return easily.
+                if (!(b & pos.pieces(Them)))
+                {
+                    Bitboard backwardSq = in_front_bb(Them, rank_of(s)) & b;
+
+                    if (backwardSq && !(backwardSq & ~(backwardSq & (ei.attackedBy[Them][PAWN] | (pos.pieces(Us) ^ pos.pieces(Us, QUEEN) ^ pos.pieces(Us, Pt))))))
+                        score -= IsolatedOutpost;
+                }
+            }
             else
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
                    score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
-            }
-
-            // Penalty for (extended) outpost squares from which the minor piece doesn't attack
-            // non pawns and from which it can't return easily.
-            if ((ExtendedOutpostRanks & ~ei.pi->pawn_attacks_span(Them) & s) && !(b & (pos.pieces(Them) ^ pos.pieces(Them, PAWN))))
-            {
-                Bitboard backwardSq = in_front_bb(Them, rank_of(s)) & b;
-
-                if (backwardSq && !(backwardSq & ~(backwardSq & (ei.attackedBy[Them][PAWN] | pos.pieces(Us, PAWN)))))
-                    score -= IsolatedOutpost;
             }
 
             // Bonus when behind a pawn
