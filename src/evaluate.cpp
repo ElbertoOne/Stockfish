@@ -497,9 +497,9 @@ namespace {
 
     score -= CloseEnemies * popcount(b);
 
-    // Penalty when our king is on a pawnless flank
+    // Penalty when our king is on a pawnless flank. Double penalty if there is no minor near the king.
     if (!(pos.pieces(PAWN) & (KingFlank[WHITE][kf] | KingFlank[BLACK][kf])))
-        score -= PawnlessFlank;
+        score -= PawnlessFlank * (1 + !(ei.attackedBy[Us][KING] & pos.pieces(Us, KNIGHT, BISHOP)));
 
     if (DoTrace)
         Trace::add(KING, Us, score);
