@@ -200,6 +200,7 @@ namespace {
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
   const Score HinderPassedPawn    = S( 7,  0);
+  const Score BishopOnHole        = S(10,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -315,7 +316,12 @@ namespace {
 
             // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
+            {
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
+
+                if (relative_rank(Us, s) > RANK_3 && (ei.pi->pawnHoles[Them] & s))
+                    score += BishopOnHole;
+            }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
