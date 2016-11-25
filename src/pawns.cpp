@@ -113,11 +113,22 @@ namespace {
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
-    Bitboard temp = ourPawns << 8;
-    temp |= temp << 8;
-    temp |= temp << 16;
-    temp |= temp << 32;
+    Bitboard temp;
 
+    if (Us == WHITE)
+    {
+        temp = ourPawns << 8;
+        temp |= temp << 8;
+        temp |= temp << 16;
+        temp |= temp << 32;
+    }
+    else
+    {
+        temp = ourPawns >> 8;
+        temp |= temp >> 8;
+        temp |= temp >> 16;
+        temp |= temp >> 32;
+    }
     e->pawnHoles[Us] = ~e->pawnAttacks[Us] & temp;
 
     // Loop through all pawns of the current color and score each pawn
