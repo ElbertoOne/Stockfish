@@ -201,6 +201,7 @@ namespace {
   const Score PawnlessFlank       = S(20, 80);
   const Score HinderPassedPawn    = S( 7,  0);
   const Score ThreatByRank        = S(16,  3);
+  const Score ThreatByClosePawn   = S(20, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -597,6 +598,25 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    // Bonus if the opposing king is on the edge of the board and we have
+    // a queen plus a pawn that controls a square where the king could be mated.
+    if (pos.pieces(Us, QUEEN))
+    {
+        b = pos.pieces(Us, PAWN) & ~TRank7BB & ~ei.attackedBy[Them][ALL_PIECES];
+        if (b)
+        {
+            Square ksq = pos.square<KING>(Them);
+            Bitboard bb = 0;
+            if (relative_rank(Us, ksq) == RANK_8)
+                bb = (shift<Left>(b) | shift<Right>(b)) & (TRank7BB & file_bb(ksq));
+            else if ((FileABB | FileHBB) & file_bb(ksq))
+                bb = (shift<Left>(b) | shift<Right>(b)) & (adjacent_files_bb(file_of(ksq)) & rank_bb(ksq));
+
+            if (bb)
+                score += ThreatByClosePawn;
+        }
+    }
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
