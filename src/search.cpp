@@ -690,6 +690,7 @@ namespace {
     }
 
     // Step 5. Evaluate the position statically
+    ss->openFiles = Pawns::probe(pos)->openFiles;
     if (inCheck)
     {
         ss->staticEval = eval = VALUE_NONE;
@@ -835,7 +836,8 @@ moves_loop: // When in check search starts from here
 
     MovePicker mp(pos, ttMove, depth, ss);
     value = bestValue; // Workaround a bogus 'uninitialized' warning under gcc
-    improving =   ss->staticEval >= (ss-2)->staticEval
+    improving =   ss->staticEval > (ss-2)->staticEval
+               || (ss->staticEval == (ss-2)->staticEval && ss->openFiles == (ss-2)->openFiles)
             /* || ss->staticEval == VALUE_NONE Already implicit in the previous condition */
                ||(ss-2)->staticEval == VALUE_NONE;
 
