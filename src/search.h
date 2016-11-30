@@ -47,7 +47,6 @@ struct Stack {
   bool skipEarlyPruning;
   int moveCount;
   CounterMoveStats* counterMoves;
-  int openFiles;
 };
 
 
