@@ -690,7 +690,6 @@ namespace {
     }
 
     // Step 5. Evaluate the position statically
-    //ss->openFiles = Pawns::probe(pos)->openFiles;
     if (inCheck)
     {
         ss->staticEval = eval = VALUE_NONE;
