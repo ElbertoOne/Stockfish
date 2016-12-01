@@ -335,7 +335,7 @@ void MainThread::search() {
 
 void Thread::search() {
 
-  Stack stack[MAX_PLY+7], *ss = stack+4; // To allow referencing (ss-4) and (ss+2)
+  Stack stack[MAX_PLY+7], *ss = stack+12; // To allow referencing (ss-4) and (ss+2)
   Value bestValue, alpha, beta, delta;
   Move easyMove = MOVE_NONE;
   MainThread* mainThread = (this == Threads.main() ? Threads.main() : nullptr);
@@ -690,6 +690,7 @@ namespace {
     }
 
     // Step 5. Evaluate the position statically
+    //ss->openFiles = Pawns::probe(pos)->openFiles;
     if (inCheck)
     {
         ss->staticEval = eval = VALUE_NONE;
@@ -835,9 +836,12 @@ moves_loop: // When in check search starts from here
 
     MovePicker mp(pos, ttMove, depth, ss);
     value = bestValue; // Workaround a bogus 'uninitialized' warning under gcc
-    improving =   ss->staticEval >= (ss-2)->staticEval
+    improving =   (ss->staticEval >= (ss-2)->staticEval
             /* || ss->staticEval == VALUE_NONE Already implicit in the previous condition */
-               ||(ss-2)->staticEval == VALUE_NONE;
+               ||(ss-2)->staticEval == VALUE_NONE)
+               && !(   ss->staticEval != VALUE_NONE && ss->staticEval == (ss-2)->staticEval && ss->staticEval == (ss-4)->staticEval
+                    && ss->staticEval == (ss-6)->staticEval && ss->staticEval == (ss-8)->staticEval && ss->staticEval == (ss-10)->staticEval
+                    && ss->staticEval == (ss-12)->staticEval);
 
     singularExtensionNode =   !rootNode
                            &&  depth >= 8 * ONE_PLY
