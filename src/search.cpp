@@ -762,7 +762,7 @@ namespace {
         if (nullValue >= beta)
         {
             // Do not return unproven mate scores
-            if (nullValue >= VALUE_MATE_IN_MAX_PLY)
+            if (nullValue >= VALUE_MATE_IN_MAX_PLY || (eval >= 0 && nullValue < 0))
                 nullValue = beta;
 
             if (depth < 12 * ONE_PLY && abs(beta) < VALUE_KNOWN_WIN)
