@@ -201,6 +201,7 @@ namespace {
   const Score PawnlessFlank       = S(20, 80);
   const Score HinderPassedPawn    = S( 7,  0);
   const Score ThreatByRank        = S(16,  3);
+  const Score ThreatByClosePawn   = S(20, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -597,6 +598,10 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    b = pos.pieces(Us, PAWN) & ~TRank7BB & ~ei.attackedBy[Them][ALL_PIECES];
+    b = (shift<Left>(b) | shift<Right>(b)) & ei.attackedBy[Them][KING];
+    score += ThreatByClosePawn * popcount(b);
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
