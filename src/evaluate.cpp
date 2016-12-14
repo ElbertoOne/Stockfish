@@ -141,6 +141,10 @@ namespace {
     { S(20, 3), S(29, 8) }  // Bishops
   };
 
+  const Score OutpostDoublePawns[2] = {
+	  S(15,5), S(7, 2)
+
+};
   // ReachableOutpost[knight/bishop][supported by pawn] contains bonuses for
   // knights and bishops which can reach an outpost square in one move, bigger
   // if outpost square is supported by a pawn.
@@ -301,7 +305,11 @@ namespace {
             // Bonus for outpost squares
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
             if (bb & s)
+            {
                 score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+                if (ei.pi->attackedBy2Pawns[Us] & s)
+					score += OutpostDoublePawns[Pt == BISHOP];
+			}
             else
             {
                 bb &= b & ~pos.pieces(Us);
