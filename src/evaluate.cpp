@@ -79,7 +79,7 @@ namespace {
 
     // attackedBy2[color] are the squares attacked by 2 pieces of a given color,
     // possibly via x-ray or by one pawn and one piece. Diagonal x-ray through
-    // pawn or squares attacked by 2 pawns are not explicitly added.
+    // pawns are not explicitly added.
     Bitboard attackedBy2[COLOR_NB];
 
     // kingRing[color] is the zone around the king which is considered
@@ -234,7 +234,7 @@ namespace {
     Bitboard b = ei.attackedBy[Them][KING];
     ei.attackedBy[Them][ALL_PIECES] |= b;
     ei.attackedBy[Us][ALL_PIECES] |= ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
-    ei.attackedBy2[Us] = ei.attackedBy[Us][PAWN] & ei.attackedBy[Us][KING];
+    ei.attackedBy2[Us] = (ei.attackedBy[Us][PAWN] & ei.attackedBy[Us][KING]) | ei.pi->attackedBy2Pawns[Us];
 
     // Init king safety tables only if we are going to use them
     if (pos.non_pawn_material(Us) >= QueenValueMg)
