@@ -756,7 +756,7 @@ namespace {
                                       : - search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode, true);
         pos.undo_null_move();
 
-        if (nullValue > beta)
+        if (nullValue >= beta)
         {
             // Do not return unproven mate scores
             if (nullValue >= VALUE_MATE_IN_MAX_PLY)
@@ -765,12 +765,15 @@ namespace {
             if (depth < 12 * ONE_PLY && abs(beta) < VALUE_KNOWN_WIN)
                 return nullValue;
 
-            // Do verification search at high depths
-            Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta, DEPTH_ZERO)
-                                        :  search<NonPV>(pos, ss, beta-1, beta, depth-R, false, true);
+            if (nullValue > beta)
+            {
+                // Do verification search at high depths
+                Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta, DEPTH_ZERO)
+                                            :  search<NonPV>(pos, ss, beta-1, beta, depth-R, false, true);
 
-            if (v >= beta)
-                return nullValue;
+                if (v >= beta)
+                    return nullValue;
+            }
         }
     }
 
