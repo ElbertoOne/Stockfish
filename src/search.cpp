@@ -906,7 +906,8 @@ moves_loop: // When in check search starts from here
 
       // Step 13. Pruning at shallow depth
       if (  !rootNode
-          && bestValue > VALUE_MATED_IN_MAX_PLY)
+          && bestValue > VALUE_MATED_IN_MAX_PLY
+          && pos.non_pawn_material(pos.side_to_move()))
       {
           if (   !captureOrPromotion
               && !givesCheck
