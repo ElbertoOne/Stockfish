@@ -759,7 +759,7 @@ namespace {
                                       : - search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode, true);
         pos.undo_null_move();
 
-        if (nullValue >= beta && !(nullValue == 0 && beta == 0))
+        if (nullValue >= beta && !(nullValue == 0 && beta == 0 && pos.game_phase() < 20))
         {
             // Do not return unproven mate scores
             if (nullValue >= VALUE_MATE_IN_MAX_PLY)
