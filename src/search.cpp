@@ -745,7 +745,7 @@ namespace {
         &&  eval >= beta
         && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
         &&  pos.non_pawn_material(pos.side_to_move())
-        &&  pos.game_phase() >= PHASE_MIDGAME)
+        &&  pos.game_phase() > 0)
     {
         ss->currentMove = MOVE_NULL;
         ss->counterMoves = nullptr;
