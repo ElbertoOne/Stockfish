@@ -759,8 +759,16 @@ namespace {
                                       : - search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode, true);
         pos.undo_null_move();
 
-        if (nullValue >= beta && !(nullValue == 0 && beta == 0 && pos.game_phase() < 20))
+        if (nullValue >= beta)
         {
+			/*if (   "K7/8/8/8/8/2P2N1p/6pq/1R4bk b - - 1 5" == pos.fen()
+			    || "qrbb3k/6p1/2p3Pp/1nPp1p1P/rP1PpPn1/1N2P2R/1QN3R1/1K1BB3 w - - 13 41" == pos.fen()
+			    || "8/5k2/1p4p1/p1pP1r1p/P1P5/1P2R1P1/4K3/8 w - - 1 2" == pos.fen())
+			{
+				std::stringstream sts;
+                sts << "Eval: " << eval << " staticEval: " << ss->staticEval << " beta: " << beta << " alpha: " << alpha << " nullValue: " << nullValue << " depth: " << depth << " R: " << R << " phase: " << pos.game_phase() << " ttMove: " << ttMove << " cutNode: " << cutNode << std::endl;
+                std::cerr << sts.str() << std::endl;
+			}*/
             // Do not return unproven mate scores
             if (nullValue >= VALUE_MATE_IN_MAX_PLY)
                 nullValue = beta;
@@ -772,7 +780,7 @@ namespace {
             Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta)
                                         :  search<NonPV>(pos, ss, beta-1, beta, depth-R, false, true);
 
-            if (v >= beta)
+            if (v >= beta && !(v == beta && nullValue == beta))
                 return nullValue;
         }
     }
