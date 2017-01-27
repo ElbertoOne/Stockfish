@@ -747,11 +747,11 @@ namespace {
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
 
-    int kingMobility =  popcount(ei.attackedBy[WHITE][KING] & ~ei.attackedBy[BLACK][ALL_PIECES] & ~pos.pieces())
-                      - popcount(ei.attackedBy[BLACK][KING] & ~ei.attackedBy[WHITE][ALL_PIECES] & ~pos.pieces());
+    int kingMobility =  std::abs(popcount(ei.attackedBy[WHITE][KING] & ~ei.attackedBy[BLACK][ALL_PIECES] & ~pos.pieces())
+                      - popcount(ei.attackedBy[BLACK][KING] & ~ei.attackedBy[WHITE][ALL_PIECES] & ~pos.pieces()));
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance + kingMobility - 15) + 12 * pawns;
+    int initiative = 8 * (asymmetry + kingDistance + kingMobility - 14) + 12 * pawns;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
