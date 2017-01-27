@@ -507,6 +507,10 @@ namespace {
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
 
+    int kingMob = popcount(ei.attackedBy[Us][KING] & ~ei.attackedBy[Them][ALL_PIECES] & ~pos.pieces());
+    if (kingMob < 2)
+        score -= make_score(0, 40-30*kingMob);
+
     if (DoTrace)
         Trace::add(KING, Us, score);
 
