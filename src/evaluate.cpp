@@ -507,10 +507,6 @@ namespace {
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
 
-    int kingMob = popcount(ei.attackedBy[Us][KING] & ~ei.attackedBy[Them][ALL_PIECES] & ~pos.pieces());
-    if (kingMob < 2)
-        score -= make_score(0, 40-30*kingMob);
-
     if (DoTrace)
         Trace::add(KING, Us, score);
 
@@ -743,14 +739,19 @@ namespace {
   // evaluate_initiative() computes the initiative correction value for the
   // position, i.e., second order bonus/malus based on the known attacking/defending
   // status of the players.
-  Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
+  Score evaluate_initiative(const Position& pos, EvalInfo ei, Value eg) {
+
+	int asymmetry = ei.pe->pawn_asymmetry();
 
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
 
+    int kingMobility =  popcount(ei.attackedBy[WHITE][KING] & ~ei.attackedBy[BLACK][ALL_PIECES] & ~pos.pieces())
+                      - popcount(ei.attackedBy[BLACK][KING] & ~ei.attackedBy[WHITE][ALL_PIECES] & ~pos.pieces());
+
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
+    int initiative = 8 * (asymmetry + kingDistance + kingMobility - 15) + 12 * pawns;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
@@ -860,7 +861,7 @@ Value Eval::evaluate(const Position& pos) {
               - evaluate_space<BLACK>(pos, ei);
 
   // Evaluate position potential for the winning side
-  score += evaluate_initiative(pos, ei.pe->pawn_asymmetry(), eg_value(score));
+  score += evaluate_initiative(pos, ei, eg_value(score));
 
   // Evaluate scale factor for the winning side
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));
