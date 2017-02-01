@@ -527,7 +527,9 @@ namespace {
         score += LooseEnemies;
 
     // Small bonus if the opponent can castle, but is prevented from doing so because the king has to defend a pawn
-    if (pos.can_castle(Them) && (pos.pieces(Them, PAWN) & ei.attackedBy[Us][ALL_PIECES] & ei.attackedBy[Them][KING] & ~ei.attackedBy2[Them]))
+    if (((Them == WHITE && pos.can_castle(WHITE_OO)) || (Them == BLACK && pos.can_castle(BLACK_OO))) && (pos.pieces(Them, PAWN) & (FileEBB | FileDBB) & ei.attackedBy[Us][ALL_PIECES] & ei.attackedBy[Them][KING] & ~ei.attackedBy2[Them]))
+        score += OnlyKingDefender;
+    else if (((Them == WHITE && pos.can_castle(WHITE_OOO)) || (Them == BLACK && pos.can_castle(BLACK_OOO))) && (pos.pieces(Them, PAWN) & (FileEBB | FileFBB) & ei.attackedBy[Us][ALL_PIECES] & ei.attackedBy[Them][KING] & ~ei.attackedBy2[Them]))
         score += OnlyKingDefender;
 
     // Non-pawn enemies attacked by a pawn
