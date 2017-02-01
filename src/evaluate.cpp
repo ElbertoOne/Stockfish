@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -191,6 +192,7 @@ namespace {
   const Score CloseEnemies        = S( 7,  0);
   const Score PawnlessFlank       = S(20, 80);
   const Score LooseEnemies        = S( 0, 25);
+  const Score OnlyKingDefender    = S(20,  0);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score ThreatByRank        = S(16,  3);
   const Score Hanging             = S(48, 27);
@@ -524,6 +526,10 @@ namespace {
     if (   (pos.pieces(Them) ^ pos.pieces(Them, QUEEN, KING))
         & ~(ei.attackedBy[Us][ALL_PIECES] | ei.attackedBy[Them][ALL_PIECES]))
         score += LooseEnemies;
+
+    // Small bonus if the opponent can castle, but is prevented from doing so because the king has to defend a pawn
+    if (pos.can_castle(Them) && (pos.pieces(Them, PAWN) & ei.attackedBy[Us][ALL_PIECES] & ei.attackedBy[Them][KING] & ~ei.attackedBy2[Them]))
+        score += OnlyKingDefender;
 
     // Non-pawn enemies attacked by a pawn
     weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & ei.attackedBy[Us][PAWN];
