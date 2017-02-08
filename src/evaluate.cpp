@@ -196,6 +196,7 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score HinderPassedPawn    = S( 7,  0);
+  const Score HinderOPBPassedPawn = S( 7, 25);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -614,7 +615,11 @@ namespace {
         assert(!(pos.pieces(PAWN) & forward_bb(Us, s)));
 
         bb = forward_bb(Us, s) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them));
-        score -= HinderPassedPawn * popcount(bb);
+        int bbCount = popcount(bb);
+        if (pos.opposite_bishops() && bbCount == popcount(pos.pieces(Them, PAWN)))
+            score -= HinderOPBPassedPawn * bbCount;
+        else
+            score -= HinderPassedPawn * bbCount;
 
         int r = relative_rank(Us, s) - RANK_2;
         int rr = r * (r - 1);
