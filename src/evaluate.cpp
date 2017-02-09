@@ -617,8 +617,7 @@ namespace {
         bb = forward_bb(Us, s) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them));
         int bbCount = popcount(bb);
         if (   pos.opposite_bishops()
-            && pos.non_pawn_material(WHITE) == BishopValueMg
-            && pos.non_pawn_material(BLACK) == BishopValueMg)
+            && pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK))
             score -= HinderOPBPassedPawn * bbCount;
         else
             score -= HinderPassedPawn * bbCount;
