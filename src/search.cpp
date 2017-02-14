@@ -757,7 +757,8 @@ namespace {
     if (   !PvNode
         &&  eval >= beta
         && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
-        &&  pos.non_pawn_material(pos.side_to_move()))
+        &&  pos.non_pawn_material(pos.side_to_move())
+        && !(pos.game_phase() < 100 && ss->staticEval == (ss-2)->staticEval))
     {
         ss->currentMove = MOVE_NULL;
         ss->counterMoves = nullptr;
