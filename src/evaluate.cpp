@@ -595,6 +595,8 @@ namespace {
   Score evaluate_passer_pawns(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
+    const Bitboard TRank6BB = (Us == WHITE ? Rank6BB : Rank3BB);
+    const Bitboard TRank7BB = (Us == WHITE ? Rank7BB : Rank2BB);
 
     Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
     Score score = SCORE_ZERO;
@@ -618,9 +620,13 @@ namespace {
         if (rr)
         {
             Square blockSq = s + pawn_push(Us);
+            int kingDistanceFactor = 5;
+
+            if ((TRank6BB & s) && (adjacent_files_bb(file_of(s)) & TRank7BB & ei.attackedBy[Them][KING] & ~ei.attackedBy2[Them] & ei.attackedBy[Us][QUEEN]))
+                kingDistanceFactor = 8;
 
             // Adjust bonus based on the king's proximity
-            ebonus +=  distance(pos.square<KING>(Them), blockSq) * 5 * rr
+            ebonus +=  distance(pos.square<KING>(Them), blockSq) * kingDistanceFactor * rr
                      - distance(pos.square<KING>(Us  ), blockSq) * 2 * rr;
 
             // If blockSq is not the queening square then consider also a second push
