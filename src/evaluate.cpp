@@ -620,13 +620,9 @@ namespace {
         if (rr)
         {
             Square blockSq = s + pawn_push(Us);
-            int kingDistanceFactor = 5;
-
-            if ((TRank6BB & s) && (adjacent_files_bb(file_of(s)) & TRank7BB & ei.attackedBy[Them][KING] & ~ei.attackedBy2[Them] & ei.attackedBy[Us][QUEEN]))
-                kingDistanceFactor = 8;
 
             // Adjust bonus based on the king's proximity
-            ebonus +=  distance(pos.square<KING>(Them), blockSq) * kingDistanceFactor * rr
+            ebonus +=  distance(pos.square<KING>(Them), blockSq) * 5 * rr
                      - distance(pos.square<KING>(Us  ), blockSq) * 2 * rr;
 
             // If blockSq is not the queening square then consider also a second push
@@ -671,6 +667,10 @@ namespace {
         // push to become passed.
         if (!pos.pawn_passed(Us, s + pawn_push(Us)))
             mbonus /= 2, ebonus /= 2;
+
+        // Double bonus if queen has threat of check or mate with the help of the pawn on 6th rank
+        if ((TRank6BB & s) && (adjacent_files_bb(file_of(s)) & TRank7BB & ei.attackedBy[Them][KING] & ~ei.attackedBy2[Them] & ei.attackedBy[Us][QUEEN]))
+            mbonus *= 2, ebonus *= 2;
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
     }
