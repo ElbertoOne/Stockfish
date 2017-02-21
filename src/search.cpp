@@ -763,7 +763,7 @@ namespace {
 
         assert(eval - beta >= 0);
 
-        // Null move dynamic reduction based on depth and value
+        // Null move dynamic reduction based on depth.
         Depth R = ((1050 + 67 * depth / ONE_PLY) / 256) * ONE_PLY;
 
         pos.do_null_move(st);
