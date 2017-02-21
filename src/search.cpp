@@ -756,8 +756,7 @@ namespace {
     if (   !PvNode
         &&  eval >= beta
         && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
-        &&  pos.non_pawn_material(pos.side_to_move())
-        && !pos.captured_piece())
+        &&  pos.non_pawn_material(pos.side_to_move()))
     {
         ss->currentMove = MOVE_NULL;
         ss->counterMoves = nullptr;
@@ -765,7 +764,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = ((823 + 67 * depth / ONE_PLY) / 256 + std::min((eval - beta) / PawnValueMg, 3)) * ONE_PLY;
+        Depth R = ((1050 + 67 * depth / ONE_PLY) / 256) * ONE_PLY;
 
         pos.do_null_move(st);
         Value nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1)
