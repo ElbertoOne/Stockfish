@@ -764,7 +764,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth.
-        Depth R = ((1050 + 67 * depth / ONE_PLY) / 256) * ONE_PLY;
+        Depth R = ((823 + 67 * depth / ONE_PLY) / 256 + std::min((eval - beta) / PawnValueMg, 3)) * ONE_PLY;
 
         pos.do_null_move(st);
         Value nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1)
@@ -777,7 +777,7 @@ namespace {
             if (nullValue >= VALUE_MATE_IN_MAX_PLY)
                 nullValue = beta;
 
-            if (depth < 12 * ONE_PLY && abs(beta) < VALUE_KNOWN_WIN)
+            if (depth < 12 * ONE_PLY && abs(beta) < VALUE_KNOWN_WIN && nullValue >= eval)
                 return nullValue;
 
             // Do verification search at high depths
