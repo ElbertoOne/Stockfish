@@ -559,6 +559,7 @@ namespace {
     assert(depth / ONE_PLY * ONE_PLY == depth);
 
     Move pv[MAX_PLY+1], quietsSearched[64];
+    Move threatMove = MOVE_NULL;
     StateInfo st;
     TTEntry* tte;
     Key posKey;
@@ -769,15 +770,17 @@ namespace {
         pos.do_null_move(st);
         Value nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1)
                                             : - search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode, true);
+
+        Key nullKey = pos.key();
         pos.undo_null_move();
 
         if (nullValue >= beta)
         {
-            // Do not return unproven mate scores
+            // Do not return unproven win scores
             if (nullValue >= VALUE_MATE_IN_MAX_PLY)
                 nullValue = beta;
 
-            if (depth < 12 * ONE_PLY && abs(beta) < VALUE_KNOWN_WIN && nullValue >= eval)
+            if (depth < 12 * ONE_PLY && abs(beta) < VALUE_KNOWN_WIN)
                 return nullValue;
 
             // Do verification search at high depths
@@ -786,6 +789,11 @@ namespace {
 
             if (v >= beta)
                 return nullValue;
+        }
+        else
+        {
+            TTEntry* tteNull = TT.probe(nullKey, ttHit);
+            threatMove = tteNull != nullptr ? tteNull->move() : MOVE_NULL;
         }
     }
 
@@ -942,7 +950,8 @@ moves_loop: // When in check search starts from here
               // Futility pruning: parent node
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + 256 + 200 * lmrDepth <= alpha)
+                  && ss->staticEval + 256 + 200 * lmrDepth <= alpha
+                  && threatMove != MOVE_NULL)
                   continue;
 
               // Prune moves with negative SEE
