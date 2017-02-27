@@ -180,7 +180,7 @@ namespace {
     S(  9, 10), S( 2, 10), S( 1, -8), S(-20,-12),
     S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 10)
   };
-  
+
   // Protector[PieceType][distance] contains a protecting bonus for our king,
   // indexed by piece type and distance between the piece and the king.
   const Score Protector[PIECE_TYPE_NB][8] = {
@@ -205,6 +205,7 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score HinderPassedPawn    = S( 7,  0);
+  const Score KingBlockPP         = S(20, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -304,7 +305,7 @@ namespace {
         int mob = popcount(b & ei.mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt][mob];
-        
+
         // Bonus for this piece as a king protector
         score += Protector[Pt][distance(s, pos.square<KING>(Us))];
 
@@ -618,6 +619,7 @@ namespace {
 
     Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
     Score score = SCORE_ZERO;
+    Square ksq = pos.square<KING>(Us);
 
     b = ei.pe->passed_pawns(Us);
 
@@ -629,6 +631,14 @@ namespace {
 
         bb = forward_bb(Us, s) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them));
         score -= HinderPassedPawn * popcount(bb);
+
+        if (forward_bb(Us, s) & ksq)
+        {
+            if (popcount(adjacent_files_bb(file_of(ksq)) & ei.attackedBy[Us][KING] & ~ei.attackedBy[Them][ALL_PIECES]) == 0)
+                score -= KingBlockPP;
+            else
+                score -= HinderPassedPawn;
+        }
 
         int r = relative_rank(Us, s) - RANK_2;
         int rr = r * (r - 1);
