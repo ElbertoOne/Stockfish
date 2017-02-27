@@ -627,7 +627,7 @@ namespace {
 
         assert(!(pos.pieces(PAWN) & forward_bb(Us, s)));
 
-        bb = forward_bb(Us, s) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them) | pos.pieces(Us, KING));
+        bb = forward_bb(Us, s) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them));
         score -= HinderPassedPawn * popcount(bb);
 
         int r = relative_rank(Us, s) - RANK_2;
@@ -638,14 +638,15 @@ namespace {
         if (rr)
         {
             Square blockSq = s + pawn_push(Us);
+            Square kSq = pos.square<KING>(Us);
 
             // Adjust bonus based on the king's proximity
             ebonus +=  distance(pos.square<KING>(Them), blockSq) * 5 * rr
-                     - distance(pos.square<KING>(Us  ), blockSq) * 2 * rr;
+                     - distance(kSq                   , blockSq) * 2 * rr;
 
             // If blockSq is not the queening square then consider also a second push
             if (relative_rank(Us, blockSq) != RANK_8)
-                ebonus -= distance(pos.square<KING>(Us), blockSq + pawn_push(Us)) * rr;
+                ebonus -= distance(kSq, blockSq + pawn_push(Us)) * rr;
 
             // If the pawn is free to advance, then increase the bonus
             if (pos.empty(blockSq))
@@ -677,7 +678,8 @@ namespace {
 
                 mbonus += k * rr, ebonus += k * rr;
             }
-            else if (pos.pieces(Us) & blockSq)
+            else if (    (pos.pieces(Us) & blockSq)
+                     && !(kSq == blockSq && !(adjacent_files_bb(file_of(kSq)) & ei.attackedBy[Us][KING] & ~ei.attackedBy[Them][ALL_PIECES])))
                 mbonus += rr + r * 2, ebonus += rr + r * 2;
         } // rr != 0
 
