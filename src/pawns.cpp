@@ -110,6 +110,7 @@ namespace {
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
     e->passedPawns[Us]   = e->pawnAttacksSpan[Us] = 0;
+    e->blockedPawns[Us]  = 0;
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = shift<Right>(ourPawns) | shift<Left>(ourPawns);
@@ -125,6 +126,10 @@ namespace {
 
         e->semiopenFiles[Us]   &= ~(1 << f);
         e->pawnAttacksSpan[Us] |= pawn_attack_span(Us, s);
+
+        Square blockSq = s + pawn_push(Us);
+        if (theirPawns & blockSq)
+           e->blockedPawns[Us] |= s;
 
         // Flag the pawn
         opposed    = theirPawns & forward_bb(Us, s);
