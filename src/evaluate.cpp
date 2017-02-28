@@ -180,7 +180,7 @@ namespace {
     S(  9, 10), S( 2, 10), S( 1, -8), S(-20,-12),
     S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 10)
   };
-  
+
   // Protector[PieceType][distance] contains a protecting bonus for our king,
   // indexed by piece type and distance between the piece and the king.
   const Score Protector[PIECE_TYPE_NB][8] = {
@@ -304,7 +304,7 @@ namespace {
         int mob = popcount(b & ei.mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt][mob];
-        
+
         // Bonus for this piece as a king protector
         score += Protector[Pt][distance(s, pos.square<KING>(Us))];
 
@@ -738,7 +738,7 @@ namespace {
   // evaluate_initiative() computes the initiative correction value for the
   // position, i.e., second order bonus/malus based on the known attacking/defending
   // status of the players.
-  Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
+  Score evaluate_initiative(const Position& pos, int asymmetry, int mobilityFactor, Value eg) {
 
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
@@ -746,7 +746,7 @@ namespace {
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 17) + 12 * pawns + 16 * bothFlanks;
+    int initiative = 8 * (asymmetry + kingDistance - 17) + 12 * pawns + 16 * bothFlanks + mobilityFactor;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
@@ -848,13 +848,19 @@ Value Eval::evaluate(const Position& pos) {
   score +=  evaluate_passer_pawns<WHITE, DoTrace>(pos, ei)
           - evaluate_passer_pawns<BLACK, DoTrace>(pos, ei);
 
+  int nonPawnMaterial = pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK);
+
   // Evaluate space for both sides, only during opening
-  if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
+  if (nonPawnMaterial >= 12222)
       score +=  evaluate_space<WHITE>(pos, ei)
               - evaluate_space<BLACK>(pos, ei);
 
+  int totalMobility = mobility[WHITE] + mobility[BLACK];
+  int mobilityFactor = 0;
+  if (nonPawnMaterial > 0)\
+      mobilityFactor = ((totalMobility/nonPawnMaterial) - 3767) / 200;
   // Evaluate position potential for the winning side
-  score += evaluate_initiative(pos, ei.pe->pawn_asymmetry(), eg_value(score));
+  score += evaluate_initiative(pos, ei.pe->pawn_asymmetry(), mobilityFactor, eg_value(score));
 
   // Evaluate scale factor for the winning side
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));
