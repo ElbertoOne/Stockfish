@@ -857,8 +857,8 @@ Value Eval::evaluate(const Position& pos) {
 
   int totalMobility = mobility[WHITE] + mobility[BLACK];
   int mobilityFactor = 0;
-  if (nonPawnMaterial > 0)\
-      mobilityFactor = ((totalMobility/nonPawnMaterial) - 3767) / 200;
+  if (nonPawnMaterial > 0)
+      mobilityFactor = ((totalMobility/nonPawnMaterial) - 3767) / 150;
   // Evaluate position potential for the winning side
   score += evaluate_initiative(pos, ei.pe->pawn_asymmetry(), mobilityFactor, eg_value(score));
 
