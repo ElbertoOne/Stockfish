@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -180,7 +181,7 @@ namespace {
     S(  9, 10), S( 2, 10), S( 1, -8), S(-20,-12),
     S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 10)
   };
-  
+
   // Protector[PieceType][distance] contains a protecting bonus for our king,
   // indexed by piece type and distance between the piece and the king.
   const Score Protector[PIECE_TYPE_NB][8] = {
@@ -304,7 +305,7 @@ namespace {
         int mob = popcount(b & ei.mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt][mob];
-        
+
         // Bonus for this piece as a king protector
         score += Protector[Pt][distance(s, pos.square<KING>(Us))];
 
@@ -718,6 +719,22 @@ namespace {
                    & ~ei.attackedBy[Them][PAWN]
                    & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
 
+    Bitboard safe2 = safe;
+
+    // if there are no semiopenFiles, then also consider flanks for the squares behind
+    // a friendly pawn.
+    if (ei.pe->semiopenFiles[WHITE] == 0 && ei.pe->semiopenFiles[BLACK] == 0)
+    {
+        const Bitboard SpaceMask2 =
+          Us == WHITE ? (Rank2BB | Rank3BB | Rank4BB)
+                      : (Rank7BB | Rank6BB | Rank5BB);
+
+        safe2 =   SpaceMask2
+                   & ~pos.pieces(Us, PAWN)
+                   & ~ei.attackedBy[Them][PAWN]
+                   & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
+    }
+
     // Find all squares which are at most three squares behind some friendly pawn
     Bitboard behind = pos.pieces(Us, PAWN);
     behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
@@ -726,8 +743,8 @@ namespace {
     // Since SpaceMask[Us] is fully on our half of the board...
     assert(unsigned(safe >> (Us == WHITE ? 32 : 0)) == 0);
 
-    // ...count safe + (behind & safe) with a single popcount.
-    int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
+    // ...count safe + (behind & safe2) with a single popcount.
+    int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe2));
     bonus = std::min(16, bonus);
     int weight = pos.count<ALL_PIECES>(Us) - 2 * ei.pe->open_files();
 
