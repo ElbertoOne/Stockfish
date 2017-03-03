@@ -723,7 +723,7 @@ namespace {
 
     // if there are no semiopenFiles, then also consider flanks for the squares behind
     // a friendly pawn.
-    if (ei.pe->semiopenFiles[WHITE] == 0 && ei.pe->semiopenFiles[BLACK] == 0)
+    if (ei.pe->semiopenFiles[WHITE] == 0 && ei.pe->semiopenFiles[BLACK] == 0 && popcount(safe) < 5)
     {
         const Bitboard SpaceMask2 =
           Us == WHITE ? (Rank2BB | Rank3BB | Rank4BB)
