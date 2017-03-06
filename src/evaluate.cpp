@@ -179,7 +179,7 @@ namespace {
     S(  9, 10), S( 2, 10), S( 1, -8), S(-20,-12),
     S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 10)
   };
-  
+
   // Protector[PieceType-2][distance] contains a protecting bonus for our king,
   // indexed by piece type and distance between the piece and the king.
   const Score Protector[4][8] = {
@@ -302,7 +302,7 @@ namespace {
         int mob = popcount(b & ei.mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt-2][mob];
-        
+
         // Bonus for this piece as a king protector
         score += Protector[Pt-2][distance(s, pos.square<KING>(Us))];
 
@@ -795,11 +795,12 @@ namespace {
 /// of the position from the point of view of the side to move.
 
 template<bool DoTrace>
-Value Eval::evaluate(const Position& pos) {
+EvalValue Eval::evaluate(const Position& pos) {
 
   assert(!pos.checkers());
 
   Score mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
+  EvalValue eval;
   Value v;
   EvalInfo ei;
 
@@ -809,8 +810,11 @@ Value Eval::evaluate(const Position& pos) {
   // If we have a specialized evaluation function for the current material
   // configuration, call it and return.
   if (ei.me->specialized_eval_exists())
-      return ei.me->evaluate(pos);
-
+  {
+      eval.earlyEval = true;
+      eval.value = ei.me->evaluate(pos);
+      return eval;
+  }
   // Initialize score by reading the incrementally updated scores included in
   // the position object (material + piece square tables) and the material
   // imbalance. Score is computed internally from the white point of view.
@@ -823,7 +827,11 @@ Value Eval::evaluate(const Position& pos) {
   // Early exit if score is high
   v = (mg_value(score) + eg_value(score)) / 2;
   if (abs(v) > LazyThreshold)
-     return pos.side_to_move() == WHITE ? v : -v;
+  {
+      eval.earlyEval = true;
+      eval.value = pos.side_to_move() == WHITE ? v : -v;
+      return eval;
+  }
 
   // Initialize attack and king safety bitboards
   eval_init<WHITE>(pos, ei);
@@ -876,12 +884,14 @@ Value Eval::evaluate(const Position& pos) {
       Trace::add(TOTAL, score);
   }
 
-  return (pos.side_to_move() == WHITE ? v : -v) + Eval::Tempo; // Side to move point of view
+  eval.earlyEval = false;
+  eval.value = (pos.side_to_move() == WHITE ? v : -v) + Eval::Tempo; // Side to move point of view
+  return eval;
 }
 
 // Explicit template instantiations
-template Value Eval::evaluate<true >(const Position&);
-template Value Eval::evaluate<false>(const Position&);
+template EvalValue Eval::evaluate<true >(const Position&);
+template EvalValue Eval::evaluate<false>(const Position&);
 
 
 /// trace() is like evaluate(), but instead of returning a value, it returns
@@ -892,7 +902,7 @@ std::string Eval::trace(const Position& pos) {
 
   std::memset(scores, 0, sizeof(scores));
 
-  Value v = evaluate<true>(pos);
+  Value v = evaluate<true>(pos).value;
   v = pos.side_to_move() == WHITE ? v : -v; // White's point of view
 
   std::stringstream ss;
