@@ -179,7 +179,7 @@ namespace {
     S(  9, 10), S( 2, 10), S( 1, -8), S(-20,-12),
     S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 10)
   };
-  
+
   // Protector[PieceType-2][distance] contains a protecting bonus for our king,
   // indexed by piece type and distance between the piece and the king.
   const Score Protector[4][8] = {
@@ -203,6 +203,7 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score HinderPassedPawn    = S( 7,  0);
+  const Score FarAwayKnight        = S(20, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -302,7 +303,7 @@ namespace {
         int mob = popcount(b & ei.mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt-2][mob];
-        
+
         // Bonus for this piece as a king protector
         score += Protector[Pt-2][distance(s, pos.square<KING>(Us))];
 
@@ -327,6 +328,18 @@ namespace {
             // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
                 score -= BishopPawns * ei.pe->pawns_on_same_color_squares(Us, s);
+
+            // Penalty for Knights that are far away from kings and pawns.
+            if (Pt == KNIGHT && distance(s, pos.square<KING>(Us)) > 2 && distance(s, pos.square<KING>(Them)) > 2)
+            {
+                int minKnightPawnDistance = 0;
+                Bitboard pawns = pos.pieces(PAWN);
+                if (pawns)
+                    while (!(DistanceRingBB[s][minKnightPawnDistance++] & pawns)) {}
+
+                if (minKnightPawnDistance > 2)
+                    score -= FarAwayKnight;
+            }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
