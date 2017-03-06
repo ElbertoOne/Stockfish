@@ -746,8 +746,7 @@ namespace {
         && !earlyEval
         &&  eval >= beta
         && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
-        &&  pos.non_pawn_material(pos.side_to_move())
-        &&  pos.psq_score() >= 0)
+        &&  pos.non_pawn_material(pos.side_to_move()))
     {
         ss->currentMove = MOVE_NULL;
         ss->counterMoves = nullptr;
