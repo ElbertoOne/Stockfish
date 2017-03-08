@@ -735,6 +735,7 @@ namespace {
     if (   !PvNode
         &&  eval >= beta
         && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
+        && !(beta == 0 && depth >= 6 * ONE_PLY)
         &&  pos.non_pawn_material(pos.side_to_move()))
     {
         ss->currentMove = MOVE_NULL;
@@ -759,15 +760,12 @@ namespace {
             if (depth < 12 * ONE_PLY && abs(beta) < VALUE_KNOWN_WIN)
                 return nullValue;
 
-            if (pos.psq_score() >= 0)
-            {
-                // Do verification search at high depths
-                Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta)
-                                            :  search<NonPV>(pos, ss, beta-1, beta, depth-R, false, true);
+            // Do verification search at high depths
+            Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta)
+                                        :  search<NonPV>(pos, ss, beta-1, beta, depth-R, false, true);
 
-                if (v >= beta)
-                    return nullValue;
-            }
+            if (v >= beta)
+                return nullValue;
         }
     }
 
