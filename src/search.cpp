@@ -324,7 +324,7 @@ void Thread::search() {
   MainThread* mainThread = (this == Threads.main() ? Threads.main() : nullptr);
 
   std::memset(ss-4, 0, 7 * sizeof(Stack));
-  for(int i = -4; i < 0; i++) 
+  for(int i = -4; i < 0; i++)
      (ss+i)->counterMoves = &this->counterMoveHistory[NO_PIECE][0]; // use as sentinel.
 
   bestValue = delta = alpha = -VALUE_INFINITE;
@@ -729,7 +729,7 @@ namespace {
     if (   !PvNode
         &&  eval >= beta
         && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
-        &&  pos.non_pawn_material(pos.side_to_move()))
+        &&  pos.non_pawn_material(pos.side_to_move()) > (depth > 10 * ONE_PLY) * BishopValueMg)
     {
 
         assert(eval - beta >= 0);
