@@ -729,7 +729,8 @@ namespace {
     if (   !PvNode
         &&  eval >= beta
         && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
-        &&  pos.non_pawn_material(pos.side_to_move()) > (depth > 10 * ONE_PLY) * BishopValueMg)
+        &&  pos.non_pawn_material(pos.side_to_move()) > (depth > 13) * BishopValueMg
+        &&  pos.moveable_pawns(pos.side_to_move()))
     {
 
         assert(eval - beta >= 0);
