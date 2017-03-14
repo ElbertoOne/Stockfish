@@ -127,7 +127,7 @@ public:
   // Piece specific
   bool pawn_passed(Color c, Square s) const;
   bool opposite_bishops() const;
-  bool moveable_pawns(Color c) const;
+  int moveable_pawns(Color c) const;
 
   // Doing and undoing moves
   void do_move(Move m, StateInfo& newSt);
@@ -359,8 +359,8 @@ inline bool Position::opposite_bishops() const {
         && opposite_colors(square<BISHOP>(WHITE), square<BISHOP>(BLACK));
 }
 
-inline bool Position::moveable_pawns(Color c) const {
-  return c == WHITE ? shift<NORTH>(pieces(c, PAWN)) & ~pieces() : shift<SOUTH>(pieces(c, PAWN)) & ~pieces();
+inline int Position::moveable_pawns(Color c) const {
+  return c == WHITE ? popcount(shift<NORTH>(pieces(c, PAWN)) & ~pieces()) : popcount(shift<SOUTH>(pieces(c, PAWN)) & ~pieces());
 }
 
 inline bool Position::is_chess960() const {
