@@ -743,8 +743,10 @@ namespace {
     int pawns = pos.count<PAWN>();
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
 
+    int moveablePawns = pos.moveable_pawns(WHITE) + pos.moveable_pawns(BLACK);
+
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 17) + 12 * pawns + 16 * bothFlanks;
+    int initiative = 8 * (asymmetry + kingDistance - 19) + 12 * pawns + 16 * bothFlanks + 8 * moveablePawns;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
