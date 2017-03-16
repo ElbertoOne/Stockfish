@@ -198,6 +198,7 @@ namespace {
   const Score OtherCheck          = S(10, 10);
   const Score CloseEnemies        = S( 7,  0);
   const Score PawnlessFlank       = S(20, 80);
+  const Score PawnlessKing        = S( 0, 20);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score ThreatByRank        = S(16,  3);
   const Score Hanging             = S(48, 27);
@@ -498,10 +499,13 @@ namespace {
        | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
 
     score -= CloseEnemies * popcount(b);
+    b = pos.pieces(PAWN);
 
     // Penalty when our king is on a pawnless flank
-    if (!(pos.pieces(PAWN) & KingFlank[kf]))
+    if (!(b & KingFlank[kf]))
         score -= PawnlessFlank;
+    else if (!(b & ei.attackedBy[Us][KING]))
+        score -= PawnlessKing;
 
     if (DoTrace)
         Trace::add(KING, Us, score);
