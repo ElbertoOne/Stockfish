@@ -776,12 +776,17 @@ namespace {
             // a bit drawish, but not as drawish as with only the two bishops.
             return ScaleFactor(46);
         }
-        // Endings where weaker side can place his king in front of the opponent's
-        // pawns are drawish.
-        else if (    abs(eg) <= BishopValueEg
-                 &&  pos.count<PAWN>(strongSide) <= 2
+        else if (abs(eg) <= BishopValueEg)
+        {
+            // Endings where weaker side can place his king in front of the opponent's
+            // pawns are drawish.
+            if (pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-            return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+                return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+            // Endings where none of the stronger side's pawns can move, are drawish.
+            else if (!pos.moveable_pawns(strongSide) && abs(pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide)) < 2)
+                return ScaleFactor(42);
+        }
     }
 
     return sf;
