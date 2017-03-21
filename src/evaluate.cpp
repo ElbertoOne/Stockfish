@@ -766,27 +766,24 @@ namespace {
     {
         if (pos.opposite_bishops())
         {
+            bool moveable = pos.moveable_pawns(strongSide);
+
             // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                return more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
+                return moveable && more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
-            return ScaleFactor(46);
+            return moveable ? ScaleFactor(46) : ScaleFactor(35);
         }
-        else if (abs(eg) <= BishopValueEg)
-        {
-            // Endings where weaker side can place his king in front of the opponent's
-            // pawns are drawish.
-            if (pos.count<PAWN>(strongSide) <= 2
+        // Endings where weaker side can place his king in front of the opponent's
+        // pawns are drawish.
+        else if (   abs(eg) <= BishopValueEg
+                 && pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-                return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
-            // Endings where none of the stronger side's pawns can move, are drawish.
-            else if (!pos.moveable_pawns(strongSide) && abs(pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide)) < 2)
-                return ScaleFactor(42);
-        }
+            return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
     }
 
     return sf;
