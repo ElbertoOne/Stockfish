@@ -776,7 +776,7 @@ namespace {
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
-            return moveable ? ScaleFactor(46) : ScaleFactor(35);
+            return moveable ? ScaleFactor(46) : ScaleFactor(31);
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
