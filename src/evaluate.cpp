@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -776,7 +777,7 @@ namespace {
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
-            return moveable ? ScaleFactor(46) : ScaleFactor(30);
+            return moveable ? ScaleFactor(46) : ScaleFactor(35);
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.

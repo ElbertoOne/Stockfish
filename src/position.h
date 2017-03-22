@@ -360,7 +360,7 @@ inline bool Position::opposite_bishops() const {
 }
 
 inline bool Position::moveable_pawns(Color c) const {
-  return c == WHITE ? shift<NORTH>(pieces(c, PAWN)) & ~pieces() : shift<SOUTH>(pieces(c, PAWN)) & ~pieces();
+  return c == WHITE ? shift<NORTH>(pieces(c, PAWN)) & ~pieces(~c) : shift<SOUTH>(pieces(c, PAWN)) & ~pieces(~c);
 }
 
 inline bool Position::is_chess960() const {
