@@ -773,13 +773,15 @@ namespace {
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
         else if (    abs(eg) <= BishopValueEg
-                 &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-            return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
-        // Endings where all of the pawns are opposed by opponent's pawns are drawish.
-        else if (  !pos.moveable_pawns(strongSide)
-                 && shift<SOUTH>(ei.attackedBy[WHITE][PAWN]) == ei.attackedBy[BLACK][PAWN])
-            return ScaleFactor(64 - 4 * pos.count<PAWN>(strongSide));
+        {
+            // Endings where all of the pawns are opposed by opponent's pawns are drawish.
+            if (  !pos.moveable_pawns(strongSide)
+                     && shift<SOUTH>(ei.attackedBy[WHITE][PAWN]) == ei.attackedBy[BLACK][PAWN])
+                return ScaleFactor(32 + 4 * pos.count<PAWN>(strongSide));
+            else if (pos.count<PAWN>(strongSide) <= 2)
+                return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+        }
 
     }
 
