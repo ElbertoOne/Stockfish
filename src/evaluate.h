@@ -31,10 +31,10 @@ namespace Eval {
 
 const Value Tempo = Value(20); // Must be visible to search
 
-std::string trace(const Position& pos);
+std::string trace(const Position& pos, Depth depth);
 
 template<bool DoTrace = false>
-Value evaluate(const Position& pos);
+Value evaluate(const Position& pos, Depth depth);
 }
 
 #endif // #ifndef EVALUATE_H_INCLUDED

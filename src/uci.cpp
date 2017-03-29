@@ -199,7 +199,7 @@ void UCI::loop(int argc, char* argv[]) {
       else if (token == "flip")       pos.flip();
       else if (token == "bench")      benchmark(pos, is);
       else if (token == "d")          sync_cout << pos << sync_endl;
-      else if (token == "eval")       sync_cout << Eval::trace(pos) << sync_endl;
+      else if (token == "eval")       sync_cout << Eval::trace(pos, DEPTH_ZERO) << sync_endl;
       else if (token == "perft")
       {
           int depth;
