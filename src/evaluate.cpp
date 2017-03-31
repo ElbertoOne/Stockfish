@@ -217,7 +217,9 @@ namespace {
   const int KnightCheck       = 924;
 
   // Threshold for lazy evaluation
-  const Value LazyThreshold = Value(1500);
+  Value LazyThreshold = Value(1300);
+  int DepthFactor = 25;
+  TUNE(SetRange(1000, 1500), LazyThreshold, SetRange(0, 75), DepthFactor);
 
   // eval_init() initializes king and attack bitboards for a given color
   // adding pawn attacks. To be done at the beginning of the evaluation.
@@ -788,7 +790,7 @@ namespace {
 /// of the position from the point of view of the side to move.
 
 template<bool DoTrace>
-Value Eval::evaluate(const Position& pos) {
+Value Eval::evaluate(const Position& pos, Depth depth) {
 
   assert(!pos.checkers());
 
@@ -815,7 +817,7 @@ Value Eval::evaluate(const Position& pos) {
 
   // Early exit if score is high
   v = (mg_value(score) + eg_value(score)) / 2;
-  if (abs(v) > LazyThreshold)
+  if (abs(v) > LazyThreshold + depth * DepthFactor)
      return pos.side_to_move() == WHITE ? v : -v;
 
   // Initialize attack and king safety bitboards
@@ -873,19 +875,19 @@ Value Eval::evaluate(const Position& pos) {
 }
 
 // Explicit template instantiations
-template Value Eval::evaluate<true >(const Position&);
-template Value Eval::evaluate<false>(const Position&);
+template Value Eval::evaluate<true >(const Position&, Depth depth);
+template Value Eval::evaluate<false>(const Position&, Depth depth);
 
 
 /// trace() is like evaluate(), but instead of returning a value, it returns
 /// a string (suitable for outputting to stdout) that contains the detailed
 /// descriptions and values of each evaluation term. Useful for debugging.
 
-std::string Eval::trace(const Position& pos) {
+std::string Eval::trace(const Position& pos, Depth depth) {
 
   std::memset(scores, 0, sizeof(scores));
 
-  Value v = evaluate<true>(pos);
+  Value v = evaluate<true>(pos, depth);
   v = pos.side_to_move() == WHITE ? v : -v; // White's point of view
 
   std::stringstream ss;
