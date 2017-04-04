@@ -110,6 +110,10 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAdjacentZoneAttacksCount[WHITE].
     int kingAdjacentZoneAttacksCount[COLOR_NB];
+
+    // pieceMobilityCount[color] is the number of pieces of the given color that can
+    // do a legal move.
+    int pieceMobilityCount[COLOR_NB];
   };
 
   #define V(v) Value(v)
@@ -295,6 +299,9 @@ namespace {
         }
 
         int mob = popcount(b & ei.mobilityArea[Us]);
+
+        if (mob > 0)
+            ei.pieceMobilityCount[Us]++;
 
         mobility[Us] += MobilityBonus[Pt-2][mob];
 
@@ -796,6 +803,9 @@ Value Eval::evaluate(const Position& pos) {
   Value v;
   EvalInfo ei;
 
+  ei.pieceMobilityCount[WHITE] = 0;
+  ei.pieceMobilityCount[BLACK] = 0;
+
   // Probe the material hash table
   ei.me = Material::probe(pos);
 
@@ -812,6 +822,8 @@ Value Eval::evaluate(const Position& pos) {
   // Probe the pawn hash table
   ei.pe = Pawns::probe(pos);
   score += ei.pe->pawns_score();
+  ei.pieceMobilityCount[WHITE] += ei.pe->moveable_pawns(WHITE);
+  ei.pieceMobilityCount[BLACK] += ei.pe->moveable_pawns(BLACK);
 
   // Early exit if score is high
   v = (mg_value(score) + eg_value(score)) / 2;
@@ -831,6 +843,12 @@ Value Eval::evaluate(const Position& pos) {
   score +=  evaluate_king<WHITE, DoTrace>(pos, ei)
           - evaluate_king<BLACK, DoTrace>(pos, ei);
 
+  if (ei.attackedBy[WHITE][KING] & ~pos.pieces(WHITE) & ~ei.attackedBy[BLACK][ALL_PIECES])
+        ei.pieceMobilityCount[WHITE]++;
+
+  if (ei.attackedBy[BLACK][KING] & ~pos.pieces(BLACK) & ~ei.attackedBy[WHITE][ALL_PIECES])
+        ei.pieceMobilityCount[BLACK]++;
+
   // Evaluate tactical threats, we need full attack information including king
   score +=  evaluate_threats<WHITE, DoTrace>(pos, ei)
           - evaluate_threats<BLACK, DoTrace>(pos, ei);
@@ -846,6 +864,9 @@ Value Eval::evaluate(const Position& pos) {
 
   // Evaluate position potential for the winning side
   score += evaluate_initiative(pos, ei.pe->pawn_asymmetry(), eg_value(score));
+
+  int pieceMobCount = ei.pieceMobilityCount[WHITE] - ei.pieceMobilityCount[BLACK];
+  score += make_score(10 * pieceMobCount, 10 * pieceMobCount);
 
   // Evaluate scale factor for the winning side
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));

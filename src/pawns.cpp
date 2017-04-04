@@ -110,6 +110,7 @@ namespace {
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
     e->passedPawns[Us]   = e->pawnAttacksSpan[Us] = 0;
+    e->moveablePawns[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = shift<Right>(ourPawns) | shift<Left>(ourPawns);
@@ -181,7 +182,14 @@ namespace {
             score -= Doubled;
 
         if (lever)
+        {
             score += Lever[relative_rank(Us, s)];
+            e->moveablePawns[Us]++;
+		}
+		else if (theirPawns & (s + Up))
+		{
+			e->moveablePawns[Us]++;
+		}
     }
 
     return score;
