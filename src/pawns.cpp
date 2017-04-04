@@ -186,7 +186,7 @@ namespace {
             score += Lever[relative_rank(Us, s)];
             e->moveablePawns[Us]++;
 		}
-		else if (theirPawns & (s + Up))
+		else if (!(theirPawns & (s + Up)))
 		{
 			e->moveablePawns[Us]++;
 		}
