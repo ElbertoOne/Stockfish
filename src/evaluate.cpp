@@ -177,8 +177,9 @@ namespace {
   // Protector[PieceType-2][distance] contains a protecting bonus for our king,
   // indexed by piece type and distance between the piece and the king.
   const Score Protector[2][8] = {
-    { S(0, 0), S( 7, 9), S( 7, 1), S( 1, 5), S(-10,-4), S( -1,-4), S( -7,-3), S(-16,-10) }, // Knight
-    { S(0, 0), S(11, 8), S(-7,-1), S(-1,-2), S( -1,-7), S(-11,-3), S( -9,-1), S(-16, -1) } // Bishop
+    { S(0, 0), S( 7, 9), S( 7, 1), S( 1, 5), S( -6,-3), S( -5,-4), S( -7,-5), S(-16,-10) }, // Knight
+    { S(0, 0), S(11, 8), S(-7, 0), S(-1,-2), S( -1,-5), S(-10,-3), S(-10,-2), S(-16, -3) } // Bishop
+
   };
 
   // Assorted bonuses and penalties used by evaluation
