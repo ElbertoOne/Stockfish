@@ -179,7 +179,6 @@ namespace {
   const Score Protector[2][8] = {
     { S(0, 0), S( 7, 9), S( 7, 1), S( 1, 5), S( -6,-3), S( -5,-4), S( -7,-5), S(-16,-10) }, // Knight
     { S(0, 0), S(11, 8), S(-7, 0), S(-1,-2), S( -1,-5), S(-10,-3), S(-10,-2), S(-16, -3) } // Bishop
-
   };
 
   // Assorted bonuses and penalties used by evaluation
