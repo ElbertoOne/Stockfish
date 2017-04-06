@@ -176,11 +176,9 @@ namespace {
 
   // Protector[PieceType-2][distance] contains a protecting bonus for our king,
   // indexed by piece type and distance between the piece and the king.
-  const Score Protector[4][8] = {
+  const Score Protector[2][8] = {
     { S(0, 0), S( 7, 9), S( 7, 1), S( 1, 5), S(-10,-4), S( -1,-4), S( -7,-3), S(-16,-10) }, // Knight
-    { S(0, 0), S(11, 8), S(-7,-1), S(-1,-2), S( -1,-7), S(-11,-3), S( -9,-1), S(-16, -1) }, // Bishop
-    { S(0, 0), S(10, 0), S(-2, 2), S(-5, 4), S( -6, 2), S(-14,-3), S( -2,-9), S(-12, -7) }, // Rook
-    { S(0, 0), S( 3,-5), S( 2,-5), S(-4, 0), S( -9,-6),  S(-4, 7), S(-13,-7), S(-10, -7) }  // Queen
+    { S(0, 0), S(11, 8), S(-7,-1), S(-1,-2), S( -1,-7), S(-11,-3), S( -9,-1), S(-16, -1) } // Bishop
   };
 
   // Assorted bonuses and penalties used by evaluation
@@ -298,11 +296,11 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt-2][mob];
 
-        // Bonus for this piece as a king protector
-        score += Protector[Pt-2][distance(s, pos.square<KING>(Us))];
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+            // Bonus for this piece as a king protector
+            score += Protector[Pt-2][distance(s, pos.square<KING>(Us))];
+
             // Bonus for outpost squares
             bb = OutpostRanks & ~ei.pe->pawn_attacks_span(Them);
             if (bb & s)
