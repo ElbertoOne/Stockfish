@@ -296,7 +296,20 @@ void MainThread::search() {
           if (scoreDiff > 0 && depthDiff >= 0)
               bestThread = th;
       }
-  }
+
+      if (Threads.size() > 1)
+      {
+          Thread* worstThread = this;
+          for (Thread* th : Threads)
+          {
+              Value scoreDiff = th->rootMoves[0].score - worstThread->rootMoves[0].score;
+              Depth depthDiff = th->completedDepth - worstThread->completedDepth;
+
+              if (scoreDiff < 0 || (scoreDiff == 0 && depthDiff <= 0))
+                  worstThread = th;
+          }
+          worstThread->isWorstThread = true;
+      }  }
 
   previousScore = bestThread->rootMoves[0].score;
 
@@ -732,7 +745,8 @@ namespace {
     if (   !PvNode
         &&  eval >= beta
         && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
-        &&  pos.non_pawn_material(pos.side_to_move()))
+        &&  pos.non_pawn_material(pos.side_to_move())
+        && !thisThread->isWorstThread)
     {
 
         assert(eval - beta >= 0);
