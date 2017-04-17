@@ -44,7 +44,7 @@ namespace {
   Score Connected[2][2][2][RANK_NB];
 
   // Doubled pawn penalty
-  const Score Doubled = S(18, 38);
+  const Score Doubled = S(24, 47);
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
