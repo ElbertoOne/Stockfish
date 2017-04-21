@@ -755,10 +755,9 @@ namespace {
         if (nullValue >= beta)
         {
             // Do not return unproven mate scores
-            if (nullValue >= VALUE_MATE_IN_MAX_PLY)
-                nullValue = beta;
+            bool unproven = nullValue >= VALUE_MATE_IN_MAX_PLY;
 
-            if (depth < 12 * ONE_PLY && abs(beta) < VALUE_KNOWN_WIN)
+            if (!unproven && depth < 12 * ONE_PLY && abs(beta) < VALUE_KNOWN_WIN)
                 return nullValue;
 
             // Do verification search at high depths
@@ -766,7 +765,7 @@ namespace {
                                         :  search<NonPV>(pos, ss, beta-1, beta, depth-R, false, true);
 
             if (v >= beta)
-                return nullValue;
+                return unproven ? v : nullValue;
         }
     }
 
