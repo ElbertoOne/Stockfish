@@ -777,8 +777,9 @@ namespace {
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
         // Endgame where the strong king is trapped and not enough mating material is present, is drawish.
-        else if (   pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) <= QueenValueMg
-                 && popcount(pos.attacks_from<KING>(pos.square<KING>(strongSide)) & ~(pos.pieces(strongSide) | ei.attackedBy[~strongSide][ALL_PIECES])) == 0)
+        else if (   ei.me->game_phase() < PHASE_MIDGAME/2
+                 && pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) <= QueenValueMg
+                 && !(pos.attacks_from<KING>(pos.square<KING>(strongSide)) & ~(pos.pieces(strongSide) | ei.attackedBy[~strongSide][ALL_PIECES])))
             return SCALE_FACTOR_DRAW;
     }
 
