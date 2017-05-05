@@ -776,6 +776,10 @@ namespace {
                  &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+        // Endgame where the strong king is trapped and not enough mating material is present, is drawish.
+        else if (   pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) <= QueenValueMg
+                 && popcount(pos.attacks_from<KING>(pos.square<KING>(strongSide)) & ~(pos.pieces(strongSide) | ei.attackedBy[~strongSide][ALL_PIECES])) == 0)
+            return SCALE_FACTOR_DRAW;
     }
 
     return sf;
