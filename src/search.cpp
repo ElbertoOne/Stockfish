@@ -60,6 +60,11 @@ using namespace Search;
 
 namespace {
 
+  int NmpFactor1 = 2526;
+  int NmpFactor2 = 400;
+  int NmpFactor3 = 1500;
+  TUNE(NmpFactor1, NmpFactor2, NmpFactor3);
+
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV };
 
@@ -745,8 +750,11 @@ namespace {
 
         assert(eval - beta >= 0);
 
-        // Null move dynamic reduction based on depth and value
-        Depth R = ((823 + 67 * depth / ONE_PLY) / 256 + std::min((eval - beta) / PawnValueMg, 3)) * ONE_PLY;
+        int material = (int) pos.non_pawn_material(pos.side_to_move());
+        material = material * material / sqrt(NmpFactor1 * NmpFactor1 + material * material);
+
+        // Null move dynamic reduction based on material, depth and value
+        Depth R = ((material + NmpFactor2 * depth / ONE_PLY) / NmpFactor3 + std::min((eval - beta) / PawnValueMg, 3)) * ONE_PLY;
 
         ss->currentMove = MOVE_NULL;
         ss->counterMoves = &thisThread->counterMoveHistory[NO_PIECE][0];
