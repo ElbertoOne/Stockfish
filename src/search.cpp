@@ -740,16 +740,14 @@ namespace {
     if (   !PvNode
         &&  eval >= beta
         && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
-        &&  pos.non_pawn_material(pos.side_to_move()))
+        &&  pos.non_pawn_material(pos.side_to_move())
+        && !(beta == 0 && pos.non_pawn_material(pos.side_to_move()) <= BishopValueMg))
     {
 
         assert(eval - beta >= 0);
 
-        int material = (int) pos.non_pawn_material(pos.side_to_move());
-        material = material * material / sqrt(6579225 + material * material);
-
-        // Null move dynamic reduction based on material, depth and value
-        Depth R = ((material + 405 * depth / ONE_PLY) / 1482 + std::min((eval - beta) / PawnValueMg, 3)) * ONE_PLY;
+        // Null move dynamic reduction based on depth and value
+        Depth R = ((823 + 67 * depth / ONE_PLY) / 256 + std::min((eval - beta) / PawnValueMg, 3)) * ONE_PLY;
 
         ss->currentMove = MOVE_NULL;
         ss->counterMoves = &thisThread->counterMoveHistory[NO_PIECE][0];
