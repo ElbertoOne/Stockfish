@@ -745,8 +745,11 @@ namespace {
 
         assert(eval - beta >= 0);
 
-        // Null move dynamic reduction based on depth and value
-        Depth R = (((int) pos.non_pawn_material(pos.side_to_move()) + 406 * depth / ONE_PLY) / 1551 + std::min((eval - beta) / PawnValueMg, 3)) * ONE_PLY;
+        int material = (int) pos.non_pawn_material(pos.side_to_move());
+        material = material * material / sqrt(6579225 + material * material);
+
+        // Null move dynamic reduction based on material, depth and value
+        Depth R = ((material + 405 * depth / ONE_PLY) / 1482 + std::min((eval - beta) / PawnValueMg, 3)) * ONE_PLY;
 
         ss->currentMove = MOVE_NULL;
         ss->counterMoves = &thisThread->counterMoveHistory[NO_PIECE][0];
