@@ -497,7 +497,7 @@ namespace {
     {
         int pawnDiff = popcount(pos.pieces(Them, PAWN) & KingFlank[kf]) - popcount(pos.pieces(Us, PAWN) & KingFlank[kf]);
         if (pawnDiff > 0)
-            score -= make_score(10 * pawnDiff, 0);
+            score -= make_score(20 * pawnDiff, 0);
     }
 
     if (DoTrace)
