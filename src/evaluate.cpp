@@ -492,7 +492,7 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
-    else
+    else if (!pos.can_castle(Us))
     {
         // Penalty when our king has less than 3 pawns on its flank
         int pawnCount = popcount(pos.pieces(Us, PAWN) & KingFlank[kf]);
