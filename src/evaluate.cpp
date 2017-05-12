@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -492,6 +493,12 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
+    else if (!pos.can_castle(Us))
+    {
+        int pawnDiff = popcount(pos.pieces(Them, PAWN) & KingFlank[kf]) - popcount(pos.pieces(Us, PAWN) & KingFlank[kf]);
+        if (pawnDiff > 0)
+            score -= make_score(10 * pawnDiff, 0);
+    }
 
     if (DoTrace)
         Trace::add(KING, Us, score);
