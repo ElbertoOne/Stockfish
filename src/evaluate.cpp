@@ -180,6 +180,7 @@ namespace {
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
+  const Score BishopKing          = S(  0, 20);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
@@ -356,6 +357,10 @@ namespace {
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
         }
+
+        // Bonus if enemy king is on the same color square as the bishop or queen in endgame
+        if ((Pt == BISHOP || Pt == QUEEN) && !opposite_colors(s, pos.square<KING>(Them)))
+            score += BishopKing;
 
         if (Pt == QUEEN)
         {
