@@ -192,6 +192,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
+  const Score ThreatChokeMate     = S(  0, 40);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -591,6 +592,11 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    // Possible choke mate threat
+    if (     pos.pieces(Us, KNIGHT)
+        && !(pos.attacks_from<KING>(pos.square<KING>(Them)) & ~(pos.pieces(Them) | ei.attackedBy[Us][ALL_PIECES])))
+        score += ThreatChokeMate;
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
