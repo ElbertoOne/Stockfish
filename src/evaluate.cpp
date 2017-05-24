@@ -192,6 +192,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
+  const Score KingSemiOpen        = S(  7,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -483,17 +484,18 @@ namespace {
     File kf = file_of(ksq);
     b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
 
-    int flankAttacks = popcount(Us == WHITE ? b << 4 : b >> 4);
-
     assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
-    assert(flankAttacks == popcount(b));
+    assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
 
     // Secondly, add the squares which are attacked twice in that flank and
     // which are not defended by our pawns.
     b =  (Us == WHITE ? b << 4 : b >> 4)
        | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
 
-    score -= CloseEnemies * (2 * popcount(b) - flankAttacks);
+    score -= CloseEnemies * popcount(b);
+
+    if (ei.pe->semiopen_file(Us, kf))
+        score -= KingSemiOpen;
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
