@@ -192,7 +192,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
-  const Score KingSemiOpen        = S(  7,  0);
+  const Score KingSemiOpen        = S( 14,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -494,7 +494,8 @@ namespace {
 
     score -= CloseEnemies * popcount(b);
 
-    if (ei.pe->semiopen_file(Us, kf))
+    // Penalty when our king is on a semiopen file and not on the back rank
+    if (ei.pe->semiopen_file(Us, kf) && relative_rank(Us, ksq) != RANK_1)
         score -= KingSemiOpen;
 
     // Penalty when our king is on a pawnless flank
