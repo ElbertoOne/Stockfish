@@ -174,6 +174,12 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 10)
   };
 
+  // KingSemiOpen contains a penalty for a king on a semiopen file.
+  Score KingSemiOpen[RANK_NB] = {
+    S( 14, 0), S( 14, 0), S( 14, 0), S( 14, 0), S( 14, 0), S( 14, 0), S( 14, 0), S( 14, 0)
+  };
+  TUNE(SetRange(0, 50), KingSemiOpen);
+
   // KingProtector[PieceType-2] contains a bonus according to distance from king
   const Score KingProtector[] = { S(-3, -5), S(-4, -3), S(-3, 0), S(-1, 1) };
 
@@ -492,6 +498,10 @@ namespace {
        | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
 
     score -= CloseEnemies * popcount(b);
+
+    // Penalty when our king is on a semiopen file
+    if (ei.pe->semiopen_file(Us, kf))
+        score -= KingSemiOpen[relative_rank(Us, ksq)];
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
