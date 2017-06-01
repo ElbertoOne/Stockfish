@@ -117,8 +117,6 @@ namespace {
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = shift<Right>(ourPawns) | shift<Left>(ourPawns);
-    e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
-    e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -141,7 +139,7 @@ namespace {
         supported  = neighbours & rank_bb(s - Up);
         connected  = supported | phalanx;
 
-        if (/*supported &&*/ (theirPawns & (s + Up)) && !(theirAttacks & s))
+        if ((theirPawns & (s + Up)) && !(theirAttacks & s))
             e->immobilePawns[Us]++;
 
         // A pawn is backward when it is behind all pawns of the same color on the
