@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
 #include "bitboard.h"
 #include "pawns.h"
@@ -97,6 +98,8 @@ namespace {
     const Square Up    = (Us == WHITE ? NORTH      : SOUTH);
     const Square Right = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Square Left  = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
+    const Square InvRight = (Them == WHITE ? SOUTH_WEST : NORTH_EAST);
+    const Square InvLeft  = (Them == WHITE ? SOUTH_EAST : NORTH_WEST);
 
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
     Bitboard lever, leverPush, connected;
@@ -108,7 +111,10 @@ namespace {
     Bitboard ourPawns   = pos.pieces(Us  , PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
+    Bitboard theirAttacks = shift<InvRight>(theirPawns) | shift<InvLeft>(theirPawns);
+
     e->passedPawns[Us]   = e->pawnAttacksSpan[Us] = 0;
+    e->immobilePawns[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = shift<Right>(ourPawns) | shift<Left>(ourPawns);
@@ -135,6 +141,9 @@ namespace {
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
         connected  = supported | phalanx;
+
+        if (/*supported &&*/ (theirPawns & (s + Up)) && !(theirAttacks & s))
+            e->immobilePawns[Us]++;
 
         // A pawn is backward when it is behind all pawns of the same color on the
         // adjacent files and cannot be safely advanced.
