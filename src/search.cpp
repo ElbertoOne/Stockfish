@@ -1288,7 +1288,7 @@ moves_loop: // When in check search starts from here
 
       // Detect non-capture evasions that are candidates to be pruned
       evasionPrunable =    InCheck
-                       &&  (depth != DEPTH_ZERO || moveCount > 2)
+                       &&  moveCount > 2
                        &&  bestValue > VALUE_MATED_IN_MAX_PLY
                        && !pos.capture(move);
 
