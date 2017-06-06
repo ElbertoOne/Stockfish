@@ -477,12 +477,8 @@ namespace {
         // Transform the kingDanger units into a Score, and substract it from the evaluation
         if (kingDanger > 0)
         {
-            int kdEndgame = kingDanger / 16;
-            // Endgame value is higher if the king can't move.
-            if (!(pos.attacks_from<KING>(ksq) & ~(pos.pieces(Us) | ei.attackedBy[Them][ALL_PIECES])))
-                kdEndgame = 11 * kdEndgame / 10;
-            else
-                kdEndgame = 9 * kdEndgame / 10;
+            bool mobileKing = more_than_one(ei.attackedBy[Us][KING] & ~(pos.pieces(Us) | ei.attackedBy[Them][ALL_PIECES]));
+            int kdEndgame = mobileKing ? kingDanger / 16 : kingDanger / 8;
 
             score -= make_score(kingDanger * kingDanger / 4096, kdEndgame);
         }
