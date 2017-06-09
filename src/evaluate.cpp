@@ -192,7 +192,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
-  const Score KingFirstRank       = S(  0, 20);
+  const Score KingEdge            = S(  0, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -397,7 +397,7 @@ namespace {
     const Square Up     = (Us == WHITE ? NORTH : SOUTH);
     const Bitboard Camp = (Us == WHITE ? ~Bitboard(0) ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                        : ~Bitboard(0) ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    const Bitboard TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
+    const Bitboard Edge = Rank1BB | Rank8BB | FileABB | FileHBB;
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard undefended, b, b1, b2, safe, other;
@@ -499,9 +499,9 @@ namespace {
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
 
-    // Penalty when our king is on the first rank in endgame and can't move to 2nd rank.
-    if (relative_rank(Us, ksq) == RANK_1 && !(pos.attacks_from<KING>(ksq) & TRank2BB & ~(pos.pieces(Us) | ei.attackedBy[Them][ALL_PIECES])))
-        score -= KingFirstRank;
+    // Penalty when our king is on the edge of the board in endgame and can't move off of it.
+    if ((Edge & ksq) && !(pos.attacks_from<KING>(ksq) & ~Edge & ~(pos.pieces(Us) | ei.attackedBy[Them][ALL_PIECES])))
+        score -= KingEdge;
 
     if (DoTrace)
         Trace::add(KING, Us, score);
