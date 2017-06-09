@@ -192,6 +192,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
+  const Score KingFirstRank       = S(  0, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -496,6 +497,10 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
+
+    // Penalty when our king is on the first rank in endgame.
+    if (relative_rank(Us, ksq) == RANK_1)
+        score -= KingFirstRank;
 
     if (DoTrace)
         Trace::add(KING, Us, score);
