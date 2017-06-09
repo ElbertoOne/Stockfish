@@ -397,6 +397,7 @@ namespace {
     const Square Up     = (Us == WHITE ? NORTH : SOUTH);
     const Bitboard Camp = (Us == WHITE ? ~Bitboard(0) ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                        : ~Bitboard(0) ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    const Bitboard TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard undefended, b, b1, b2, safe, other;
@@ -498,8 +499,8 @@ namespace {
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
 
-    // Penalty when our king is on the first rank in endgame.
-    if (relative_rank(Us, ksq) == RANK_1)
+    // Penalty when our king is on the first rank in endgame and can't move to 2nd rank.
+    if (relative_rank(Us, ksq) == RANK_1 && !(pos.attacks_from<KING>(ksq) & TRank2BB & ~(pos.pieces(Us) | ei.attackedBy[Them][ALL_PIECES])))
         score -= KingFirstRank;
 
     if (DoTrace)
