@@ -174,7 +174,12 @@ namespace {
 
         // Score this pawn
         if (!neighbours)
-            score -= Isolated[opposed];
+        {
+			if (pos.count<BISHOP>(Us) > 0 && pos.count<BISHOP>(Them) == 0)
+            	score -= Isolated[opposed] / 2;
+            else
+                score -= Isolated[opposed];
+		}
 
         else if (backward)
             score -= Backward[opposed];
