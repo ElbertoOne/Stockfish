@@ -175,10 +175,13 @@ namespace {
         // Score this pawn
         if (!neighbours)
         {
-			if (pos.count<BISHOP>(Us) > 0 && pos.count<BISHOP>(Them) == 0)
-            	score -= Isolated[opposed] / 2;
-            else
-                score -= Isolated[opposed];
+            score -= Isolated[opposed];
+
+            //Don't count isolated pawn for the bishop penalty.
+            if (DarkSquares & s)
+				e->pawnsOnSquares[Us][BLACK]--;
+			else
+			    e->pawnsOnSquares[Us][WHITE]--;
 		}
 
         else if (backward)
