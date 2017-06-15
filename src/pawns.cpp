@@ -177,11 +177,11 @@ namespace {
         {
             score -= Isolated[opposed];
 
-            //Don't count isolated pawn for the bishop penalty.
+            //Count isolated pawn double for the bishop penalty.
             if (DarkSquares & s)
-				e->pawnsOnSquares[Us][BLACK]--;
+				e->pawnsOnSquares[Us][BLACK]++;
 			else
-			    e->pawnsOnSquares[Us][WHITE]--;
+			    e->pawnsOnSquares[Us][WHITE]++;
 		}
 
         else if (backward)
