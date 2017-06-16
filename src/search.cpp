@@ -1267,23 +1267,22 @@ moves_loop: // When in check search starts from here
       if (   !InCheck
           && !givesCheck
           &&  futilityBase > -VALUE_KNOWN_WIN
-          && !pos.advanced_pawn_push(move)
-          &&  pos.non_pawn_material(pos.side_to_move()) > BishopValueMg)
+          && !pos.advanced_pawn_push(move))
       {
           assert(type_of(move) != ENPASSANT); // Due to !pos.advanced_pawn_push
-
-          futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
-
-          if (futilityValue <= alpha)
-          {
-              bestValue = std::max(bestValue, futilityValue);
-              continue;
-          }
 
           if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
           {
               bestValue = std::max(bestValue, futilityBase);
               continue;
+          }
+
+          futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
+
+          if (futilityValue <= alpha)
+		  {
+		      bestValue = std::max(bestValue, futilityValue);
+		      continue;
           }
       }
 
