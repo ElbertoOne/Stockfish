@@ -742,7 +742,8 @@ namespace {
     if (   !PvNode
         &&  eval >= beta
         && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
-        &&  pos.non_pawn_material(pos.side_to_move()))
+        &&  pos.non_pawn_material(pos.side_to_move())
+        && !pos.this_thread()->endsWithRepetition)
     {
 
         assert(eval - beta >= 0);
@@ -1510,6 +1511,10 @@ string UCI::pv(const Position& pos, Depth depth, Value alpha, Value beta) {
   uint64_t nodesSearched = Threads.nodes_searched();
   uint64_t tbHits = Threads.tb_hits() + (TB::RootInTB ? rootMoves.size() : 0);
 
+  Move thirdToLastMove = MOVE_NONE;
+  Move secondToLastMove = MOVE_NONE;
+  Move lastMove = MOVE_NONE;
+
   for (size_t i = 0; i < multiPV; ++i)
   {
       bool updated = (i <= PVIdx && rootMoves[i].score != -VALUE_INFINITE);
@@ -1546,8 +1551,17 @@ string UCI::pv(const Position& pos, Depth depth, Value alpha, Value beta) {
          << " pv";
 
       for (Move m : rootMoves[i].pv)
+      {
+          thirdToLastMove = secondToLastMove;
+          secondToLastMove = lastMove;
+          lastMove = m;
           ss << " " << UCI::move(m, pos.is_chess960());
+      }
   }
+
+  if (thirdToLastMove != MOVE_NONE && from_sq(lastMove) != to_sq(lastMove) && from_sq(thirdToLastMove) == to_sq(lastMove) && to_sq(thirdToLastMove) == from_sq(lastMove))
+      pos.this_thread()->endsWithRepetition = true;  else
+      pos.this_thread()->endsWithRepetition = false;
 
   return ss.str();
 }

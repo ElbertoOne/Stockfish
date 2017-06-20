@@ -71,6 +71,7 @@ public:
   CounterMoveStat counterMoves;
   ButterflyHistory history;
   CounterMoveHistoryStat counterMoveHistory;
+  bool endsWithRepetition;
 };
 
 
