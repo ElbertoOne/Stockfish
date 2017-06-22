@@ -960,7 +960,7 @@ moves_loop: // When in check search starts from here
           ss->moveCount = --moveCount;
           continue;
       }
-      
+
       if (move == ttMove && captureOrPromotion)
           ttCapture = true;
 
@@ -983,13 +983,9 @@ moves_loop: // When in check search starts from here
               r -= r ? ONE_PLY : DEPTH_ZERO;
           else
           {
-          
-              // Increase reduction if ttMove is a capture
-              if (ttCapture)
-                  r += ONE_PLY;
-          
-              // Increase reduction for cut nodes
-              if (cutNode)
+
+              // Increase reduction for cut nodes or when ttMove is a capture
+              if (cutNode || ttCapture)
                   r += 2 * ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
