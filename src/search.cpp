@@ -302,8 +302,9 @@ void MainThread::search() {
       {
           Depth depthDiff = th->completedDepth - bestThread->completedDepth;
           Value scoreDiff = th->rootMoves[0].score - bestThread->rootMoves[0].score;
+          Value matDiff   = th->rootPos.non_pawn_material() - bestThread->rootPos.non_pawn_material();
 
-          if (scoreDiff > 0 && depthDiff >= 0)
+          if ((scoreDiff > 0 || (scoreDiff == 0 && matDiff > 0)) && depthDiff >= 0)
               bestThread = th;
       }
   }
@@ -960,7 +961,7 @@ moves_loop: // When in check search starts from here
           ss->moveCount = --moveCount;
           continue;
       }
-      
+
       if (move == ttMove && captureOrPromotion)
           ttCapture = true;
 
@@ -983,11 +984,11 @@ moves_loop: // When in check search starts from here
               r -= r ? ONE_PLY : DEPTH_ZERO;
           else
           {
-          
+
               // Increase reduction if ttMove is a capture
               if (ttCapture)
                   r += ONE_PLY;
-          
+
               // Increase reduction for cut nodes
               if (cutNode)
                   r += 2 * ONE_PLY;
