@@ -206,6 +206,7 @@ namespace {
   const Score BishopPawns         = S(  8, 12);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
+  const Score TrappedRookEndgame  = S(  0,400);
   const Score WeakQueen           = S( 50, 10);
   const Score OtherCheck          = S( 10, 10);
   const Score CloseEnemies        = S(  7,  0);
@@ -303,7 +304,8 @@ namespace {
           : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(Us, ROOK, QUEEN))
                          : pos.attacks_from<Pt>(s);
 
-        if (pos.pinned_pieces(Us) & s)
+        bool pinned = pos.pinned_pieces(Us) & s;
+        if (pinned)
             b &= LineBB[pos.square<KING>(Us)][s];
 
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
@@ -374,10 +376,13 @@ namespace {
             else if (mob <= 3)
             {
                 Square ksq = pos.square<KING>(Us);
+                const Square Down = (Us == WHITE ? s + SOUTH      : s + NORTH);
 
                 if (   ((file_of(ksq) < FILE_E) == (file_of(s) < file_of(ksq)))
                     && !pe->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+                else if (!pinned && relative_rank(Us, s) > RANK_2 && (pos.pieces(Us, PAWN) & Down) && !(b & mobilityArea[Us] & ~attackedBy[Them][ALL_PIECES]))
+                    score -= TrappedRookEndgame;
             }
         }
 
