@@ -306,9 +306,18 @@ namespace {
 
         if (pos.pinned_pieces(Us) & s)
             b &= LineBB[pos.square<KING>(Us)][s];
-        //Penalty if piece cannot move in endgame without being attacked
-        else if (!(b & mobilityArea[Us] & ~attackedBy[Them][ALL_PIECES]))
-            score -= TrappedEndgame;
+        else
+        {
+            //Penalty if piece cannot move in endgame without being attacked. We don't have full attack
+            //information at this point, so consider only the cases for which we do have information.
+            Bitboard bbb = Pt == KNIGHT ? attackedBy[Them][PAWN] | attackedBy[Them][KING]
+                         : Pt == BISHOP ? attackedBy[Them][PAWN] | attackedBy[Them][KING] | attackedBy[Them][KNIGHT]
+                         : Pt == ROOK   ? attackedBy[Them][PAWN] | attackedBy[Them][KING] | attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP]
+                         : attackedBy[Them][PAWN] | attackedBy[Them][KING] | attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP] | attackedBy[Them][ROOK];
+
+            if (!(b & mobilityArea[Us] & ~bbb))
+                score -= TrappedEndgame;
+        }
 
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
         attackedBy[Us][ALL_PIECES] |= attackedBy[Us][Pt] |= b;
