@@ -304,9 +304,11 @@ namespace {
           : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(Us, ROOK, QUEEN))
                          : pos.attacks_from<Pt>(s);
 
-        bool pinned = pos.pinned_pieces(Us) & s;
-        if (pinned)
+        if (pos.pinned_pieces(Us) & s)
             b &= LineBB[pos.square<KING>(Us)][s];
+        //Penalty if piece cannot move in endgame without being attacked
+        else if (!(b & mobilityArea[Us] & ~attackedBy[Them][ALL_PIECES]))
+            score -= TrappedEndgame;
 
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
         attackedBy[Us][ALL_PIECES] |= attackedBy[Us][Pt] |= b;
@@ -382,10 +384,6 @@ namespace {
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
         }
-
-        //Penalty if piece cannot move in endgame without being attacked
-        if (!pinned && !(b & mobilityArea[Us] & ~attackedBy[Them][ALL_PIECES]))
-            score -= TrappedEndgame;
 
         if (Pt == QUEEN)
         {
