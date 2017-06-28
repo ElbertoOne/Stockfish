@@ -903,6 +903,7 @@ moves_loop: // When in check search starts from here
       }
       else if (    givesCheck
                && !moveCountPruning
+               && !cutNode
                &&  pos.see_ge(move))
           extension = ONE_PLY;
 
@@ -960,7 +961,7 @@ moves_loop: // When in check search starts from here
           ss->moveCount = --moveCount;
           continue;
       }
-      
+
       if (move == ttMove && captureOrPromotion)
           ttCapture = true;
 
@@ -983,11 +984,11 @@ moves_loop: // When in check search starts from here
               r -= r ? ONE_PLY : DEPTH_ZERO;
           else
           {
-          
+
               // Increase reduction if ttMove is a capture
               if (ttCapture)
                   r += ONE_PLY;
-          
+
               // Increase reduction for cut nodes
               if (cutNode)
                   r += 2 * ONE_PLY;
