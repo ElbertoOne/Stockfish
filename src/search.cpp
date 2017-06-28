@@ -989,7 +989,7 @@ moves_loop: // When in check search starts from here
 
               // Increase reduction for cut nodes
               if (cutNode)
-                  r += 2 * pos.game_phase() * ONE_PLY / PHASE_MIDGAME;
+                  r += (2 + pos.game_phase() < PHASE_MIDGAME) * ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
