@@ -726,7 +726,11 @@ namespace {
     if (   !PvNode
         &&  eval >= beta
         && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
-        &&  pos.non_pawn_material(pos.side_to_move()))
+        &&  pos.non_pawn_material(pos.side_to_move())
+        && !(   (ss-3)->currentMove != MOVE_NONE
+             && (ss-1)->currentMove != MOVE_NONE
+             && pos.game_phase() < PHASE_MIDGAME / 2
+             && to_sq((ss-3)->currentMove) == from_sq((ss-1)->currentMove)))
     {
 
         assert(eval - beta >= 0);
