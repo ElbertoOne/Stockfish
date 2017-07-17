@@ -810,9 +810,8 @@ namespace {
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
         {
             Value strongNonPawn = pos.non_pawn_material(strongSide);
-            if (strongNonPawn > RookValueMg)
-                return ScaleFactor(Scales[0][pos.count<PAWN>(strongSide)]);
-            else if (strongNonPawn == QueenValueMg)
+
+            if (strongNonPawn == QueenValueMg)
                 return ScaleFactor(Scales[1][pos.count<PAWN>(strongSide)]);
             else if (strongNonPawn == RookValueMg)
                 return ScaleFactor(Scales[2][pos.count<PAWN>(strongSide)]);
@@ -820,8 +819,10 @@ namespace {
                 return ScaleFactor(Scales[3][pos.count<PAWN>(strongSide)]);
             else if (strongNonPawn == KnightValueMg)
                 return ScaleFactor(Scales[4][pos.count<PAWN>(strongSide)]);
-            else
+            else if (strongNonPawn == 0)
                 return ScaleFactor(Scales[5][pos.count<PAWN>(strongSide)]);
+            else
+                return ScaleFactor(Scales[0][pos.count<PAWN>(strongSide)]);
         }
     }
 
