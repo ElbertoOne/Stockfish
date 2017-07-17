@@ -198,6 +198,17 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 10)
   };
 
+  int Scales[][3] = {
+    { 37, 44, 51 },
+    { 37, 44, 51 },
+    { 30, 37, 44 },
+    { 44, 51, 58 },
+    { 44, 51, 58 },
+    { 64, 64, 64 },
+  };
+
+  TUNE(SetRange(0,64), Scales);
+
   // KingProtector[PieceType-2] contains a bonus according to distance from king
   const Score KingProtector[] = { S(-3, -5), S(-4, -3), S(-3, 0), S(-1, 1) };
 
@@ -797,7 +808,21 @@ namespace {
         else if (    abs(eg) <= BishopValueEg
                  &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-            return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+        {
+            Value strongNonPawn = pos.non_pawn_material(strongSide);
+            if (strongNonPawn > RookValueMg)
+                return ScaleFactor(Scales[0][pos.count<PAWN>(strongSide)]);
+            else if (strongNonPawn == QueenValueMg)
+                return ScaleFactor(Scales[1][pos.count<PAWN>(strongSide)]);
+            else if (strongNonPawn == RookValueMg)
+                return ScaleFactor(Scales[2][pos.count<PAWN>(strongSide)]);
+            else if (strongNonPawn == BishopValueMg)
+                return ScaleFactor(Scales[3][pos.count<PAWN>(strongSide)]);
+            else if (strongNonPawn == KnightValueMg)
+                return ScaleFactor(Scales[4][pos.count<PAWN>(strongSide)]);
+            else
+                return ScaleFactor(Scales[5][pos.count<PAWN>(strongSide)]);
+        }
     }
 
     return sf;
