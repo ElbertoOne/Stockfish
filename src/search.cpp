@@ -165,7 +165,7 @@ void Search::init() {
       for (int d = 1; d < 64; ++d)
           for (int mc = 1; mc < 64; ++mc)
           {
-              double r = log(d) * log(mc) / 1.95;
+              double r = log(d) * log(mc) / 1.93;
 
               Reductions[NonPV][imp][d][mc] = int(std::round(r));
               Reductions[PV][imp][d][mc] = std::max(Reductions[NonPV][imp][d][mc] - 1, 0);
@@ -984,10 +984,10 @@ moves_loop: // When in check search starts from here
 
               // Decrease/increase reduction by comparing opponent's stat score
               if (ss->statScore > 0 && (ss-1)->statScore < 0)
-                  r -= ONE_PLY;
+                  r -= (1 + (ss->statScore - (ss - 1)->statScore > 10000)) * ONE_PLY;
 
               else if (ss->statScore < 0 && (ss-1)->statScore > 0)
-                  r += ONE_PLY;
+                  r += (1 + (ss->statScore - (ss - 1)->statScore < -10000)) * ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history
               r = std::max(DEPTH_ZERO, (r / ONE_PLY - ss->statScore / 20000) * ONE_PLY);
