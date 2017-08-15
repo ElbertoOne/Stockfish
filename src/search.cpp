@@ -989,6 +989,12 @@ moves_loop: // When in check search starts from here
               else if (ss->statScore < 0 && (ss-1)->statScore > 0)
                   r += ONE_PLY;
 
+              if ((ss - 1)->statScore && ss->statScore - (ss - 1)->statScore > 10000)
+                  r -= ONE_PLY;
+
+              else if ((ss - 1)->statScore && ss->statScore - (ss - 1)->statScore < -10000)
+                  r += ONE_PLY;
+
               // Decrease/increase reduction for moves with a good/bad history
               r = std::max(DEPTH_ZERO, (r / ONE_PLY - ss->statScore / 20000) * ONE_PLY);
           }
