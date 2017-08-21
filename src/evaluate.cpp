@@ -520,12 +520,10 @@ namespace {
         if (bbb)
         {
             Square pieceSq = backmost_sq(Us, bbb);
-            bb = bb & ~forward_file_bb(Us, pieceSq);
+            bb &= ~forward_file_bb(Us, pieceSq);
         }
-        bb = bb & ~pos.pieces();
-
-        if (bb & (attackedBy[Them][QUEEN] | attackedBy[Them][ROOK]))
-            score -= KingSemiOpen;
+        bb &= ~pos.pieces() & (attackedBy[Them][QUEEN] | attackedBy[Them][ROOK]) & ~attackedBy[Us][ALL_PIECES];
+        score -= KingSemiOpen * popcount(bb);
     }
 
     // Penalty when our king is on a pawnless flank
