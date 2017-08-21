@@ -216,6 +216,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
+  const Score KingSemiOpen        = S( 14,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -510,6 +511,16 @@ namespace {
        | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
 
     score -= CloseEnemies * popcount(b);
+
+    // Penalty when our king is on a semiopen file and can be attacked by Queen or Rook
+    if (pe->semiopen_file(Us, kf))
+    {
+        Bitboard bb = forward_file_bb(Us, ksq);
+        Square pieceSq = backmost_sq(Us, bb & pos.pieces(Them, ALL_PIECES));
+        bb = bb & ~(forward_file_bb(Us, pieceSq) | pos.pieces());
+        if (bb & (attackedBy[Them][QUEEN] | attackedBy[Them][ROOK]))
+            score -= KingSemiOpen;
+    }
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
