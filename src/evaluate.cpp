@@ -516,10 +516,13 @@ namespace {
     if (pe->semiopen_file(Us, kf))
     {
         Bitboard bb = forward_file_bb(Us, ksq);
-        Square pieceSq = backmost_sq(Us, bb & pos.pieces());
-        bb = bb & ~pos.pieces();
-        if (pieceSq)
+        Bitboard bbb = bb & pos.pieces();
+        if (bbb)
+        {
+            Square pieceSq = backmost_sq(Us, bbb);
             bb = bb & ~forward_file_bb(Us, pieceSq);
+        }
+        bb = bb & ~pos.pieces();
 
         if (bb & (attackedBy[Them][QUEEN] | attackedBy[Them][ROOK]))
             score -= KingSemiOpen;
