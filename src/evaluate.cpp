@@ -860,6 +860,16 @@ namespace {
         score +=  evaluate_space<WHITE>()
                 - evaluate_space<BLACK>();
 
+    if (abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) > 2 * (BishopValueMg - KnightValueMg))
+    {
+        int whiteAttack = popcount(attackedBy[WHITE][ALL_PIECES]);
+        int blackAttack = popcount(attackedBy[BLACK][ALL_PIECES]);
+        int attackDiff = whiteAttack - blackAttack;
+        if ((attackDiff > 0 && pos.non_pawn_material(WHITE) < pos.non_pawn_material(BLACK))
+            || (attackDiff < 0 && pos.non_pawn_material(WHITE) > pos.non_pawn_material(BLACK)))
+            score += make_score(10 * attackDiff, 10 * attackDiff);
+    }
+
     score += evaluate_initiative(eg_value(score));
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
