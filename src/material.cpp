@@ -96,7 +96,7 @@ namespace {
   /// imbalance() calculates the imbalance by comparing the piece count of each
   /// piece type for both colors.
   template<Color Us>
-  int imbalance(const int pieceCount[][PIECE_TYPE_NB]) {
+  int imbalance(const int pieceCount[][PIECE_TYPE_NB], const Position& pos) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
@@ -119,7 +119,13 @@ namespace {
 
     // Special handling of Queen vs. Minors
     if  (pieceCount[Us][QUEEN] == 1 && pieceCount[Them][QUEEN] == 0)
-         bonus += QueenMinorsImbalance[pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP]];
+    {
+		int minorCount = pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP];
+		if (minorCount > 0 && pos.non_pawn_material(Us) - pos.non_pawn_material(Them) + (pos.count<PAWN>(Us) - pos.count<PAWN>(Them)) * PawnValueMg < RookValueMg)
+			bonus -= minorCount * 400;
+		else
+            bonus += QueenMinorsImbalance[minorCount];
+	}
 
     return bonus;
   }
@@ -236,7 +242,7 @@ Entry* probe(const Position& pos) {
   { pos.count<BISHOP>(BLACK) > 1, pos.count<PAWN>(BLACK), pos.count<KNIGHT>(BLACK),
     pos.count<BISHOP>(BLACK)    , pos.count<ROOK>(BLACK), pos.count<QUEEN >(BLACK) } };
 
-  e->value = int16_t((imbalance<WHITE>(PieceCount) - imbalance<BLACK>(PieceCount)) / 16);
+  e->value = int16_t((imbalance<WHITE>(PieceCount, pos) - imbalance<BLACK>(PieceCount, pos)) / 16);
   return e;
 }
 
