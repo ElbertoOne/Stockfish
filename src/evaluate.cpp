@@ -646,13 +646,14 @@ namespace {
         if (rr)
         {
             Square blockSq = s + Up;
+            bool blockQueenSq = relative_rank(Us, blockSq) == RANK_8;
 
             // Adjust bonus based on the king's proximity
             ebonus +=  distance(pos.square<KING>(Them), blockSq) * 5 * rr
                      - distance(pos.square<KING>(  Us), blockSq) * 2 * rr;
 
             // If blockSq is not the queening square then consider also a second push
-            if (relative_rank(Us, blockSq) != RANK_8)
+            if (!blockQueenSq)
                 ebonus -= distance(pos.square<KING>(Us), blockSq + Up) * rr;
 
             // If the pawn is free to advance, then increase the bonus
@@ -681,7 +682,7 @@ namespace {
                     k = 18;
                 else if (!(unsafeSquares & blockSq))
                     k = 8;
-                else
+                else if (!blockQueenSq)
                 {
                     Bitboard bbb = pos.attackers_to(blockSq);
                     Bitboard defenders = bbb & pos.pieces(Us);
@@ -691,7 +692,7 @@ namespace {
                     if (attackCount < 3 && popcount(defenders) >= attackCount)
                     {
                         if (!(attackers & pos.pieces(Them, PAWN)) && (defenders & (pos.pieces(Us, KNIGHT, BISHOP, PAWN))))
-                            k = 2;
+                            score += HinderPassedPawn;
                     }
                 }
 
