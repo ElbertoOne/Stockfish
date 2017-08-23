@@ -673,7 +673,27 @@ namespace {
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
-                int k = !unsafeSquares ? 18 : !(unsafeSquares & blockSq) ? 8 : 0;
+                // Give an even smaller bonus if the blockSq is defended enough
+                // for the pawn to advance.
+                int k = 0;
+
+                if (!unsafeSquares)
+                    k = 18;
+                else if (!(unsafeSquares & blockSq))
+                    k = 8;
+                else
+                {
+                    Bitboard bbb = pos.attackers_to(blockSq);
+                    Bitboard defenders = bbb & pos.pieces(Us);
+                    Bitboard attackers = bbb & pos.pieces(Them);
+                    int attackCount = popcount(attackers);
+
+                    if (attackCount < 3 && popcount(defenders) >= attackCount)
+                    {
+                        if (!(attackers & pos.pieces(Them, PAWN)) && (defenders & (pos.pieces(Us, KNIGHT, BISHOP, PAWN))))
+                            k = 2;
+                    }
+                }
 
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
@@ -682,22 +702,6 @@ namespace {
 
                 else if (defendedSquares & blockSq)
                     k += 4;
-
-                // Increase the bonus slightly if the blockSq is defended enough
-                // for the pawn to advance.
-                if (k == 4 || k == 6)
-                {
-                    Bitboard bbb = pos.attackers_to(blockSq);
-                    Bitboard defenders = bbb & pos.pieces(Us);
-                    Bitboard attackers = bbb & pos.pieces(Them);
-
-                    if (!(attackers & pos.pieces(Them, PAWN)) && (defenders & (pos.pieces(Us, KNIGHT, BISHOP))))
-                    {
-                        int defCount = popcount(defenders);
-                        if (defCount < 3 && defCount >= popcount(attackers))
-                            k += k == 4 ? 2 : 1;
-                    }
-                }
 
                 mbonus += k * rr, ebonus += k * rr;
             }
