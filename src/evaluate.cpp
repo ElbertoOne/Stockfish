@@ -683,6 +683,22 @@ namespace {
                 else if (defendedSquares & blockSq)
                     k += 4;
 
+                // Increase the bonus slightly if the blockSq is defended enough
+                // for the pawn to advance.
+                if (k == 4 || k == 6)
+                {
+                    Bitboard bbb = pos.attackers_to(blockSq);
+                    Bitboard defenders = bbb & pos.pieces(Us);
+                    Bitboard attackers = bbb & pos.pieces(Them);
+
+                    if (!(attackers & pos.pieces(Them, PAWN)) && (defenders & (pos.pieces(Us, KNIGHT, BISHOP))))
+                    {
+                        int defCount = popcount(defenders);
+                        if (defCount < 3 && defCount >= popcount(attackers))
+                            k += k == 4 ? 2 : 1;
+                    }
+                }
+
                 mbonus += k * rr, ebonus += k * rr;
             }
             else if (pos.pieces(Us) & blockSq)
