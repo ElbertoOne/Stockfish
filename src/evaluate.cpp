@@ -680,7 +680,7 @@ namespace {
                 if (defendedSquares == squaresToQueen)
                     k += 6;
 
-                else if (defendedSquares & blockSq)
+                else if (defendedSquares & blockSq && !(attackedBy2[Them] & attackedBy[Them][PAWN] & ~attackedBy2[Us] & blockSq))
                     k += 4;
 
                 mbonus += k * rr, ebonus += k * rr;
