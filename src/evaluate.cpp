@@ -792,15 +792,10 @@ namespace {
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
-        else if (abs(eg) <= BishopValueEg)
-        {
-            if (pos.count<PAWN>(strongSide) <= 2
+        else if (    abs(eg) <= BishopValueEg
+                 &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-                return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
-            else if (   pos.count<QUEEN>(strongSide) == 1
-                     && pos.count<QUEEN>(~strongSide) == 0)
-                return ScaleFactor(64 - 7 * (pos.count<KNIGHT>(~strongSide) + pos.count<BISHOP>(~strongSide)));
-        }
+            return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
     }
 
     return sf;
