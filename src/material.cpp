@@ -61,7 +61,7 @@ namespace {
   // QueenMinorsImbalance[opp_minor_count] is applied when only one side has a queen.
   // It contains a bonus/malus for the side with the queen.
   const int QueenMinorsImbalance[13] = {
-    31, -8, -30, -50, -75
+    31, -8, -15, -25, -5
   };
 
   // Endgame evaluation and scaling functions are accessed directly and not through
@@ -119,7 +119,14 @@ namespace {
 
     // Special handling of Queen vs. Minors
     if  (pieceCount[Us][QUEEN] == 1 && pieceCount[Them][QUEEN] == 0)
-         bonus += QueenMinorsImbalance[pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP]];
+    {
+		 int minorsThem = pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP];
+		 int minorsUs = pieceCount[Us][KNIGHT] + pieceCount[Us][BISHOP];
+		 if (minorsThem > 2 && minorsUs < 2 && pieceCount[Them][ROOK] == pieceCount[Us][ROOK])
+		 	bonus = 3 * bonus / 4;
+		 else
+             bonus += QueenMinorsImbalance[minorsThem];
+	}
 
     return bonus;
   }
