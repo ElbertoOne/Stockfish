@@ -64,6 +64,9 @@ namespace {
     31, -8, -15, -25, -5
   };
 
+  int ScaleQueenMinorsImbalance = 750;
+  TUNE(SetRange(0, 1000), ScaleQueenMinorsImbalance);
+
   // Endgame evaluation and scaling functions are accessed directly and not through
   // the function maps because they correspond to more than one material hash key.
   Endgame<KXK>    EvaluateKXK[] = { Endgame<KXK>(WHITE),    Endgame<KXK>(BLACK) };
@@ -119,7 +122,18 @@ namespace {
 
     // Special handling of Queen vs. Minors
     if  (pieceCount[Us][QUEEN] == 1 && pieceCount[Them][QUEEN] == 0)
-         bonus += QueenMinorsImbalance[pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP]];
+    {
+        int minorsThem = pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP];
+        int minorsBalance = minorsThem - pieceCount[Us][KNIGHT] - pieceCount[Us][BISHOP];
+        int rooksBalance = pieceCount[Them][ROOK] - pieceCount[Us][ROOK];
+        // Scale down bonus if the opposing side:
+        // 1. Has at least the same number of rooks
+        // 2. Has at least 2 more rooks or minors.
+        if (rooksBalance > -1 && (minorsBalance + rooksBalance) > 1)
+            bonus = ScaleQueenMinorsImbalance * bonus / 1000;
+        else
+            bonus += QueenMinorsImbalance[minorsThem];
+    }
 
     return bonus;
   }
