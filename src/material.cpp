@@ -119,7 +119,18 @@ namespace {
 
     // Special handling of Queen vs. Minors
     if  (pieceCount[Us][QUEEN] == 1 && pieceCount[Them][QUEEN] == 0)
-         bonus += QueenMinorsImbalance[pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP]];
+    {
+        int minorsThem = pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP];
+        int minorsBalance = minorsThem - pieceCount[Us][KNIGHT] - pieceCount[Us][BISHOP];
+        int rooksBalance = pieceCount[Them][ROOK] - pieceCount[Us][ROOK];
+        if (rooksBalance + minorsBalance > 1)
+        {
+            int pieceCountFactor = 24 - 5 * rooksBalance - 3 * minorsBalance;
+            bonus = std::max(12, pieceCountFactor) * bonus / 24;
+        }
+        else
+             bonus += QueenMinorsImbalance[minorsThem];
+    }
 
     return bonus;
   }
