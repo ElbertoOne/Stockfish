@@ -957,7 +957,7 @@ moves_loop: // When in check search starts from here
               if (ttCapture)
                   r += ONE_PLY;
 
-              if ((ss - 1)->moveCount > 15)
+              if ((ss - 1)->moveCount > 7)
                   r -= ONE_PLY;
 
               // Increase reduction for cut nodes
