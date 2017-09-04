@@ -58,11 +58,41 @@ namespace {
     24, -32, 107, -51, 117, -9, -126, -21, 31
   };
 
-  // QueenMinorsImbalance[opp_minor_count] is applied when only one side has a queen.
-  // It contains a bonus/malus for the side with the queen.
+  // QueenMinorsImbalance[their_minor_count] is applied is applied when our side has
+  // more queens than their side and also more rooks.
+  // It contains a bonus/malus for the side with most queens.
   const int QueenMinorsImbalance[13] = {
     31, -8, -15, -25, -5
   };
+
+  // QueenMinorsImbalanceLessOrEqualRooks[rook_diff][our_minor_count][their_minor_count] is applied when our side has
+  // more queens than their side and the number of rooks is equal or less.
+  // It contains a bonus/malus for the side with most queens.
+  int QueenMinorsImbalanceLessOrEqualRooks[11][13][13] = {
+    {
+      { 31, -8, -15, -25, -5},
+      { 31, -8, -15, -25, -5},
+      { 31, -8, -15, -25, -5},
+      { 31, -8, -15, -25, -5},
+      { 31, -8, -15, -25, -5}
+    },
+    {
+      { 31, -8, -15, -25, -5},
+      { 31, -8, -15, -25, -5},
+      { 31, -8, -15, -25, -5},
+      { 31, -8, -15, -25, -5},
+      { 31, -8, -15, -25, -5}
+    },
+    {
+      { 31, -8, -15, -25, -5},
+      { 31, -8, -15, -25, -5},
+      { 31, -8, -15, -25, -5},
+      { 31, -8, -15, -25, -5},
+      { 31, -8, -15, -25, -5}
+    },
+  };
+
+  TUNE(SetRange(-1000, 1000), QueenMinorsImbalanceLessOrEqualRooks);
 
   // Endgame evaluation and scaling functions are accessed directly and not through
   // the function maps because they correspond to more than one material hash key.
@@ -118,8 +148,13 @@ namespace {
     }
 
     // Special handling of Queen vs. Minors
-    if  (pieceCount[Us][QUEEN] == 1 && pieceCount[Them][QUEEN] == 0)
-         bonus += QueenMinorsImbalance[pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP]];
+    if  (pieceCount[Us][QUEEN] > pieceCount[Them][QUEEN])
+    {
+         if (pieceCount[Them][ROOK] >= pieceCount[Us][ROOK])
+             bonus += QueenMinorsImbalanceLessOrEqualRooks[pieceCount[Them][ROOK] - pieceCount[Us][ROOK]][pieceCount[Us][KNIGHT] + pieceCount[Us][BISHOP]][pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP]];
+         else
+             bonus += QueenMinorsImbalance[pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP]];
+    }
 
     return bonus;
   }
