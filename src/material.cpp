@@ -65,31 +65,15 @@ namespace {
     31, -8, -15, -25, -5
   };
 
-  // QueenMinorsImbalanceLessOrEqualRooks[rook_diff][our_minor_count][their_minor_count] is applied when our side has
+  // QueenMinorsImbalanceLessOrEqualRooks[our_minor_count][their_minor_count] is applied when our side has
   // more queens than their side and the number of rooks is equal or less.
   // It contains a bonus/malus for the side with most queens.
-  const int QueenMinorsImbalanceLessOrEqualRooks[11][13][13] = {
-    {
-      {  80, 26, -31, -117, -127},
-      {  90, 38, -31,  -69,  -89},
-      { 100, 56, -25,  -40,  -56},
-      { 110, 65, -15,  -31,  -45},
-      { 120, 72,  -5,  -25,  -31}
-    },
-    {
-      {  70, 16, -41, -127, -137},
-      {  80, 28, -42, -79,  -99},
-      {  90, 46, -35, -50, -66},
-      { 100, 55, -25, -41, -55},
-      { 110, 62, -15, -35, -41}
-    },
-    {
-      {  60,  6, -51, -137, -147},
-      {  70, 18, -52, -89,  -109},
-      {  80, 36, -45, -60,  -76},
-      {  90, 45, -35, -51,  -65},
-      { 100, 52, -25, -45,  -51}
-    },
+  const int QueenMinorsImbalanceLessOrEqualRooks[13][13] = {
+    {  62, -24, -32, -118, -118},
+    {  71, -16, -24, -100, -100},
+    {  71, -10, -16,  -70,  -70},
+    {  71,  -1, -10,  -38,  -38},
+    {  71,   8,  -1,  -33,  -33}
   };
 
   // Endgame evaluation and scaling functions are accessed directly and not through
@@ -149,7 +133,7 @@ namespace {
     if  (pieceCount[Us][QUEEN] > pieceCount[Them][QUEEN])
     {
          if (pieceCount[Them][ROOK] >= pieceCount[Us][ROOK])
-             bonus += QueenMinorsImbalanceLessOrEqualRooks[pieceCount[Them][ROOK] - pieceCount[Us][ROOK]][pieceCount[Us][KNIGHT] + pieceCount[Us][BISHOP]][pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP]];
+             bonus += QueenMinorsImbalanceLessOrEqualRooks[pieceCount[Us][KNIGHT] + pieceCount[Us][BISHOP]][pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP]];
          else
              bonus += QueenMinorsImbalance[pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP]];
     }
