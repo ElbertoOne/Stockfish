@@ -69,11 +69,11 @@ namespace {
   // more queens than their side and the number of rooks is equal or less.
   // It contains a bonus/malus for the side with most queens.
   const int QueenMinorsImbalanceLessOrEqualRooks[13][13] = {
-    {  62, -24, -32, -118, -118},
-    {  71, -16, -24, -100, -100},
-    {  71, -10, -16,  -70,  -70},
-    {  71,  -1, -10,  -38,  -38},
-    {  71,   8,  -1,  -33,  -33}
+    {  31, -8, -400, -750, -800},
+    {  31, -8,  -30, -500, -750},
+    {  31, -8,  -15,  -30, -500},
+    {  31, -8,  -15,  -25,  -30},
+    {  31, -8,  -15,  -25,  -30}
   };
 
   // Endgame evaluation and scaling functions are accessed directly and not through
