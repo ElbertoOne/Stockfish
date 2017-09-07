@@ -174,11 +174,11 @@ namespace {
   // which piece type attacks which one. Attacks on lesser pieces which are
   // pawn-defended are not considered.
   const Score ThreatByMinor[PIECE_TYPE_NB] = {
-    S(0, 0), S(0, 33), S(45, 43), S(46, 47), S(72, 107), S(48, 118)
+    S(0, 0), S(5, 33), S(45, 43), S(46, 47), S(72, 107), S(48, 118)
   };
 
   const Score ThreatByRook[PIECE_TYPE_NB] = {
-    S(0, 0), S(0, 25), S(40, 62), S(40, 59), S(0, 34), S(35, 48)
+    S(0, 0), S(5, 25), S(40, 62), S(40, 59), S(0, 34), S(35, 48)
   };
 
   // ThreatByKing[on one/on many] contains bonuses for king attacks on
@@ -208,7 +208,7 @@ namespace {
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
   const Score OtherCheck          = S( 10, 10);
-  const Score CloseEnemies        = S(  7,  0);
+  const Score CloseEnemies        = S(  7, -4);
   const Score PawnlessFlank       = S( 20, 80);
   const Score ThreatByHangingPawn = S( 71, 61);
   const Score ThreatBySafePawn    = S(182,175);
