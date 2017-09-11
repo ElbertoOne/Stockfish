@@ -109,6 +109,10 @@ void Thread::idle_loop() {
   }
 }
 
+bool Thread::isNoNMPThread() {
+	return idx == 5 && rootPos.game_ply() > 30;
+}
+
 
 /// ThreadPool::init() creates and launches the threads that will go
 /// immediately to sleep in idle_loop. We cannot use the c'tor because
