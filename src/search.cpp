@@ -690,7 +690,7 @@ namespace {
                   ss->staticEval, TT.generation());
     }
 
-    if (skipEarlyPruning)
+    if (skipEarlyPruning || (ss-1)->moveCount == 0)
         goto moves_loop;
 
     // Step 6. Razoring (skipped when in check)
