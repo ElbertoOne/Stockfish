@@ -298,7 +298,7 @@ void MainThread::search() {
 
           // Select the thread with the best score, always if it is a mate
           if (    scoreDiff > 0
-              && (depthDiff >= 0 || th->isNoNMPThread() || th->rootMoves[0].score >= VALUE_MATE_IN_MAX_PLY))
+              && (depthDiff >= 0 || th->rootMoves[0].score >= VALUE_MATE_IN_MAX_PLY))
               bestThread = th;
       }
   }
@@ -720,7 +720,7 @@ namespace {
         &&  eval >= beta
         && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
         &&  pos.non_pawn_material(pos.side_to_move())
-        && !thisThread->isNoNMPThread())
+        && !((ss-1)->moveCount == 1 && !pos.captured_piece()))
     {
 
         assert(eval - beta >= 0);
