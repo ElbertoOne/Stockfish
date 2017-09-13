@@ -550,6 +550,7 @@ namespace {
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
     inCheck = pos.checkers();
+    ss->inCheck = inCheck;
     moveCount = quietCount = ss->moveCount = 0;
     ss->statScore = 0;
     bestValue = -VALUE_INFINITE;
@@ -875,6 +876,12 @@ moves_loop: // When in check search starts from here
                && !moveCountPruning
                &&  pos.see_ge(move))
           extension = ONE_PLY;
+      else if (   (ss-1)->inCheck
+               && !moveCountPruning
+               &&  to_sq((ss-1)->currentMove) == pos.square<KING>(~pos.side_to_move())
+               &&  pos.king_ring_attack(move)
+               &&  pos.see_ge(move))
+          extension = ONE_PLY;
 
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
@@ -886,8 +893,9 @@ moves_loop: // When in check search starts from here
       {
           if (   !captureOrPromotion
               && !givesCheck
-              && ((!pos.advanced_pawn_push(move) && !(pos.captured_piece() && pos.king_ring_attack(move))) || pos.non_pawn_material() >= Value(5000)))
+              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material() >= Value(5000)))
           {
+
               // Move count based pruning
               if (moveCountPruning)
               {
@@ -1255,9 +1263,9 @@ moves_loop: // When in check search starts from here
       if (   !InCheck
           && !givesCheck
           &&  futilityBase > -VALUE_KNOWN_WIN
-          && !pos.advanced_pawn_push(move)
-          && !(pos.captured_piece() && pos.king_ring_attack(move)))
+          && !pos.advanced_pawn_push(move))
       {
+
           assert(type_of(move) != ENPASSANT); // Due to !pos.advanced_pawn_push
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
