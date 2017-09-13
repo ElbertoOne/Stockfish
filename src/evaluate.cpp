@@ -360,7 +360,7 @@ namespace {
             {
                 // Give bonus for knight for closedpositions
                 int blockedPawnPairs = popcount((pos.pieces(WHITE, PAWN) << 8) & pos.pieces(BLACK, PAWN));
-                score += ClosedBonus * blockedPawnPairs * blockedPawnPairs / 4;
+                score += ClosedBonus * blockedPawnPairs * blockedPawnPairs / 8;
             }
         }
 
