@@ -217,6 +217,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score ClosedBonus         = S(  2,  4);
 
   #undef S
   #undef V
@@ -353,6 +354,13 @@ namespace {
                     score -= !pos.empty(s + d + pawn_push(Us))                ? TrappedBishopA1H1 * 4
                             : pos.piece_on(s + d + d) == make_piece(Us, PAWN) ? TrappedBishopA1H1 * 2
                                                                               : TrappedBishopA1H1;
+            }
+
+            if (Pt == KNIGHT)
+            {
+                // Give bonus for knight for closedpositions
+                int blockedPawnPairs = popcount((pos.pieces(WHITE, PAWN) << 8) & pos.pieces(BLACK, PAWN));
+                score += ClosedBonus * blockedPawnPairs * blockedPawnPairs / 4;
             }
         }
 
