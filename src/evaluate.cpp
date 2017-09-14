@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -449,11 +450,9 @@ namespace {
         Bitboard bb = pos.pieces(Them, QUEEN, ROOK) & (adjacent_files_bb(file_of(ksq)) | file_bb(ksq));
         while (bb)
         {
-            Square rs = pop_lsb(&bb);
-            if (pe->semiopen_file(Them, file_of(rs)))
-            {
-                kingDanger += 40 * (1 + !!pe->semiopen_file(Us, file_of(rs)));
-            }
+            File frs = file_of(pop_lsb(&bb));
+            if (pe->semiopen_file(Them, frs) && !!pe->semiopen_file(Us, frs))
+                kingDanger += 80;
         }
 
         // Analyse the safe enemy's checks which are possible on next move
