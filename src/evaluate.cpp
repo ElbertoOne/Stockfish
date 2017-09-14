@@ -446,17 +446,13 @@ namespace {
                     +  40;
 
         //Increase kingdanger if a queen or rook is on a (semi)open file near the king.
-        Bitboard bb = pos.pieces(Them, QUEEN, ROOK);
+        Bitboard bb = pos.pieces(Them, QUEEN, ROOK) & (adjacent_files_bb(file_of(ksq)) | file_bb(ksq));
         while (bb)
         {
             Square rs = pop_lsb(&bb);
             if (pe->semiopen_file(Them, file_of(rs)))
             {
-                Bitboard kb = adjacent_files_bb(file_of(ksq)) | file_bb(ksq);
-                if (kb & rs)
-                {
-                    kingDanger += 40 * (1 + !!pe->semiopen_file(Us, file_of(rs)));
-                }
+                kingDanger += 40 * (1 + !!pe->semiopen_file(Us, file_of(rs)));
             }
         }
 
