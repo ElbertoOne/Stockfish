@@ -445,6 +445,21 @@ namespace {
                     -   9 * mg_value(score) / 8
                     +  40;
 
+        //Increase kingdanger if a queen or rook is on a (semi)open file near the king.
+        Bitboard bb = pos.pieces(Them, QUEEN, ROOK);
+        while (bb)
+        {
+            Square rs = pop_lsb(&bb);
+            if (pe->semiopen_file(Them, file_of(rs)))
+            {
+                Bitboard kb = adjacent_files_bb(file_of(ksq)) | file_bb(ksq);
+                if (kb & rs)
+                {
+                    kingDanger += 40 * (1 + !!pe->semiopen_file(Us, file_of(rs)));
+                }
+            }
+        }
+
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (kingOnlyDefended & attackedBy2[Them]);
