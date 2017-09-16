@@ -442,6 +442,7 @@ namespace {
                     + 191 * popcount(kingOnlyDefended | undefended)
                     + 143 * !!pos.pinned_pieces(Us)
                     - 848 * !pos.count<QUEEN>(Them)
+                    + 275 * (std::max(pos.mediumPieceCount(Them) - pos.mediumPieceCount(Us), 0))
                     -   9 * mg_value(score) / 8
                     +  40;
 

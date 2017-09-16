@@ -96,6 +96,7 @@ public:
   template<PieceType Pt> int count() const;
   template<PieceType Pt> const Square* squares(Color c) const;
   template<PieceType Pt> Square square(Color c) const;
+  int mediumPieceCount(Color c) const;
 
   // Castling
   int can_castle(Color c) const;
@@ -257,6 +258,10 @@ inline Square Position::ep_square() const {
 
 inline int Position::can_castle(CastlingRight cr) const {
   return st->castlingRights & cr;
+}
+
+inline int Position::mediumPieceCount(Color c) const {
+	return pieceCount[make_piece(c, ROOK)] + pieceCount[make_piece(c,BISHOP)] + pieceCount[make_piece(c,KNIGHT)];
 }
 
 inline int Position::can_castle(Color c) const {
