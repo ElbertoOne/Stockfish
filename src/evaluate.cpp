@@ -441,10 +441,15 @@ namespace {
                     + 102 * kingAdjacentZoneAttacksCount[Them]
                     + 191 * popcount(kingOnlyDefended | undefended)
                     + 143 * !!pos.pinned_pieces(Us)
-                    - 848 * !pos.count<QUEEN>(Them)
-                    + 275 * (std::max(pos.mediumPieceCount(Them) - pos.mediumPieceCount(Us), 0))
                     -   9 * mg_value(score) / 8
                     +  40;
+
+        if (!pos.count<QUEEN>(Them))
+        {
+            kingDanger -= 848;
+            if (pos.count<QUEEN>(Us) > 0)
+                kingDanger += std::max(0, 848 * ((pos.count<BISHOP>(Them) - pos.count<BISHOP>(Us)) * BishopValueMg + (pos.count<KNIGHT>(Them) - pos.count<KNIGHT>(Us)) * KnightValueMg) / QueenValueMg);
+        }
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
