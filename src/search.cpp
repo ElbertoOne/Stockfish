@@ -954,7 +954,7 @@ moves_loop: // When in check search starts from here
           else
           {
               // Decrease reduction if opponent's move count is high
-              if ((ss-1)->moveCount > 15)
+              if (moveCountPruning && (ss-1)->moveCount > 15)
                   r -= ONE_PLY;
 
               // Increase reduction if ttMove is a capture
