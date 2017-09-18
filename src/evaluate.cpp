@@ -767,6 +767,15 @@ namespace {
     // that the endgame score will never change sign after the bonus.
     int v = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg));
 
+    int whiteCount = pos.nonPawnCount(WHITE);
+    int blackCount = pos.nonPawnCount(BLACK);
+
+    // Reduce the initiative if the weaker side has more non-pawn pieces.
+    if (eg > 0 && whiteCount < blackCount)
+        v = v * whiteCount / blackCount;
+    else if (eg < 0 && blackCount < whiteCount)
+        v = v * blackCount / whiteCount;
+
     return make_score(0, v);
   }
 
