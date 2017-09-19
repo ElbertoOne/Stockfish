@@ -979,13 +979,13 @@ moves_loop: // When in check search starts from here
                   r -= 2 * ONE_PLY;
 
               // Decrease reduction for moves that avoid a repetition.
-              else if (   ss->statScore >= 0 && (ss-4)
+              else if (   ss->statScore > 0
                        && to_sq((ss-4)->currentMove) == from_sq((ss-2)->currentMove)
                        && to_sq((ss-2)->currentMove) == from_sq((ss-4)->currentMove)
                        && to_sq((ss-3)->currentMove) == from_sq((ss-1)->currentMove)
                        && to_sq((ss-1)->currentMove) == from_sq((ss-3)->currentMove)
-                       && (to_sq(move) != to_sq((ss-4)->currentMove) || from_sq(move) != from_sq((ss-4)->currentMove)))
-                  r -= 2 * ONE_PLY;
+                       && from_to(move) != from_to((ss-4)->currentMove))
+                  r -= ONE_PLY;
 
               // Decrease/increase reduction by comparing opponent's stat score
               if (ss->statScore > 0 && (ss-1)->statScore < 0)
