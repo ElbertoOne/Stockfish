@@ -961,12 +961,6 @@ moves_loop: // When in check search starts from here
               if (ttCapture)
                   r += ONE_PLY;
 
-              ss->statScore =  thisThread->mainHistory[~pos.side_to_move()][from_to(move)]
-                             + (*contHist[0])[movedPiece][to_sq(move)]
-                             + (*contHist[1])[movedPiece][to_sq(move)]
-                             + (*contHist[3])[movedPiece][to_sq(move)]
-                             - 4000;
-
               // Increase reduction for cut nodes
               if (cutNode)
                   r += 2 * ONE_PLY;
@@ -978,13 +972,19 @@ moves_loop: // When in check search starts from here
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
                   r -= 2 * ONE_PLY;
 
+              ss->statScore =  thisThread->mainHistory[~pos.side_to_move()][from_to(move)]
+                             + (*contHist[0])[movedPiece][to_sq(move)]
+                             + (*contHist[1])[movedPiece][to_sq(move)]
+                             + (*contHist[3])[movedPiece][to_sq(move)]
+                             - 4000;
+
               // Decrease reduction for moves that avoid a repetition.
-              else if (   ss->statScore > 0
-                       && to_sq((ss-4)->currentMove) == from_sq((ss-2)->currentMove)
-                       && to_sq((ss-2)->currentMove) == from_sq((ss-4)->currentMove)
-                       && to_sq((ss-3)->currentMove) == from_sq((ss-1)->currentMove)
-                       && to_sq((ss-1)->currentMove) == from_sq((ss-3)->currentMove)
-                       && from_to(move) != from_to((ss-4)->currentMove))
+              if (   ss->statScore > 0
+                  && to_sq((ss-4)->currentMove) == from_sq((ss-2)->currentMove)
+                  && to_sq((ss-2)->currentMove) == from_sq((ss-4)->currentMove)
+                  && to_sq((ss-3)->currentMove) == from_sq((ss-1)->currentMove)
+                  && to_sq((ss-1)->currentMove) == from_sq((ss-3)->currentMove)
+                  && from_to(move) != from_to((ss-4)->currentMove))
                   r -= ONE_PLY;
 
               // Decrease/increase reduction by comparing opponent's stat score
