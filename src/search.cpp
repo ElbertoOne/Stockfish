@@ -961,6 +961,8 @@ moves_loop: // When in check search starts from here
               if (ttCapture)
                   r += ONE_PLY;
 
+              bool escapeCapture = false;
+
               // Increase reduction for cut nodes
               if (cutNode)
                   r += 2 * ONE_PLY;
@@ -970,7 +972,10 @@ moves_loop: // When in check search starts from here
               // hence break make_move().
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
+              {
+                  escapeCapture = true;
                   r -= 2 * ONE_PLY;
+              }
 
               ss->statScore =  thisThread->mainHistory[~pos.side_to_move()][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
@@ -979,11 +984,11 @@ moves_loop: // When in check search starts from here
                              - 4000;
 
               // Decrease/increase reduction by comparing opponent's stat score
-              if (ss->statScore > 0 && (ss-1)->statScore < 0)
-                  r -= ONE_PLY;
+              if (ss->statScore >= 0 && (ss-1)->statScore < 0)
+                  r -= (1 + cutNode) * ONE_PLY;
 
               else if (ss->statScore < 0 && (ss-1)->statScore >= 0)
-                  r += ONE_PLY;
+                  r += (1 + escapeCapture) * ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history
               r = std::max(DEPTH_ZERO, (r / ONE_PLY - ss->statScore / 20000) * ONE_PLY);
