@@ -953,6 +953,13 @@ moves_loop: // When in check search starts from here
               r -= r ? ONE_PLY : DEPTH_ZERO;
           else
           {
+
+              ss->statScore =  thisThread->mainHistory[~pos.side_to_move()][from_to(move)]
+                             + (*contHist[0])[movedPiece][to_sq(move)]
+                             + (*contHist[1])[movedPiece][to_sq(move)]
+                             + (*contHist[3])[movedPiece][to_sq(move)]
+                             - 4000;
+
               // Decrease reduction if opponent's move count is high
               if ((ss-1)->moveCount > 15)
                   r -= ONE_PLY;
@@ -961,8 +968,19 @@ moves_loop: // When in check search starts from here
               if (ttCapture)
                   r += ONE_PLY;
 
+              // Decrease reduction for moves that avoid a repetition if stats and eval are positive.
+              if (   ss->statScore > 0
+                  && ss->statScore > (ss-1)->statScore
+                  && ss->staticEval > (ss-2)->staticEval
+                  && to_sq((ss-4)->currentMove) == from_sq((ss-2)->currentMove)
+                  && to_sq((ss-2)->currentMove) == from_sq((ss-4)->currentMove)
+                  && to_sq((ss-3)->currentMove) == from_sq((ss-1)->currentMove)
+                  && to_sq((ss-1)->currentMove) == from_sq((ss-3)->currentMove)
+                  && from_to(move) != from_to((ss-4)->currentMove))
+                  r -= 3 * ONE_PLY;
+
               // Increase reduction for cut nodes
-              if (cutNode)
+              else if (cutNode)
                   r += 2 * ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
@@ -971,12 +989,6 @@ moves_loop: // When in check search starts from here
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
                   r -= 2 * ONE_PLY;
-
-              ss->statScore =  thisThread->mainHistory[~pos.side_to_move()][from_to(move)]
-                             + (*contHist[0])[movedPiece][to_sq(move)]
-                             + (*contHist[1])[movedPiece][to_sq(move)]
-                             + (*contHist[3])[movedPiece][to_sq(move)]
-                             - 4000;
 
               // Decrease/increase reduction by comparing opponent's stat score
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
