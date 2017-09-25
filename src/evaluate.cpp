@@ -223,7 +223,7 @@ namespace {
   #undef V
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
-  const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 78, 56, 45, 11 };
+  const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 7, 78, 56, 45, 11 };
 
   // Penalties for enemy's safe checks
   const int QueenCheck  = 780;
@@ -269,7 +269,8 @@ namespace {
             kingRing[Us] |= shift<Up>(b);
 
         kingAttackersCount[Them] = popcount(b & pe->pawn_attacks(Them));
-        kingAdjacentZoneAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+        kingAttackersWeight[Them] = kingAttackersCount[Them] * KingAttackWeights[PAWN];
+        kingAdjacentZoneAttacksCount[Them] = 0;
     }
     else
         kingRing[Us] = kingAttackersCount[Them] = 0;
