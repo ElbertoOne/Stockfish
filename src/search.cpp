@@ -553,6 +553,7 @@ namespace {
     moveCount = quietCount = ss->moveCount = 0;
     ss->statScore = 0;
     ss->maxStatScore = 0;
+    ss->minStatScore = 0;
     bestValue = -VALUE_INFINITE;
 
     // Check for the available remaining time
@@ -981,6 +982,8 @@ moves_loop: // When in check search starts from here
 
               if (ss->statScore > ss->maxStatScore)
                   ss->maxStatScore = ss->statScore;
+              else if (ss->statScore < ss->minStatScore)
+                  ss->minStatScore = ss->statScore;
 
               // Decrease/increase reduction by comparing opponent's stat score
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
@@ -993,7 +996,13 @@ moves_loop: // When in check search starts from here
               }
 
               else if ((ss-1)->statScore >= 0 && ss->statScore < 0)
+              {
                   r += ONE_PLY;
+
+                  //Increase further if statScore is smaller than opponent's minStatScore
+                  if (ss->statScore < (ss-1)->minStatScore)
+                      r += ONE_PLY;
+              }
 
               // Decrease/increase reduction for moves with a good/bad history
               r = std::max(DEPTH_ZERO, (r / ONE_PLY - ss->statScore / 20000) * ONE_PLY);
