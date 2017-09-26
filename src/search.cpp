@@ -552,6 +552,7 @@ namespace {
     inCheck = pos.checkers();
     moveCount = quietCount = ss->moveCount = 0;
     ss->statScore = 0;
+    ss->maxStatScore = 0;
     bestValue = -VALUE_INFINITE;
 
     // Check for the available remaining time
@@ -978,9 +979,18 @@ moves_loop: // When in check search starts from here
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4000;
 
+              if (ss->statScore > ss->maxStatScore)
+                  ss->maxStatScore = ss->statScore;
+
               // Decrease/increase reduction by comparing opponent's stat score
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
+              {
                   r -= ONE_PLY;
+
+                  //Decrease further if statScore is bigger than opponent's maxStatScore
+                  if (ss->statScore > (ss-1)->maxStatScore)
+                      r -= ONE_PLY;
+              }
 
               else if ((ss-1)->statScore >= 0 && ss->statScore < 0)
                   r += ONE_PLY;
