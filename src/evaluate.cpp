@@ -783,7 +783,7 @@ namespace {
     // types of endgames, and use a lower scale for those.
     if (sf == SCALE_FACTOR_NORMAL || sf == SCALE_FACTOR_ONEPAWN)
     {
-        if (pos.opposite_bishops())
+        if (pos.opposite_bishops() && !pos.pieces(QUEEN))
         {
             // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
