@@ -284,6 +284,25 @@ void MainThread::search() {
           th->wait_for_search_finished();
 
   // Check if there are threads with a better score than main thread
+  Thread* bestThread = getBestThread();
+
+  previousScore = bestThread->rootMoves[0].score;
+
+  // Send new PV when needed
+  if (bestThread != this)
+      sync_cout << UCI::pv(bestThread->rootPos, bestThread->completedDepth, -VALUE_INFINITE, VALUE_INFINITE) << sync_endl;
+
+  sync_cout << "bestmove " << UCI::move(bestThread->rootMoves[0].pv[0], rootPos.is_chess960());
+
+  if (bestThread->rootMoves[0].pv.size() > 1 || bestThread->rootMoves[0].extract_ponder_from_tt(rootPos))
+      std::cout << " ponder " << UCI::move(bestThread->rootMoves[0].pv[1], rootPos.is_chess960());
+
+  std::cout << sync_endl;
+}
+
+Thread* MainThread::getBestThread()
+{
+  // Check if there are threads with a better score than main thread
   Thread* bestThread = this;
   if (   !this->easyMovePlayed
       &&  Options["MultiPV"] == 1
@@ -302,19 +321,7 @@ void MainThread::search() {
               bestThread = th;
       }
   }
-
-  previousScore = bestThread->rootMoves[0].score;
-
-  // Send new PV when needed
-  if (bestThread != this)
-      sync_cout << UCI::pv(bestThread->rootPos, bestThread->completedDepth, -VALUE_INFINITE, VALUE_INFINITE) << sync_endl;
-
-  sync_cout << "bestmove " << UCI::move(bestThread->rootMoves[0].pv[0], rootPos.is_chess960());
-
-  if (bestThread->rootMoves[0].pv.size() > 1 || bestThread->rootMoves[0].extract_ponder_from_tt(rootPos))
-      std::cout << " ponder " << UCI::move(bestThread->rootMoves[0].pv[1], rootPos.is_chess960());
-
-  std::cout << sync_endl;
+  return bestThread;
 }
 
 
@@ -475,9 +482,10 @@ void Thread::search() {
               // of the available time has been used, or if we matched an easyMove
               // from the previous search and just did a fast verification.
               const int F[] = { mainThread->failedLow,
-                                bestValue - mainThread->previousScore };
+                                bestValue - mainThread->previousScore,
+                                mainThread->getBestThread()->rootMoves[0].score - bestValue};
 
-              int improvingFactor = std::max(229, std::min(715, 357 + 119 * F[0] - 6 * F[1]));
+              int improvingFactor = std::max(229, std::min(715, 357 + 119 * F[0] - 6 * F[1] - 3 * F[2]));
               double unstablePvFactor = 1 + mainThread->bestMoveChanges;
 
               bool doEasyMove =   rootMoves[0].pv[0] == easyMove

@@ -81,6 +81,7 @@ struct MainThread : public Thread {
 
   void search() override;
   void check_time();
+  Thread* getBestThread();
 
   bool easyMovePlayed, failedLow;
   double bestMoveChanges;
