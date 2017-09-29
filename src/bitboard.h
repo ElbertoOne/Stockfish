@@ -59,6 +59,10 @@ const Bitboard Rank5BB = Rank1BB << (8 * 4);
 const Bitboard Rank6BB = Rank1BB << (8 * 5);
 const Bitboard Rank7BB = Rank1BB << (8 * 6);
 const Bitboard Rank8BB = Rank1BB << (8 * 7);
+const Bitboard LightLongDiagonal  = (FileABB & Rank8BB) | (FileBBB & Rank7BB) | (FileCBB & Rank6BB) | (FileDBB & Rank5BB) | (FileEBB & Rank4BB) | (FileFBB & Rank3BB) | (FileGBB & Rank2BB) | (FileHBB & Rank1BB);
+const Bitboard DarkLongDiagonal   = (FileABB & Rank1BB) | (FileBBB & Rank2BB) | (FileCBB & Rank3BB) | (FileDBB & Rank4BB) | (FileEBB & Rank5BB) | (FileFBB & Rank6BB) | (FileGBB & Rank7BB) | (FileHBB & Rank8BB);
+const Bitboard LightCenterSquares = (FileDBB & Rank5BB) | (FileEBB & Rank4BB);
+const Bitboard DarkCenterSquares  = (FileDBB & Rank4BB) | (FileEBB & Rank5BB);
 
 extern int SquareDistance[SQUARE_NB][SQUARE_NB];
 
