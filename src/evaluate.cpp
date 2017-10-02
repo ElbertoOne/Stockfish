@@ -144,6 +144,11 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAdjacentZoneAttacksCount[WHITE].
     int kingAdjacentZoneAttacksCount[COLOR_NB];
+
+    // pieceImbalance[PieceType-2] contains the imbalance between minor and major pieces
+    // with regards to White. So if White has two bishops and Black has one, then
+    // pieceImbalance[BISHOP -2 ] = 1
+    int pieceImbalance[PIECE_TYPE_NB];
   };
 
   #define V(v) Value(v)
@@ -272,6 +277,11 @@ namespace {
     attackedBy2[Us]            = b & attackedBy[Us][PAWN];
     attackedBy[Us][ALL_PIECES] = b | attackedBy[Us][PAWN];
 
+    pieceImbalance[KNIGHT - 2] = pos.count<KNIGHT>(WHITE) - pos.count<KNIGHT>(BLACK);
+    pieceImbalance[BISHOP - 2] = pos.count<BISHOP>(WHITE) - pos.count<BISHOP>(BLACK);
+    pieceImbalance[ROOK - 2]   = pos.count<ROOK>(WHITE)   - pos.count<ROOK>(BLACK);
+    pieceImbalance[QUEEN - 2]  = pos.count<QUEEN>(WHITE)  - pos.count<QUEEN>(BLACK);
+
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
     {
@@ -330,6 +340,12 @@ namespace {
 
         // Bonus for this piece as a king protector
         score += KingProtector[Pt - 2] * distance(s, pos.square<KING>(Us));
+
+        // If the other side has less of this piece, then subtract that bonus from our bonus.
+        if (Us == WHITE)
+            score -= KingProtector[Pt - 2] * pieceImbalance[Pt - 2] * 7 / 2;
+        else
+            score += KingProtector[Pt - 2] * pieceImbalance[Pt - 2] * 7 / 2;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
