@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -214,6 +215,7 @@ namespace {
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
+  const Score KnightPawns         = S(  8, 12);
   const Score LongRangedBishop    = S( 22,  0);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
@@ -360,6 +362,10 @@ namespace {
                     && !(Center & PseudoAttacks[BISHOP][s] & pos.pieces(PAWN)))
                     score += LongRangedBishop;
             }
+
+            // Knight bonus for pawns that are supported by another pawn.
+            if (Pt == KNIGHT)
+                score += KnightPawns * popcount(pos.pieces(Us, PAWN) & attackedBy[Us][PAWN]);
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
