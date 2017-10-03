@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -33,6 +34,7 @@ namespace {
 
   const Bitboard LongDiagonals = 0x8142241818244281ULL; // A1..H8 | H1..A8
   const Bitboard Center        = (FileDBB | FileEBB) & (Rank4BB | Rank5BB);
+  const Bitboard BigCenter     = (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank4BB | Rank5BB);
   const Bitboard QueenSide     = FileABB | FileBBB | FileCBB | FileDBB;
   const Bitboard CenterFiles   = FileCBB | FileDBB | FileEBB | FileFBB;
   const Bitboard KingSide      = FileEBB | FileFBB | FileGBB | FileHBB;
@@ -297,6 +299,8 @@ namespace {
     const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
+    const Square Up   = (Us == WHITE ? NORTH : SOUTH);
+    const Square Down = (Us == WHITE ? SOUTH : NORTH);
 
     Bitboard b, bb;
     Square s;
@@ -355,10 +359,15 @@ namespace {
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
 
                 // Bonus for bishop on a long diagonal without pawns in the center
-                if (    (LongDiagonals & s)
-                    && !(attackedBy[Them][PAWN] & s)
-                    && !(Center & PseudoAttacks[BISHOP][s] & pos.pieces(PAWN)))
-                    score += LongRangedBishop;
+                if (!(attackedBy[Them][PAWN] & s))
+                {
+                    if (    (LongDiagonals & s)
+                        && !(Center & PseudoAttacks[BISHOP][s] & pos.pieces(PAWN)))
+                        score += LongRangedBishop;
+                    else if (    ((shift<Up>(LongDiagonals) | shift<Down>(LongDiagonals)) & s)
+                             && !(BigCenter & PseudoAttacks[BISHOP][s] & pos.pieces(ALL_PIECES)))
+                        score += LongRangedBishop / 2;
+                }
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
