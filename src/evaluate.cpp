@@ -229,6 +229,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score RookNoSemiOpenFiles = S( 20, 40);
 
   #undef S
   #undef V
@@ -873,6 +874,11 @@ namespace {
     if (pos.non_pawn_material() >= SpaceThreshold)
         score +=  evaluate_space<WHITE>()
                 - evaluate_space<BLACK>();
+
+    if (pos.count<ROOK>(WHITE) > pos.count<ROOK>(BLACK) && !pe->semiopenFiles[WHITE])
+        score -= RookNoSemiOpenFiles;
+    else if (pos.count<ROOK>(WHITE) < pos.count<ROOK>(BLACK) && !pe->semiopenFiles[BLACK])
+        score += RookNoSemiOpenFiles;
 
     score += evaluate_initiative(eg_value(score));
 
