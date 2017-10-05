@@ -813,7 +813,7 @@ moves_loop: // When in check search starts from here
                            &&  tte->depth() >= depth - 3 * ONE_PLY;
     skipQuiets = false;
     ttCapture = false;
-    pvExact = PvNode && ttHit && tte->bound() == BOUND_EXACT;
+    pvExact = PvNode && ttHit && tte->bound() == BOUND_EXACT && ttValue > alpha;
 
     // Step 11. Loop through moves
     // Loop through all pseudo-legal moves until no moves remain or a beta cutoff occurs
@@ -960,12 +960,7 @@ moves_loop: // When in check search starts from here
 
               // Decrease reduction for exact PV nodes
               if (pvExact)
-              {
-                  if (ttValue > alpha)
-                      r -= ONE_PLY;
-                  else if (tte->bound() == BOUND_UPPER)
-                      r += ONE_PLY;
-              }
+                  r -= ONE_PLY;
 
               // Increase reduction if ttMove is a capture
               if (ttCapture)
