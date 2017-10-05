@@ -229,7 +229,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
-  const Score ClosedForRooks      = S(  0, 40);
+  const Score RookNoSemiOpenFiles = S(  0, 60);
 
   #undef S
   #undef V
@@ -876,8 +876,10 @@ namespace {
                 - evaluate_space<BLACK>();
 
     int rookDiff = pos.count<ROOK>(WHITE) - pos.count<ROOK>(BLACK);
-    if (rookDiff && pe->open_files() == 0)
-        score += rookDiff < 0 ? ClosedForRooks : -ClosedForRooks;
+    if (rookDiff > 0 && pe->semiopenFiles[WHITE] == 0)
+        score -= RookNoSemiOpenFiles;
+    else if (rookDiff < 0 && pe->semiopenFiles[BLACK] == 0)
+        score += RookNoSemiOpenFiles;
 
     score += evaluate_initiative(eg_value(score));
 
