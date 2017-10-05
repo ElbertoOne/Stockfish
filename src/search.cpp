@@ -960,7 +960,12 @@ moves_loop: // When in check search starts from here
 
               // Decrease reduction for exact PV nodes
               if (pvExact)
-                  r -= ONE_PLY;
+              {
+                  if (ttValue > alpha)
+                      r -= ONE_PLY;
+                  else if (tte->bound() == BOUND_UPPER)
+                      r += ONE_PLY;
+              }
 
               // Increase reduction if ttMove is a capture
               if (ttCapture)
