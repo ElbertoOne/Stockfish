@@ -386,10 +386,10 @@ namespace {
             // Bonus when on an open or semi-open file
             if (pe->semiopen_file(Us, file_of(s)))
             {
-                int openFile = pe->semiopen_file(Them, file_of(s));
-                score += RookOnFile[!!openFile];
+                score += RookOnFile[!!pe->semiopen_file(Them, file_of(s))];
 
-                if (relative_rank(Us, s) >= RANK_7)
+                //Bonus when on a forward rank
+                if (relative_rank(Us, s) >= RANK_7 && !(pos.attackers_to(s) & pos.pieces(Them)))
                     score += RookForward;
             }
 
