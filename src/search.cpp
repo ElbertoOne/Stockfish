@@ -983,6 +983,16 @@ moves_loop: // When in check search starts from here
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4000;
 
+              if (   from_to((ss-4)->currentMove) == from_to((ss-2)->currentMove)
+                  && from_to((ss-3)->currentMove) == from_to((ss-1)->currentMove)
+                  && from_to(move) != from_to((ss-4)->currentMove))
+                  {
+                      if (ss->statScore > 0 && ss->statScore > (ss-1)->statScore && ss->staticEval > (ss-2)->staticEval)
+                          r -= ONE_PLY;
+                      else if (ss->statScore < 0 && ss->statScore < (ss-1)->statScore && ss->staticEval < (ss-2)->staticEval)
+                          r += ONE_PLY;
+                  }
+
               // Decrease/increase reduction by comparing opponent's stat score
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
                   r -= ONE_PLY;
