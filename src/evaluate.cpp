@@ -215,6 +215,7 @@ namespace {
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
   const Score LongRangedBishop    = S( 22,  0);
+  const Score KnightCenterControl = S( 22,  0);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
@@ -341,7 +342,13 @@ namespace {
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
+                {
                    score += Outpost[Pt == BISHOP][!!(attackedBy[Us][PAWN] & bb)];
+
+                   // Bonus for knight that controls center squares.
+                   if (Pt == KNIGHT && (bb & Center) && !(attackedBy[Them][PAWN] & s))
+                       score += KnightCenterControl;
+			   }
             }
 
             // Bonus when behind a pawn
