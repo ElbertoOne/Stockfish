@@ -987,9 +987,9 @@ moves_loop: // When in check search starts from here
                   && from_to((ss-3)->currentMove) == from_to((ss-1)->currentMove)
                   && from_to(move) != from_to((ss-4)->currentMove))
                   {
-                      if (ss->statScore > 0 && ss->statScore > (ss-1)->statScore && ss->staticEval > (ss-2)->staticEval)
+                      if (ss->statScore > 0 && (ss-1)->statScore <= 0 && ss->staticEval > (ss-2)->staticEval)
                           r -= ONE_PLY;
-                      else if (ss->statScore < 0 && ss->statScore < (ss-1)->statScore && ss->staticEval < (ss-2)->staticEval)
+                      else if (ss->statScore <= 0 && (ss-1)->statScore > 0 && ss->staticEval < (ss-2)->staticEval)
                           r += ONE_PLY;
                   }
 
