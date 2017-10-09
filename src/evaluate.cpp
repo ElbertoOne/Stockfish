@@ -215,7 +215,6 @@ namespace {
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
   const Score LongRangedBishop    = S( 22,  0);
-  const Score KnightCenterControl = S( 22,  0);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
@@ -342,13 +341,7 @@ namespace {
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
-                {
                    score += Outpost[Pt == BISHOP][!!(attackedBy[Us][PAWN] & bb)];
-
-                   // Bonus for knight that controls center squares.
-                   if (Pt == KNIGHT && (bb & Center) && !(attackedBy[Them][PAWN] & s))
-                       score += KnightCenterControl;
-			   }
             }
 
             // Bonus when behind a pawn
@@ -367,6 +360,14 @@ namespace {
                     && !(Center & PseudoAttacks[BISHOP][s] & pos.pieces(PAWN)))
                     score += LongRangedBishop;
             }
+
+            //Bonus for defending squares in front of the king but outside the kingring.
+            Square ksq = pos.square<KING>(Us);
+            Bitboard forwardBB = (file_bb(ksq) | adjacent_files_bb(file_of(ksq))) & forward_ranks_bb(Us, ksq) & ~kingRing[Us];
+            if (Pt == BISHOP)
+                score += make_score(popcount(forwardBB & attacks_bb<BISHOP>(s,0)), 0);
+            else
+                score += make_score(popcount(forwardBB & PseudoAttacks[KNIGHT][s]), 0);
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
