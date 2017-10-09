@@ -636,7 +636,7 @@ namespace {
             Bitboard br = file_bb(file_of(s));
             if (br & pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK])
             {
-                int hinder = popcount(br & attackedBy[Us][ALL_PIECES]) - 4;
+                int hinder = popcount(br & attackedBy[Us][ALL_PIECES] & ~pos.pieces(Us, ROOK, QUEEN)) - 4;
                 score += HinderRookOnFile * hinder;
             }
         }
