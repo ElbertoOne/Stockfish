@@ -229,7 +229,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
-  const Score HinderRookOnFile    = S(  4,  2);
+  const Score HinderRookOnFile    = S( 22, 10);
 
   #undef S
   #undef V
@@ -625,19 +625,20 @@ namespace {
 
     score += ThreatByPawnPush * popcount(b);
 
-    // Hinder rook on open file. Assign bonus if a lot of squares on
-    // that file are defended. Penalty if few squares are defended.
+    // Hinder enemy rook on open file.
+    // Assign bonus if all the attacked squares
+    // on that file are defended.
     if (pe->open_files())
     {
         Square s;
         const Square* pl = pos.squares<ROOK>(Them);
         while ((s = *pl++) != SQ_NONE)
         {
-            Bitboard br = file_bb(file_of(s));
-            if (br & pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK])
+            Bitboard br = file_bb(file_of(s)) & pos.attacks_from<ROOK>(s);
+            if (br & pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK] & ~pos.pieces(Us, QUEEN, ROOK))
             {
-                int hinder = popcount(br & attackedBy[Us][ALL_PIECES] & ~pos.pieces(Us, ROOK, QUEEN)) - 4;
-                score += HinderRookOnFile * hinder;
+                if (popcount(br & ~attackedBy[Us][ALL_PIECES]) == 0)
+                    score += HinderRookOnFile;
             }
         }
     }
