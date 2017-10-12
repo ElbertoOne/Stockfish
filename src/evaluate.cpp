@@ -228,6 +228,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score LessPawnsKingFlank  = S(  0, 40);
 
   #undef S
   #undef V
@@ -521,6 +522,9 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
+    // Penalty when the opponent has a pawn majority on our kingflank and there are no major pieces.
+    else if (!pos.pieces(QUEEN, ROOK) && popcount(pos.pieces(Us, PAWN) & KingFlank[kf]) < popcount(pos.pieces(Them, PAWN) & KingFlank[kf]))
+        score -= LessPawnsKingFlank;
 
     if (T)
         Trace::add(KING, Us, score);
