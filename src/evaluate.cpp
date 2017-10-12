@@ -522,9 +522,9 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
-    // Bonus when there are only pawns on our king flank, the opponent has a pawn majority, but we have major pieces.
-    else if (pos.pieces(Us, QUEEN, ROOK) && !(pos.pieces(PAWN) & ~KingFlank[kf]) && pos.count<PAWN>(Us) < pos.count<PAWN>(Them))
-        score += LessPawnsKingFlank;
+    // Penalty when there are only pawns on our king flank, the opponent has less pawns, but they have major pieces.
+    else if (pos.pieces(Them, QUEEN, ROOK) && !(pos.pieces(PAWN) & ~KingFlank[kf]) && pos.count<PAWN>(Us) > pos.count<PAWN>(Them))
+        score -= LessPawnsKingFlank;
 
     if (T)
         Trace::add(KING, Us, score);
