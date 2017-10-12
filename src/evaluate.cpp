@@ -211,7 +211,7 @@ namespace {
   const Score KingProtector[] = { S(-3, -5), S(-4, -3), S(-3, 0), S(-1, 1) };
 
   Score LongRangedBishop[]    = { S( 0, 0), S( 22, 0) };
-  TUNE(LongRangedBishop);
+  TUNE(SetRange(-20,50), LongRangedBishop);
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
