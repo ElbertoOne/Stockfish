@@ -522,8 +522,8 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
-    // Penalty when the opponent has a pawn majority on our kingflank and there are no major pieces.
-    else if (!pos.pieces(QUEEN, ROOK) && popcount(pos.pieces(Us, PAWN) & KingFlank[kf]) < popcount(pos.pieces(Them, PAWN) & KingFlank[kf]))
+    // Penalty when there are only pawns on our king flank, the opponent has a pawn majority and there are no major pieces.
+    else if (!pos.pieces(QUEEN, ROOK) && !(pos.pieces(PAWN) & ~KingFlank[kf]) && pos.count<PAWN>(Us) < pos.count<PAWN>(Them))
         score -= LessPawnsKingFlank;
 
     if (T)
