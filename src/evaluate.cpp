@@ -302,6 +302,7 @@ namespace {
     Score score = SCORE_ZERO;
 
     attackedBy[Us][Pt] = 0;
+    bool outpostAwarded = false;
 
     while ((s = *pl++) != SQ_NONE)
     {
@@ -335,7 +336,10 @@ namespace {
             // Bonus for outpost squares
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
-                score += Outpost[Pt == BISHOP][!!(attackedBy[Us][PAWN] & s)] * 2;
+            {
+                score += Outpost[Pt == BISHOP][!!(attackedBy[Us][PAWN] & s)] * (1 + !outpostAwarded);
+                outpostAwarded |= !!(attackedBy[Us][PAWN] & s);
+            }
             else
             {
                 bb &= b & ~pos.pieces(Us);
