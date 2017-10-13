@@ -726,29 +726,32 @@ namespace {
         // Null move dynamic reduction based on depth and value
         Depth R = ((823 + 67 * depth / ONE_PLY) / 256 + std::min((eval - beta) / PawnValueMg, 3)) * ONE_PLY;
 
-        ss->currentMove = MOVE_NULL;
-        ss->contHistory = &thisThread->contHistory[NO_PIECE][0];
-
-        pos.do_null_move(st);
-        Value nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1)
-                                            : - search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode, true);
-        pos.undo_null_move();
-
-        if (nullValue >= beta)
+        if (!(ttHit && ttValue < beta && (depth - R) > tte->depth()))
         {
-            // Do not return unproven mate scores
-            if (nullValue >= VALUE_MATE_IN_MAX_PLY)
-                nullValue = beta;
+            ss->currentMove = MOVE_NULL;
+            ss->contHistory = &thisThread->contHistory[NO_PIECE][0];
 
-            if (depth < 12 * ONE_PLY && abs(beta) < VALUE_KNOWN_WIN)
-                return nullValue;
+            pos.do_null_move(st);
+            Value nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1)
+                                                : - search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode, true);
+            pos.undo_null_move();
 
-            // Do verification search at high depths
-            Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta)
-                                        :  search<NonPV>(pos, ss, beta-1, beta, depth-R, false, true);
+            if (nullValue >= beta)
+            {
+                // Do not return unproven mate scores
+                if (nullValue >= VALUE_MATE_IN_MAX_PLY)
+                    nullValue = beta;
 
-            if (v >= beta)
-                return nullValue;
+                if (depth < 12 * ONE_PLY && abs(beta) < VALUE_KNOWN_WIN)
+                    return nullValue;
+
+                // Do verification search at high depths
+                Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta)
+                                            :  search<NonPV>(pos, ss, beta-1, beta, depth-R, false, true);
+
+                if (v >= beta)
+                    return nullValue;
+            }
         }
     }
 
