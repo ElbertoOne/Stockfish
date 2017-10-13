@@ -228,6 +228,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score RookOnRank7         = S( 20, 45);
 
   #undef S
   #undef V
@@ -375,8 +376,10 @@ namespace {
 
         if (Pt == ROOK)
         {
+            Rank rr = relative_rank(Us, s);
+
             // Bonus for aligning with enemy pawns on the same rank/file
-            if (relative_rank(Us, s) >= RANK_5)
+            if (rr >= RANK_5)
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
 
             // Bonus when on an open or semi-open file
@@ -392,6 +395,10 @@ namespace {
                     && !pe->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
+
+            // Penalty when rook on 7th rank and enemy king on 8th.
+            else if (rr == RANK_7 && relative_rank(Them, pos.square<KING>(Them)) == RANK_1)
+                score += RookOnRank7;
         }
 
         if (Pt == QUEEN)
