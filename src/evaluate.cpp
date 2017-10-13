@@ -426,6 +426,7 @@ namespace {
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
+    File kf = file_of(ksq);
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
@@ -450,6 +451,7 @@ namespace {
                     + 102 * kingAdjacentZoneAttacksCount[Them]
                     + 191 * popcount(kingOnlyDefended | undefended)
                     + 143 * !!pos.pinned_pieces(Us)
+                    +  40 * popcount(KingFlank[kf] & pe->passed_pawns(Them))
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
                     +  40;
@@ -505,7 +507,6 @@ namespace {
     }
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
-    File kf = file_of(ksq);
     b = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
 
     assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
