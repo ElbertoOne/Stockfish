@@ -228,6 +228,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score ConnectedRooks      = S(  4,  5);
 
   #undef S
   #undef V
@@ -375,6 +376,9 @@ namespace {
 
         if (Pt == ROOK)
         {
+            if (attackedBy[Us][ROOK] & s)
+                score += ConnectedRooks;
+
             // Bonus for aligning with enemy pawns on the same rank/file
             if (relative_rank(Us, s) >= RANK_5)
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
