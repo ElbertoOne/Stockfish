@@ -220,7 +220,7 @@ namespace {
   const Score OtherCheck          = S( 10, 10);
   const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
-  const Score OnePawnFlank        = S( 20, 20);
+  const Score OnePawnFlank        = S( 20,  0);
   const Score ThreatByHangingPawn = S( 71, 61);
   const Score ThreatBySafePawn    = S(192,175);
   const Score ThreatByRank        = S( 16,  3);
@@ -524,14 +524,10 @@ namespace {
     if (!b)
         score -= PawnlessFlank;
 
-    // Penalty when there is only a single enemy pawn on our king flank that is
-    // not far advanced, while there are more pawns outside the kingflank.
-    else if (!more_than_one(b) & more_than_one(pos.pieces(PAWN) & ~KingFlank[kf]))
-    {
-        b = pos.pieces(Them, PAWN) & KingFlank[kf];
-        if (b && relative_rank(Us, lsb(b)) > RANK_4)
-            score -= OnePawnFlank;
-    }
+    // Penalty when there is only a single pawn on our king flank that is
+    // far away from the base rank, while there are more pawns outside the kingflank.
+    else if (!more_than_one(b) & more_than_one(pos.pieces(PAWN) & ~KingFlank[kf]) && relative_rank(Us, lsb(b)) > RANK_4)
+        score -= OnePawnFlank;
 
     if (T)
         Trace::add(KING, Us, score);
