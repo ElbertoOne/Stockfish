@@ -220,7 +220,7 @@ namespace {
   const Score OtherCheck          = S( 10, 10);
   const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
-  const Score OnePawnFlank        = S( 20,  0);
+  const Score PawnlessFlankCamp   = S( 20, 20);
   const Score ThreatByHangingPawn = S( 71, 61);
   const Score ThreatBySafePawn    = S(192,175);
   const Score ThreatByRank        = S( 16,  3);
@@ -420,6 +420,8 @@ namespace {
     const Square Up     = (Us == WHITE ? NORTH : SOUTH);
     const Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                        : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    const Bitboard Camp2 = (Us == WHITE ? Camp ^ Rank5BB
+                                        : Camp ^ Rank4BB);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingOnlyDefended, undefended, b, b1, b2, safe, other;
@@ -524,10 +526,10 @@ namespace {
     if (!b)
         score -= PawnlessFlank;
 
-    // Penalty when there is only a single pawn on our king flank that is
-    // far away from the base rank, while there are more pawns outside the kingflank.
-    else if (!more_than_one(b) & more_than_one(pos.pieces(PAWN) & ~KingFlank[kf]) && relative_rank(Us, lsb(b)) > RANK_4)
-        score -= OnePawnFlank;
+    // Penalty when the pawns on our king flank are far away from
+    // the base rank, while there are pawns outside the kingflank.
+    else if ((Camp2 & ksq) && !(b & Camp) && more_than_one(pos.pieces(PAWN) & ~KingFlank[kf] & Camp2))
+        score -= PawnlessFlankCamp;
 
     if (T)
         Trace::add(KING, Us, score);
