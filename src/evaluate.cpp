@@ -361,7 +361,7 @@ namespace {
             if (Pt == KNIGHT)
             {
                 int pawnCount = pos.count<PAWN>();
-                score += make_score(0, pawnCount * pawnCount - 2 * pawnCount);
+                score += make_score(0, std::max(0, pawnCount * pawnCount - 10 * pawnCount));
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
