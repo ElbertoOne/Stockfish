@@ -358,6 +358,12 @@ namespace {
                     score += LongRangedBishop;
             }
 
+            if (Pt == KNIGHT)
+            {
+                int pawnCount = pos.count<PAWN>();
+                score += make_score(0, 3 * (pawnCount * pawnCount - 2 * pawnCount) / 2);
+            }
+
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
             // when that pawn is also blocked.
