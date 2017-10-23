@@ -743,12 +743,15 @@ namespace {
             if (depth < 12 * ONE_PLY && abs(beta) < VALUE_KNOWN_WIN)
                 return nullValue;
 
-            // Do verification search at high depths
-            Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta)
-                                        :  search<NonPV>(pos, ss, beta-1, beta, depth-R, false, true);
+            if (pos.this_thread()->materialTable[pos.material_key()]->gamePhase == PHASE_MIDGAME)
+            {
+                // Do verification search at high depths
+                Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta)
+                                            :  search<NonPV>(pos, ss, beta-1, beta, depth-R, false, true);
 
-            if (v >= beta)
-                return nullValue;
+                if (v >= beta)
+                    return nullValue;
+            }
         }
     }
 
