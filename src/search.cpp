@@ -965,6 +965,8 @@ moves_loop: // When in check search starts from here
               if (ttCapture)
                   r += ONE_PLY;
 
+              bool evasion = false;
+
               // Increase reduction for cut nodes
               if (cutNode)
                   r += 2 * ONE_PLY;
@@ -974,7 +976,10 @@ moves_loop: // When in check search starts from here
               // hence break make_move().
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
+              {
                   r -= 2 * ONE_PLY;
+                  evasion = true;
+              }
 
               ss->statScore =  thisThread->mainHistory[~pos.side_to_move()][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
@@ -986,7 +991,7 @@ moves_loop: // When in check search starts from here
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
                   r -= ONE_PLY;
 
-              else if ((ss-1)->statScore >= 0 && ss->statScore < 0)
+              else if ((ss-1)->statScore >= 0 && ss->statScore < 0 && !pvExact && !evasion)
                   r += ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history
