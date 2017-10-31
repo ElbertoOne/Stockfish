@@ -291,6 +291,8 @@ void MainThread::search() {
       && !Skill(Options["Skill Level"]).enabled()
       &&  rootMoves[0].pv[0] != MOVE_NONE)
   {
+      Value maxScore = bestThread->rootMoves[0].score;
+
       for (Thread* th : Threads)
       {
           Depth depthDiff = th->completedDepth - bestThread->completedDepth;
@@ -298,8 +300,27 @@ void MainThread::search() {
 
           // Select the thread with the best score, always if it is a mate
           if (    scoreDiff > 0
-              && (depthDiff >= 0 || th->rootMoves[0].score >= VALUE_MATE_IN_MAX_PLY || (depthDiff >= -2 && ::pv_is_draw(bestThread->rootPos))))
+              && (depthDiff >= 0 || th->rootMoves[0].score >= VALUE_MATE_IN_MAX_PLY))
               bestThread = th;
+
+          if (th->rootMoves[0].score > maxScore)
+              maxScore = th->rootMoves[0].score;
+      }
+
+      // If the bestThread pv ends in a draw, and there is a thread with a higher score,
+      // but somewhat lower completed depth, pick that one.
+      if (maxScore > bestThread->rootMoves[0].score && ::pv_is_draw(bestThread->rootPos))
+      {
+          Thread* newBestThread = bestThread;
+          for (Thread* th : Threads)
+          {
+              Depth depthDiff = th->completedDepth - bestThread->completedDepth;
+              Value scoreDiff = th->rootMoves[0].score - newBestThread->rootMoves[0].score;
+
+              if (scoreDiff > 0 && depthDiff >= -2)
+                  newBestThread = th;
+          }
+          bestThread = newBestThread;
       }
   }
 
