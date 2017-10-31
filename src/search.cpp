@@ -298,7 +298,7 @@ void MainThread::search() {
 
           // Select the thread with the best score, always if it is a mate
           if (    scoreDiff > 0
-              && (depthDiff >= 0 || th->rootMoves[0].score >= VALUE_MATE_IN_MAX_PLY))
+              && (depthDiff >= 0 || th->rootMoves[0].score >= VALUE_MATE_IN_MAX_PLY || (depthDiff >= -2 && ::pv_is_draw(bestThread->rootPos))))
               bestThread = th;
       }
   }
