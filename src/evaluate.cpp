@@ -419,6 +419,7 @@ namespace {
     const Square Up     = (Us == WHITE ? NORTH : SOUTH);
     const Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                        : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    const Bitboard BackRank = (Us == WHITE ? Rank1BB    : Rank8BB);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingOnlyDefended, undefended, b, b1, b2, safe, other;
@@ -453,6 +454,10 @@ namespace {
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
                     +  40;
+
+        // Increase kingDanger if the king is on the back rank and an opposing rook or queen can safely move to it.
+        if ((BackRank & ksq) && (BackRank & (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN])) & ~attackedBy[Us][ALL_PIECES])
+            kingDanger += 40;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
@@ -578,6 +583,7 @@ namespace {
     if (defended | weak)
     {
         b = (defended | weak) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
+
         while (b)
         {
             Square s = pop_lsb(&b);
@@ -600,6 +606,7 @@ namespace {
         b = weak & attackedBy[Us][KING];
         if (b)
             score += ThreatByKing[more_than_one(b)];
+
     }
 
     // Bonus for opponent unopposed weak pawns
