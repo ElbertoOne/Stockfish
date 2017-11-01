@@ -383,8 +383,6 @@ namespace {
             // Bonus when on an open or semi-open file
             if (pe->semiopen_file(Us, file_of(s)))
                 score += RookOnFile[!!pe->semiopen_file(Them, file_of(s))];
-            else if (relative_rank(Us, s) <= RANK_5 && (pos.attacks_from<ROOK>(s) & TRank8BB))
-                score += RookOnFile[0];
 
             // Penalty when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
@@ -395,6 +393,10 @@ namespace {
                     && !pe->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
+
+            // Bonus when rook can see the enemy back rank and has enough mobility.
+            else if (relative_rank(Us, s) <= RANK_5 && (pos.attacks_from<ROOK>(s) & TRank8BB))
+                score += RookOnFile[0];
         }
 
         if (Pt == QUEEN)
