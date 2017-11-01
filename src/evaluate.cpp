@@ -295,6 +295,7 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                : Rank5BB | Rank4BB | Rank3BB);
+    const Bitboard TRank8BB = (Us == WHITE ? Rank8BB    : Rank1BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -393,8 +394,8 @@ namespace {
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
 
-            // Bonus when rook has enough mobility and there are no forward pawns.
-            else if (relative_rank(Us, s) <= RANK_5 && !(pos.pieces(PAWN) & forward_file_bb(Us, s)))
+            // Bonus when rook can see the enemy back rank and has enough mobility.
+            else if (relative_rank(Us, s) <= RANK_5 && (b & TRank8BB))
                 score += RookOnFile[0];
         }
 
