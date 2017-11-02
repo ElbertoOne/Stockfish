@@ -342,14 +342,12 @@ namespace {
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
-                {
                    score += Outpost[Pt == BISHOP][!!(attackedBy[Us][PAWN] & bb)];
 
-                   // Bonus for challenging an enemy outpost of the same type.
-                   bb = OutpostRanksThem & pos.pieces(Them, Pt) & pos.attacks_from<Pt>(s);
-                   if (bb)
-                       score += Outpost[Pt == BISHOP][!!(attackedBy[Them][PAWN] & bb)] / 2;
-			   }
+                // Bonus for challenging an enemy outpost of the same type.
+                bb = OutpostRanksThem & ~pe->pawn_attacks_span(Us) & pos.pieces(Them, Pt) & pos.attacks_from<Pt>(s);
+                if (bb)
+                    score += Outpost[Pt == BISHOP][!!(attackedBy[Them][PAWN] & bb)] / 2;
             }
 
             // Bonus when behind a pawn
