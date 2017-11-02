@@ -395,7 +395,7 @@ namespace {
             }
 
             // Bonus when rook can see the enemy back rank and has enough mobility.
-            else if (relative_rank(Us, s) <= RANK_5 && (b & TRank8BB))
+            else if (TRank8BB & pos.attacks_from<ROOK>(s))
                 score += RookOnFile[0];
         }
 
