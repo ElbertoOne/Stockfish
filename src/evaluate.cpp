@@ -295,6 +295,8 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                : Rank5BB | Rank4BB | Rank3BB);
+    const Bitboard OutpostRanksThem = (Us == WHITE ? Rank5BB | Rank4BB | Rank3BB
+                                               : Rank4BB | Rank5BB | Rank6BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -340,7 +342,14 @@ namespace {
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
+                {
                    score += Outpost[Pt == BISHOP][!!(attackedBy[Us][PAWN] & bb)];
+
+                   // Bonus for challenging an enemy outpost of the same type.
+                   bb = OutpostRanksThem & pos.pieces(Them, Pt) & pos.attacks_from<Pt>(s);
+                   if (bb)
+                       score += Outpost[Pt == BISHOP][!!(attackedBy[Them][PAWN] & bb)] / 2;
+			   }
             }
 
             // Bonus when behind a pawn
