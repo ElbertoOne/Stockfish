@@ -400,6 +400,10 @@ namespace {
             Bitboard pinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, pinners))
                 score -= WeakQueen;
+
+            // Penalty for low mobility in imbalanced position
+            if (mob <= 4 && !pos.pieces(Them, QUEEN))
+                score -= (TrappedRook - make_score(mob * 22, 0)) * 2;
         }
     }
 
