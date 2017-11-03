@@ -215,7 +215,7 @@ namespace {
   const Score BishopPawns         = S(  8, 12);
   const Score LongRangedBishop    = S( 22,  0);
   const Score RookOnPawn          = S(  8, 24);
-  const Score TrappedRook         = S( 92,  0);
+  const Score TrappedMajor        = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
   const Score OtherCheck          = S( 10, 10);
   const Score CloseEnemies        = S(  7,  0);
@@ -390,7 +390,7 @@ namespace {
 
                 if (   ((file_of(ksq) < FILE_E) == (file_of(s) < file_of(ksq)))
                     && !pe->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
-                    score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+                    score -= (TrappedMajor - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
         }
 
@@ -402,8 +402,8 @@ namespace {
                 score -= WeakQueen;
 
             // Penalty for low mobility in imbalanced position
-            if (mob <= 4 && !pos.pieces(Them, QUEEN))
-                score -= (TrappedRook - make_score(mob * 22, 0)) * 2;
+            else if (mob <= 4 && pos.count<QUEEN>(Them) == 0)
+                score -= TrappedMajor - make_score(mob * 22, 0);
         }
     }
 
