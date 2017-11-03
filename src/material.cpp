@@ -119,7 +119,14 @@ namespace {
 
     // Special handling of Queen vs. Minors
     if  (pieceCount[Us][QUEEN] == 1 && pieceCount[Them][QUEEN] == 0)
-         bonus += QueenMinorsImbalance[pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP]];
+    {
+         int minorsThem = pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP];
+         int minorsUs = pieceCount[Us][KNIGHT] + pieceCount[Us][BISHOP];
+         if (minorsThem > 2 && minorsUs < 2 && pieceCount[Them][ROOK] == pieceCount[Us][ROOK])
+            bonus = (3 - (pieceCount[Them][BISHOP] == 2)) * bonus / 4;
+        else
+             bonus += QueenMinorsImbalance[minorsThem];
+    }
 
     return bonus;
   }
