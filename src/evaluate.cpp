@@ -448,12 +448,12 @@ namespace {
         // the quality of the pawn shelter (current 'score' value).
         kingDanger =  8 * kingAttackersCount[Them] * kingAttackersWeight[Them] / 10
                     + 8 * kingAttackersCount[Them]
-                    +  kingAttackersWeight[Them]
                     + 102 * kingAdjacentZoneAttacksCount[Them]
                     + 191 * popcount(kingOnlyDefended | undefended)
                     + 143 * !!pos.pinned_pieces(Us)
                     - 848 * !pos.count<QUEEN>(Them)
-                    -   9 * mg_value(score) / 8;
+                    -   9 * mg_value(score) / 8
+                    +  40;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
