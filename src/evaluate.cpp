@@ -245,6 +245,12 @@ namespace {
   const Value LazyThreshold  = Value(1500);
   const Value SpaceThreshold = Value(12222);
 
+  int KingDangerA = 800;
+  int KingDangerB = 800;
+  int KingDangerC = 800;
+  int KingDangerD = 800;
+  TUNE(SetRange(-200, 1800), KingDangerA, KingDangerB, KingDangerC, KingDangerD);
+
 
   // initialize() computes king and pawn attacks, and the king ring bitboard
   // for a given color. This is done at the beginning of the evaluation.
@@ -446,13 +452,15 @@ namespace {
         // number and types of the enemy's attacking pieces, the number of
         // attacked and weak squares around our king, the absence of queen and
         // the quality of the pawn shelter (current 'score' value).
-        kingDanger =        kingAttackersCount[Them] * kingAttackersWeight[Them]
+        kingDanger =  KingDangerA * kingAttackersCount[Them] * kingAttackersWeight[Them] / 1000
+                    + KingDangerB * kingAttackersCount[Them] / 100
+                    + KingDangerC * kingAttackersWeight[Them] / 800
                     + 102 * kingAdjacentZoneAttacksCount[Them]
                     + 191 * popcount(kingOnlyDefended | undefended)
                     + 143 * !!pos.pinned_pieces(Us)
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
-                    +  40;
+                    +  KingDangerD / 20;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
