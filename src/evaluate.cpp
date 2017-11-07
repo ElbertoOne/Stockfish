@@ -446,7 +446,7 @@ namespace {
         // number and types of the enemy's attacking pieces, the number of
         // attacked and weak squares around our king, the absence of queen and
         // the quality of the pawn shelter (current 'score' value).
-        kingDanger =    7 * kingAttackersCount[Them] * kingAttackersWeight[Them]
+        kingDanger =    7 * kingAttackersCount[Them] * kingAttackersWeight[Them] / 10
                     +  85 * kingAttackersCount[Them] / 10
                     +       kingAttackersWeight[Them]
                     + 102 * kingAdjacentZoneAttacksCount[Them]
