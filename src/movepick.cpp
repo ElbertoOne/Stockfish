@@ -57,9 +57,8 @@ namespace {
     return *begin;
   }
 
-  int thresholdA = 1090;
-  int thresholdB = 1090;
-  TUNE(thresholdA, thresholdB);
+  int BXNThreshold[2] = {1090, 1090};
+  TUNE(SetRange(-1090, 3270), BXNThreshold);
 
 } // namespace
 
@@ -186,10 +185,9 @@ Move MovePicker::next_move(bool skipQuiets) {
               if (pos.see_ge(move))
                   return move;
 
-              int thresholdC = (pos.count<BISHOP>(pos.side_to_move()) == 2) ? thresholdA : thresholdB;
               if (   type_of(pos.piece_on(to_sq(move))) == KNIGHT
                   && type_of(pos.moved_piece(move)) == BISHOP
-                  && (cur-1)->value > thresholdC)
+                  && (cur-1)->value > BXNThreshold[pos.count<BISHOP>(pos.side_to_move()) == 2])
                   return move;
 
               // Losing capture, move it to the beginning of the array
