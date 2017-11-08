@@ -57,8 +57,6 @@ namespace {
     return *begin;
   }
 
-  const int bxnThreshold[2] = {1060, 1160};
-
 } // namespace
 
 
@@ -186,7 +184,8 @@ Move MovePicker::next_move(bool skipQuiets) {
 
               if (   type_of(pos.piece_on(to_sq(move))) == KNIGHT
                   && type_of(pos.moved_piece(move)) == BISHOP
-                  && (cur-1)->value > bxnThreshold[pos.count<BISHOP>(pos.side_to_move()) == 2])
+                  && pos.count<BISHOP>(pos.side_to_move()) == 1
+                  && (cur-1)->value > 1090)
                   return move;
 
               // Losing capture, move it to the beginning of the array
