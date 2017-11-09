@@ -753,8 +753,8 @@ namespace {
     int weight = pos.count<ALL_PIECES>(Us) - 2 * pe->open_files();
 
     // Decrease the weight when there are no open files and enemy pawns attack our king ring.
-    if (!pe->open_files() && !(CenterFiles & pos.square<KING>(Us)) && (kingRing[Us] & attackedBy[Them][PAWN]))
-		    weight--;
+    if (pe->open_files() == 0 && !(CenterFiles & pos.square<KING>(Us)) && (kingRing[Us] & attackedBy[Them][PAWN]))
+        weight--;
 
     return make_score(bonus * weight * weight / 16, 0);
   }
