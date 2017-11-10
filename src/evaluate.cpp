@@ -228,6 +228,9 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score KingTrapped         = S(  0, 40);
+  const Score KingCaged           = S(  0, 20);
+  const Score KingBackRank        = S(  0, 10);
 
   #undef S
   #undef V
@@ -419,6 +422,10 @@ namespace {
     const Square Up     = (Us == WHITE ? NORTH : SOUTH);
     const Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                        : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    const Bitboard BackRank   = (Us == WHITE ? Rank1BB    : Rank8BB);
+    const Bitboard SecondRank = (Us == WHITE ? Rank2BB    : Rank7BB);
+    const Square Left  = (Us == WHITE ? WEST : EAST);
+    const Square Right = (Us == WHITE ? EAST : WEST);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingOnlyDefended, undefended, b, b1, b2, safe, other;
@@ -521,6 +528,22 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
+
+    b = BackRank & ksq;
+    if (b)
+    {
+        b = attackedBy[Us][KING] & ~(pos.pieces(Us) | attackedBy[Them][ALL_PIECES]);
+        if (!b)
+            score -= KingTrapped;
+        else if (!(SecondRank & b))
+        {
+            if (   ((QueenSide & ksq) && !(shift<Right>(ksq) & b))
+                || ((KingSide & ksq) && !(shift<Left>(ksq) & b)))
+                score -= KingCaged;
+            else
+                score -= KingBackRank;
+        }
+    }
 
     if (T)
         Trace::add(KING, Us, score);
