@@ -228,6 +228,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score MinorOnOpenFile     = S( 20,  0);
 
   #undef S
   #undef V
@@ -357,6 +358,9 @@ namespace {
                 if (more_than_one(Center & (attacks_bb<BISHOP>(s, pos.pieces(PAWN)) | s)))
                     score += LongRangedBishop;
             }
+
+            if (pe->semiopen_file(Us, file_of(s)) && pe->semiopen_file(Them, file_of(s)) && pos.pieces(Us, ROOK))
+                score -= MinorOnOpenFile;
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
