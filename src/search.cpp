@@ -687,7 +687,8 @@ namespace {
     if (   !PvNode
         &&  eval >= beta
         &&  ss->staticEval >= beta - 36 * depth / ONE_PLY + 225
-        &&  pos.non_pawn_material(pos.side_to_move()))
+        &&  pos.non_pawn_material(pos.side_to_move())
+        && !(thisThread == Threads.main() && Threads.size() > 4 && pos.non_pawn_material(pos.side_to_move()) <= QueenValueMg + RookValueMg))
     {
 
         assert(eval - beta >= 0);
