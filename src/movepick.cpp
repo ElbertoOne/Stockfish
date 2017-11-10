@@ -129,16 +129,35 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
+  bool opening = pos.non_pawn_material() >= Value(12222);
+
   for (auto& m : *this)
       if (Type == CAPTURES)
           m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
                    + Value((*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]);
 
       else if (Type == QUIETS)
+      {
           m.value =  (*mainHistory)[pos.side_to_move()][from_to(m)]
                    + (*contHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    + (*contHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    + (*contHistory[3])[pos.moved_piece(m)][to_sq(m)];
+
+          // If no history for this move:
+          // 1. Check for capture (promotion): apply same value as for evasion.
+          // 2. Check if in opening: negative value based on piece type.
+          // 3. Positive value based on piece type.
+          if (m.value == 0)
+          {
+              if (pos.capture(m))
+                  m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
+                           - Value(type_of(pos.moved_piece(m)));
+              else if (opening)
+                  m.value = - Value(type_of(pos.moved_piece(m)));
+              else
+                  m.value = Value(type_of(pos.moved_piece(m)));
+         }
+     }
 
       else // Type == EVASIONS
       {
