@@ -510,6 +510,7 @@ namespace {
     Value bestValue, value, ttValue, eval;
     bool ttHit, inCheck, givesCheck, singularExtensionNode, improving;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, skipQuiets, ttCapture, pvExact;
+    bool pinnedPieces = !!pos.pinned_pieces(~pos.side_to_move());
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -948,6 +949,10 @@ moves_loop: // When in check search starts from here
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4000;
+
+              // Decrease reduction if move pins a piece.
+              if (!pinnedPieces && pos.pinned_pieces(pos.side_to_move()))
+                  r -= ONE_PLY;
 
               // Decrease/increase reduction by comparing opponent's stat score
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
