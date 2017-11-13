@@ -951,7 +951,7 @@ moves_loop: // When in check search starts from here
                              - 4000;
 
               // Decrease reduction if move pins a piece.
-              if (!pinnedPieces && pos.pinned_pieces(pos.side_to_move()))
+              if (!pinnedPieces && !!pos.pinned_pieces(pos.side_to_move()))
                   r -= ONE_PLY;
 
               // Decrease/increase reduction by comparing opponent's stat score
