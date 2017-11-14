@@ -228,6 +228,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score QueenSingleDefender = S( 20, 10);
 
   #undef S
   #undef V
@@ -400,6 +401,8 @@ namespace {
             Bitboard pinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, pinners))
                 score -= WeakQueen;
+            else if (pos.pieces(Us) & attackedBy[Them][ALL_PIECES] & attackedBy[Us][QUEEN] & ~attackedBy2[Us])
+                score -= QueenSingleDefender;
         }
     }
 
