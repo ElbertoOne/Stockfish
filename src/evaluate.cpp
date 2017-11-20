@@ -228,6 +228,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score RookImbalance       = S( 50,  0);
 
   #undef S
   #undef V
@@ -392,6 +393,8 @@ namespace {
                     && !pe->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
+            else if (!pe->open_files() && pe->pawn_asymmetry() < 2 && pos.count<BISHOP>(Us) == 0 && pos.count<BISHOP>(Them) > 0)
+                score -= RookImbalance;
         }
 
         if (Pt == QUEEN)
