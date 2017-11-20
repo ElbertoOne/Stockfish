@@ -257,9 +257,10 @@ void MainThread::search() {
           Depth depthDiff = th->completedDepth - bestThread->completedDepth;
           Value scoreDiff = th->rootMoves[0].score - bestThread->rootMoves[0].score;
 
-          // Select the thread with the best score, always if it is a mate
-          if (    scoreDiff > 0
-              && (depthDiff >= 0 || th->rootMoves[0].score >= VALUE_MATE_IN_MAX_PLY))
+          // Select the thread with the highest depth, or if it is a mate, or with the highest score with same depth.
+          if (    depthDiff > 0
+              ||  th->rootMoves[0].score >= VALUE_MATE_IN_MAX_PLY
+              || (scoreDiff > 0 && depthDiff == 0))
               bestThread = th;
       }
   }
