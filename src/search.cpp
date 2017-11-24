@@ -922,7 +922,7 @@ moves_loop: // When in check search starts from here
           {
               // Decrease reduction if opponent's move count is high
               if ((ss-1)->moveCount > 15)
-                  r -= ONE_PLY;
+                  r -= (1 + (pos.count<QUEEN>(pos.side_to_move()) != pos.count<QUEEN>(~pos.side_to_move()))) * ONE_PLY;
 
               // Decrease reduction for exact PV nodes
               if (pvExact)
@@ -931,11 +931,6 @@ moves_loop: // When in check search starts from here
               // Increase reduction if ttMove is a capture
               if (ttCapture)
                   r += ONE_PLY;
-
-              // Decrease reduction for queen imbalance position.
-              if (   (pos.count<QUEEN>(pos.side_to_move()) != pos.count<QUEEN>(~pos.side_to_move()))
-                  && pos.non_pawn_material() > Value(5090))
-                  r -= ONE_PLY;
 
               // Increase reduction for cut nodes
               if (cutNode)
