@@ -509,7 +509,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval;
     bool ttHit, inCheck, givesCheck, singularExtensionNode, improving;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, skipQuiets, ttCapture, pvExact, qmiImbalance;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, skipQuiets, ttCapture, pvExact;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -780,8 +780,6 @@ moves_loop: // When in check search starts from here
     skipQuiets = false;
     ttCapture = false;
     pvExact = PvNode && ttHit && tte->bound() == BOUND_EXACT;
-    qmiImbalance = pos.count<QUEEN>(pos.side_to_move()) != pos.count<QUEEN>(~pos.side_to_move())
-                  && (pos.count<BISHOP>(pos.side_to_move()) + pos.count<KNIGHT>(pos.side_to_move()) != pos.count<BISHOP>(~pos.side_to_move()) + pos.count<KNIGHT>(~pos.side_to_move()));
 
     // Step 11. Loop through moves
     // Loop through all pseudo-legal moves until no moves remain or a beta cutoff occurs
@@ -934,8 +932,9 @@ moves_loop: // When in check search starts from here
               if (ttCapture)
                   r += ONE_PLY;
 
-              // Decrease reduction for queen minors imbalance position.
-              if (qmiImbalance)
+              // Decrease reduction for queen imbalance position.
+              if (   (pos.count<QUEEN>(pos.side_to_move()) != pos.count<QUEEN>(~pos.side_to_move()))
+                  && pos.non_pawn_material() > Value(5090))
                   r -= ONE_PLY;
 
               // Increase reduction for cut nodes
