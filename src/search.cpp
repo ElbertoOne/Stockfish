@@ -932,6 +932,9 @@ moves_loop: // When in check search starts from here
               if (ttCapture)
                   r += ONE_PLY;
 
+              if (pos.count<QUEEN>(pos.side_to_move()) != pos.count<QUEEN>(~pos.side_to_move()))
+                  r -= ONE_PLY;
+
               // Increase reduction for cut nodes
               if (cutNode)
                   r += 2 * ONE_PLY;
