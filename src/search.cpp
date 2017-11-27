@@ -923,7 +923,7 @@ moves_loop: // When in check search starts from here
           {
               // Decrease reduction if opponent's move count is high
               if ((ss-1)->moveCount > 15)
-                  r -= ONE_PLY;
+                  r -= (1 + singularNode) * ONE_PLY;
 
               // Decrease reduction for exact PV nodes
               if (pvExact)
@@ -943,9 +943,6 @@ moves_loop: // When in check search starts from here
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
                   r -= 2 * ONE_PLY;
-
-              if (singularNode)
-                  r -= ONE_PLY;
 
               ss->statScore =  thisThread->mainHistory[~pos.side_to_move()][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
