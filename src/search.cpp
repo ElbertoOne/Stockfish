@@ -508,7 +508,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval;
-    bool ttHit, inCheck, givesCheck, singularExtensionNode, improving;
+    bool ttHit, inCheck, givesCheck, singularExtensionNode, singularNode, improving;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, skipQuiets, ttCapture, pvExact;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
@@ -770,13 +770,14 @@ moves_loop: // When in check search starts from here
             /* || ss->staticEval == VALUE_NONE Already implicit in the previous condition */
                ||(ss-2)->staticEval == VALUE_NONE;
 
-    singularExtensionNode =   !rootNode
-                           &&  depth >= 8 * ONE_PLY
-                           &&  ttMove != MOVE_NONE
-                           &&  ttValue != VALUE_NONE
-                           && !excludedMove // Recursive singular search is not allowed
-                           && (tte->bound() & BOUND_LOWER)
-                           &&  tte->depth() >= depth - 3 * ONE_PLY;
+    singularNode =   !rootNode
+                  &&  ttMove != MOVE_NONE
+                  &&  ttValue != VALUE_NONE
+                  && !excludedMove // Recursive singular search is not allowed
+                  && (tte->bound() & BOUND_LOWER)
+                  &&  tte->depth() >= depth - 3 * ONE_PLY;
+
+    singularExtensionNode = singularNode && depth >= 8 * ONE_PLY;
     skipQuiets = false;
     ttCapture = false;
     pvExact = PvNode && ttHit && tte->bound() == BOUND_EXACT;
@@ -942,6 +943,9 @@ moves_loop: // When in check search starts from here
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
                   r -= 2 * ONE_PLY;
+
+              if (singularNode)
+                  r -= ONE_PLY;
 
               ss->statScore =  thisThread->mainHistory[~pos.side_to_move()][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
