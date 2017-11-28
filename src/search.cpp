@@ -852,7 +852,7 @@ moves_loop: // When in check search starts from here
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           if (   !captureOrPromotion
-              && !givesCheck
+              && !extension
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material() >= Value(5000)))
           {
               // Move count based pruning
@@ -883,7 +883,6 @@ moves_loop: // When in check search starts from here
                   continue;
           }
           else if (    depth < 7 * ONE_PLY
-                   && !extension
                    && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
                   continue;
       }
