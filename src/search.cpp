@@ -923,7 +923,7 @@ moves_loop: // When in check search starts from here
           {
               // Decrease reduction if opponent's move count is high
               if ((ss-1)->moveCount > 15)
-                  r -= (1 + singularNode) * ONE_PLY;
+                  r -= ONE_PLY;
 
               // Decrease reduction for exact PV nodes
               if (pvExact)
@@ -932,6 +932,10 @@ moves_loop: // When in check search starts from here
               // Increase reduction if ttMove is a capture
               if (ttCapture)
                   r += ONE_PLY;
+
+              // Decrease reduction for singular nodes.
+              else if (singularNode && !cutNode)
+                  r -= ONE_PLY;
 
               // Increase reduction for cut nodes
               if (cutNode)
