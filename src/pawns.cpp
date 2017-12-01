@@ -116,6 +116,15 @@ namespace {
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
+    Bitboard weakPawns = ourPawns & ~e->pawnAttacks[Us];
+    e->entrySquares[Us] = weakPawns;
+    if (weakPawns)
+    {
+        Bitboard nearWeak = weakPawns | shift<EAST>(weakPawns) | shift<WEST>(weakPawns);
+        nearWeak |= shift<NORTH>(nearWeak) | shift<SOUTH>(nearWeak);
+        e->entrySquares[Us] = nearWeak & ~(e->pawnAttacks[Us] | pos.pieces(PAWN));
+    }
+
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
     {

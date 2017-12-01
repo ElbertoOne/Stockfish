@@ -228,6 +228,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score EntryThreat         = S(  0, 10);
 
   #undef S
   #undef V
@@ -589,6 +590,10 @@ namespace {
         if (b)
             score += ThreatByKing[more_than_one(b)];
     }
+
+    // Bonus for King attacking an entry square
+    if (attackedBy[Us][KING] & pe->entrySquares[Them])
+        score += EntryThreat;
 
     // Bonus for opponent unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
