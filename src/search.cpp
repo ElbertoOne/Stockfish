@@ -650,7 +650,7 @@ namespace {
     {
         eval = ss->staticEval =
         (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
-                                         : -(ss-1)->staticEval + 2 * Eval::Tempo;
+                                         : -(ss-1)->staticEval + 3 * Eval::Tempo;
 
         tte->save(posKey, VALUE_NONE, BOUND_NONE, DEPTH_NONE, MOVE_NONE,
                   ss->staticEval, TT.generation());
@@ -683,7 +683,7 @@ namespace {
 
     // Step 8. Null move search with verification search (is omitted in PV nodes)
     if (   !PvNode
-        &&  eval >= beta
+        &&  eval > beta
         &&  ss->staticEval >= beta - 36 * depth / ONE_PLY + 225
         &&  pos.non_pawn_material(pos.side_to_move()))
     {
