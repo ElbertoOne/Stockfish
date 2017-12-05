@@ -814,6 +814,7 @@ moves_loop: // When in check search starts from here
       attacksKingRing =  !givesCheck
                        && type_of(move) == NORMAL
                        && (pos.attacks_from(type_of(movedPiece), to_sq(move)) & pos.attacks_from<KING>(pos.square<KING>(~pos.side_to_move())))
+                       && !(pos.attacks_from(type_of(movedPiece), from_sq(move)) & pos.attacks_from<KING>(pos.square<KING>(~pos.side_to_move())))
                        && !(pos.attackers_to(to_sq(move)) & pos.pieces(~pos.side_to_move()));
 
       moveCountPruning =   depth < 16 * ONE_PLY
