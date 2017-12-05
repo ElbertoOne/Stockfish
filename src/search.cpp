@@ -507,7 +507,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval;
-    bool ttHit, inCheck, givesCheck, singularExtensionNode, improving;
+    bool ttHit, inCheck, givesCheck, singularExtensionNode, improving, attacksKingRing;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, skipQuiets, ttCapture, pvExact;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
@@ -811,6 +811,11 @@ moves_loop: // When in check search starts from here
                   ? pos.check_squares(type_of(movedPiece)) & to_sq(move)
                   : pos.gives_check(move);
 
+      attacksKingRing =  !givesCheck
+                       && type_of(move) == NORMAL
+                       && (pos.attacks_from(type_of(movedPiece), to_sq(move)) & pos.attacks_from<KING>(pos.square<KING>(~pos.side_to_move())))
+                       && !(pos.attackers_to(to_sq(move)) & pos.pieces(~pos.side_to_move()));
+
       moveCountPruning =   depth < 16 * ONE_PLY
                         && moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY];
 
@@ -944,6 +949,9 @@ moves_loop: // When in check search starts from here
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4000;
+
+              if (attacksKingRing)
+                  r -= ONE_PLY;
 
               // Decrease/increase reduction by comparing opponent's stat score
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
