@@ -353,7 +353,10 @@ namespace {
             // Bonus when behind a pawn
             if (    relative_rank(Us, s) < RANK_5
                 && (pos.pieces(PAWN) & (s + pawn_push(Us))))
-                score += MinorBehindPawn;
+            {
+                if (!(Pt == BISHOP && more_than_one(rank_bb(s + pawn_push(Us)) & attacks_bb<BISHOP>(s, pos.pieces(Us, PAWN)))))
+                    score += MinorBehindPawn;
+            }
 
             if (Pt == BISHOP)
             {
