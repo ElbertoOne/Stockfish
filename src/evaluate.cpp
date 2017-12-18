@@ -406,7 +406,24 @@ namespace {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard pinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, pinners))
+            {
                 score -= WeakQueen;
+                //Reduce mobility for the pinned pieces.
+                while (pinners)
+                {
+                    Square s2 = pop_lsb(&pinners);
+                    if (s2 & attackedBy[Us][QUEEN] & ~attackedBy2[Us])
+                    {
+                        PieceType Pt2 = type_of(pos.piece_on(s2));
+                        b =  Pt2 == BISHOP ? attacks_bb<BISHOP>(s2, pos.pieces() ^ pos.pieces(Us, QUEEN))
+                           : Pt2 ==   ROOK ? attacks_bb<  ROOK>(s2, pos.pieces() ^ pos.pieces(Us, ROOK, QUEEN))
+                           : pos.attacks_from(Pt2, s2);
+
+                        mob = popcount(b & mobilityArea[Us]);
+                        mobility[Us] -= MobilityBonus[Pt2 - 2][mob];
+                    }
+                }
+            }
         }
     }
 
