@@ -405,13 +405,8 @@ namespace {
         {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard pinners;
-            Bitboard sliderBlockers = pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, pinners);
-            if (sliderBlockers)
-            {
+            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, pinners))
                 score -= WeakQueen;
-                if (pos.slider_blockers(sliderBlockers, pos.square<KING>(Us), pinners))
-                    score -= WeakQueen * 2;
-            }
         }
     }
 
@@ -432,7 +427,7 @@ namespace {
                                         : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard weak, b, b1, b2, safe, unsafeChecks;
+    Bitboard weak, b, b1, b2, safe, unsafeChecks, pinners;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
@@ -487,7 +482,7 @@ namespace {
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      + 102 * kingAdjacentZoneAttacksCount[Them]
                      + 191 * popcount(kingRing[Us] & weak)
-                     + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
+                     + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks | pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), ksq, pinners))
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
                      +  40;
