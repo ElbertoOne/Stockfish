@@ -930,7 +930,7 @@ moves_loop: // When in check search starts from here
               if ((ss-1)->moveCount > 15)
                   r -= ONE_PLY;
 
-              if (thisThread->nmp_ply > 0)
+              else if (pos.non_pawn_material(~pos.side_to_move()) < RookValueMg)
                   r -= ONE_PLY;
 
               // Decrease reduction for exact PV nodes
