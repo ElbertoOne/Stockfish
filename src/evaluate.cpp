@@ -213,6 +213,7 @@ namespace {
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn       = S( 16,  0);
+  const Score OutpostMinorBehindPawn = S(16, 16);
   const Score BishopPawns           = S(  8, 12);
   const Score LongRangedBishop      = S( 22,  0);
   const Score RookOnPawn            = S(  8, 24);
@@ -341,7 +342,13 @@ namespace {
             // Bonus for outpost squares
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
+            {
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
+
+                if (  relative_rank(Us, s) > RANK_4
+                    && (pos.pieces(Them, PAWN) & (s + pawn_push(Us))))
+                    score += OutpostMinorBehindPawn;
+            }
             else
             {
                 bb &= b & ~pos.pieces(Us);
