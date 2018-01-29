@@ -222,6 +222,7 @@ namespace {
   const Score RookOnPawn            = S(  8, 24);
   const Score TrappedRook           = S( 92,  0);
   const Score WeakQueen             = S( 50, 10);
+  const Score QueenOnRightColor     = S( 15,  0);
   const Score CloseEnemies          = S(  7,  0);
   const Score PawnlessFlank         = S( 20, 80);
   const Score ThreatBySafePawn      = S(192,175);
@@ -406,10 +407,16 @@ namespace {
 
         if (Pt == QUEEN)
         {
+            Bitboard colorSquares = DarkSquares & s ? DarkSquares : ~DarkSquares;
+
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard pinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, pinners))
                 score -= WeakQueen;
+
+            // Bonus when queen is on a square where enemy does not have the bishop
+            else if (!(colorSquares & pos.pieces(Them, BISHOP)))
+                score += QueenOnRightColor;
         }
     }
 
