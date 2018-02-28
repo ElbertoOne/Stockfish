@@ -178,6 +178,7 @@ namespace {
   const Score TrappedBishopA1H1 = S( 50, 50);
   const Score TrappedRook       = S( 92,  0);
   const Score WeakQueen         = S( 50, 10);
+  const Score QueenOnRightColor = S( 15,  0);
   const Score WeakUnopposedPawn = S(  5, 25);
 
 #undef S
@@ -391,10 +392,17 @@ namespace {
 
         if (Pt == QUEEN)
         {
+            Bitboard colorSquares = DarkSquares & s ? DarkSquares : ~DarkSquares;
+
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+
+            // Bonus when queen is on a square where enemy does not have the bishop
+            if (!(colorSquares & pos.pieces(Them, BISHOP)))
+                score += QueenOnRightColor;
+
         }
     }
     if (T)
@@ -489,7 +497,7 @@ namespace {
     if (!(pos.pieces(PAWN) & kf))
         score -= PawnlessFlank;
 
-    // Find the squares that opponent attacks in our king flank, and the squares  
+    // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank but not defended by our pawns.
     b1 = attackedBy[Them][ALL_PIECES] & kf & Camp;
     b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
