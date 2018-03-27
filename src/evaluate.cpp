@@ -471,7 +471,7 @@ namespace {
         pinned = pos.blockers_for_king(Us) & pos.pieces(Us);
 
         Bitboard bb = rank_bb(rank_of(ksq)) & ~kingRing[Us];
-        if (relative_rank(Us, ksq) == RANK_1 && !(bb & attackedBy[Us][ALL_PIECES]) && (bb & attackedBy[Them][ALL_PIECES]))
+        if (relative_rank(Us, ksq) == RANK_1 && (bb & (attackedBy[Them][QUEEN] | attackedBy[Them][ROOK])))
             extendedKingRing = bb;
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
