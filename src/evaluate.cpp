@@ -415,7 +415,7 @@ namespace {
                                        : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard weak, b, b1, b2, safe, unsafeChecks, pinned;
+    Bitboard weak, b, b1, b2, safe, unsafeChecks, pinned, extendedKingRing;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
@@ -425,6 +425,7 @@ namespace {
     {
         int kingDanger = 0;
         unsafeChecks = 0;
+        extendedKingRing = 0;
 
         // Attacked squares defended at most once by our queen or king
         weak =  attackedBy[Them][ALL_PIECES]
@@ -469,9 +470,13 @@ namespace {
         unsafeChecks &= mobilityArea[Them];
         pinned = pos.blockers_for_king(Us) & pos.pieces(Us);
 
+        Bitboard bb = rank_bb(rank_of(ksq)) & ~kingRing[Us];
+        if (relative_rank(Us, ksq) == RANK_1 && !(bb & attackedBy[Us][ALL_PIECES]) && (bb & attackedBy[Them][ALL_PIECES]))
+            extendedKingRing = bb;
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      + 102 * kingAttacksCount[Them]
-                     + 191 * popcount(kingRing[Us] & weak)
+                     + 191 * popcount((kingRing[Us] | extendedKingRing) & weak)
                      + 143 * popcount(pinned | unsafeChecks)
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
