@@ -486,7 +486,7 @@ void Thread::search() {
               double bestMoveInstability = 1.0 + mainThread->bestMoveChanges;
               bestMoveInstability *= std::pow(mainThread->previousTimeReduction, 0.528) / timeReduction;
 
-              if (bestValue > PawnValueEg / 2 && bestValue <= PawnValueEg * 3 / 2)
+              if (bestValue >= PawnValueEg * 3 / 4 && bestValue <= PawnValueEg * 3 / 2)
                   bestMoveInstability *= 1.1;
 
               // Stop the search if we have only one legal move, or if available time elapsed
