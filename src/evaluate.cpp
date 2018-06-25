@@ -394,6 +394,19 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
+            else if (!pe->open_files())
+            {
+                Bitboard rankbb = b & rank_bb(s) & ~pos.pieces(Us);
+                while (rankbb)
+                {
+                    Square s2 = pop_lsb(&rankbb);
+                    if (pe->semiopen_file(Them, file_of(s2)) && !(s2 & attackedBy[Them][PAWN]) && !(pos.pieces(Us, PAWN) & forward_file_bb(Us, s2)))
+                    {
+                        score += RookOnFile[0];
+                        break;
+                    }
+                }
+            }
         }
 
         if (Pt == QUEEN)
