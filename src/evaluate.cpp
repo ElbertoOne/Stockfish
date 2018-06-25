@@ -297,6 +297,7 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    const Bitboard TRank8BB = (Us == WHITE ? Rank8BB    : Rank1BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -394,19 +395,10 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
-            else if (!pe->open_files())
-            {
-                Bitboard rankbb = b & rank_bb(s) & ~pos.pieces(Us);
-                while (rankbb)
-                {
-                    Square s2 = pop_lsb(&rankbb);
-                    if (pe->semiopen_file(Them, file_of(s2)) && !(s2 & attackedBy[Them][PAWN]) && !(pos.pieces(Us, PAWN) & forward_file_bb(Us, s2)))
-                    {
-                        score += RookOnFile[0];
-                        break;
-                    }
-                }
-            }
+
+            // Bonus when rook can see the enemy back rank and has enough mobility.
+            else if (pe->open_files() == 0 && relative_rank(Us, s) <= RANK_5 && (pos.attacks_from<ROOK>(s) & TRank8BB))
+                score += RookOnFile[0];
         }
 
         if (Pt == QUEEN)
