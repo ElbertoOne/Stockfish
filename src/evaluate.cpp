@@ -177,7 +177,8 @@ namespace {
   constexpr Score SliderOnQueen      = S( 42, 21);
   constexpr Score ThreatByPawnPush   = S( 49, 30);
   constexpr Score ThreatByRank       = S( 16,  3);
-  constexpr Score ThreatBySafePawn   = S(165,133);
+  constexpr Score MajorThreatBySafePawn = S(248,200);
+  constexpr Score MinorThreatBySafePawn = S(83,67);
   constexpr Score TrappedRook        = S( 92,  0);
   constexpr Score WeakQueen          = S( 50, 10);
   constexpr Score WeakUnopposedPawn  = S(  5, 26);
@@ -579,15 +580,11 @@ namespace {
     b =   pos.pieces(Us, PAWN)
        & (~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES]);
 
-    while (b)
-    {
-        Square s = pop_lsb(&b);
-        if (popcount(file_bb(s) & pos.pieces(Us, ROOK, QUEEN)) >= popcount(file_bb(s) & pos.pieces(Them, ROOK, QUEEN)))
-        {
-            safeThreats = pos.attacks_from<PAWN>(s, Us) & nonPawnEnemies;
-            score += ThreatBySafePawn * popcount(safeThreats);
-        }
-    }
+    safeThreats = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
+    if (safeThreats & pos.pieces(Them, QUEEN, ROOK))
+        score += MajorThreatBySafePawn * popcount(safeThreats);
+    else
+        score += MinorThreatBySafePawn * popcount(safeThreats);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
