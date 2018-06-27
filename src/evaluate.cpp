@@ -579,8 +579,15 @@ namespace {
     b =   pos.pieces(Us, PAWN)
        & (~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES]);
 
-    safeThreats = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-    score += ThreatBySafePawn * popcount(safeThreats);
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+        if (popcount(file_bb(s) & pos.pieces(Us, ROOK, QUEEN)) >= popcount(file_bb(s) & pos.pieces(Them, ROOK, QUEEN)))
+        {
+            safeThreats = pos.attacks_from<PAWN>(s, Us) & nonPawnEnemies;
+            score += ThreatBySafePawn * popcount(safeThreats);
+        }
+    }
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
