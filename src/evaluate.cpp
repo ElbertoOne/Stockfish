@@ -180,6 +180,7 @@ namespace {
   constexpr Score ThreatBySafePawn   = S(165,133);
   constexpr Score TrappedRook        = S( 92,  0);
   constexpr Score WeakQueen          = S( 50, 10);
+  constexpr Score WeakRook           = S( 25,  5);
   constexpr Score WeakUnopposedPawn  = S(  5, 26);
 
 #undef S
@@ -394,6 +395,11 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
+
+                        // Penalty if any relative pin or discovered attack against the queen
+            Bitboard rookBPinners, rookQPinners;
+            if (pos.slider_blockers(pos.pieces(Them, BISHOP), s, rookBPinners) || (pos.slider_blockers(pos.pieces(Them, QUEEN), s, rookQPinners) & ~file_bb(s) & ~rank_bb(s)))
+                score -= WeakRook;
         }
 
         if (Pt == QUEEN)
