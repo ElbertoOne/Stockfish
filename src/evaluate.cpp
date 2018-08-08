@@ -399,10 +399,8 @@ namespace {
                 score -= WeakQueen;
 
             // Penalty if the queen blocks a pawn storm on the enemy king.
-
             if (   distance<File>(s, pos.square<KING>(Them)) <= 1.
-                && (shift<Up>(pos.pieces(Us, PAWN)) & s)
-                && more_than_one(adjacent_files_bb(file_of(s)) & pos.pieces(Us, PAWN)))
+                && (shift<Up>(pos.pieces(Us, PAWN)) & s))
                 score -= QueenStormBlock;
         }
     }
