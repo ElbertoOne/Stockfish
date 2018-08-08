@@ -175,6 +175,7 @@ namespace {
   constexpr Score TrappedRook        = S( 92,  0);
   constexpr Score WeakQueen          = S( 50, 10);
   constexpr Score WeakUnopposedPawn  = S(  5, 29);
+  constexpr Score QueenStormBlock    = S( 20,  0);
 
 #undef S
 
@@ -289,6 +290,7 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+    constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
@@ -395,6 +397,13 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+
+            // Penalty if the queen blocks a pawn storm on the enemy king.
+            File kf = file_of(pos.square<KING>(Them));
+            if (   ((kf < FILE_E) == (file_of(s) < kf))
+                && (shift<Up>(pos.pieces(Us, PAWN)) & s)
+                &&  popcount(adjacent_files_bb(file_of(s)) & pos.pieces(Us, PAWN)) == 2)
+                score -= QueenStormBlock;
         }
     }
     if (T)
