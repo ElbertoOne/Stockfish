@@ -175,7 +175,7 @@ namespace {
   constexpr Score TrappedRook        = S( 92,  0);
   constexpr Score WeakQueen          = S( 50, 10);
   constexpr Score WeakUnopposedPawn  = S(  5, 29);
-  constexpr Score QueenStormBlock    = S(  0, 20);
+  constexpr Score QueenStormBlock    = S( 20,  0);
 
 #undef S
 
@@ -399,10 +399,10 @@ namespace {
                 score -= WeakQueen;
 
             // Penalty if the queen blocks a pawn storm on the enemy king.
-            File kf = file_of(pos.square<KING>(Them));
-            if (   ((kf < FILE_E) == (file_of(s) < kf))
+
+            if (   distance<File>(s, pos.square<KING>(Them)) <= 1.
                 && (shift<Up>(pos.pieces(Us, PAWN)) & s)
-                &&  popcount(adjacent_files_bb(file_of(s)) & pos.pieces(Us, PAWN)) == 2)
+                && more_than_one(adjacent_files_bb(file_of(s)) & pos.pieces(Us, PAWN)))
                 score -= QueenStormBlock;
         }
     }
