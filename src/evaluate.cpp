@@ -156,7 +156,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
-  constexpr Score CloseEnemies       = S(  6,  0);
+  constexpr Score CloseEnemies       = S(  5,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 57, 32);
   constexpr Score HinderPassedPawn   = S(  8,  0);
@@ -424,7 +424,7 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
     // Also find the supporting heavy pieces that may be on our kingFlank
-    b3 = kingFlank & pos.pieces(Them, QUEEN, ROOK) & ~Camp;
+    b3 = kingFlank & pos.pieces(Them, QUEEN, ROOK) & ~b1 & ~b2;
 
     int tropism = popcount(b1) + popcount(b2) + popcount(b3);
 
