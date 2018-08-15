@@ -423,7 +423,7 @@ namespace {
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
-    // Also find the supporting heavy pieces that may be on our kingFlank and on the back ranks
+    // Also find the supporting heavy pieces that may be on our kingFlank
     b3 = kingFlank & pos.pieces(Them, QUEEN, ROOK) & ~Camp;
 
     int tropism = popcount(b1) + popcount(b2) + popcount(b3);
@@ -485,10 +485,12 @@ namespace {
                      -   6 * mg_value(score) / 8
                      -   30;
 
-        if (tropism > 0 && !pos.can_castle(Us))
+        // Transform the kingDanger units into a Score, and subtract it from the evaluation
+        if (kingDanger > 0)
         {
-            int minPawnDistance = - eg_value(score) / 16;
-            kingDanger += minPawnDistance > 0 ? 5 * tropism * (minPawnDistance - 1) : 0;
+            int mobilityDanger = mg_value(mobility[Them] - mobility[Us]);
+            kingDanger = std::max(0, kingDanger + mobilityDanger);
+            score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
         }
     }
 
