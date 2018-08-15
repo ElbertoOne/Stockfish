@@ -483,6 +483,12 @@ namespace {
                      -   6 * mg_value(score) / 8
                      -   30;
 
+        if (!pos.can_castle(Us))
+        {
+            int minPawnDistance = - eg_value(score) / 16;
+            kingDanger += minPawnDistance > 0 ? 100 * (minPawnDistance - 1) : 0;
+        }
+
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
         {
