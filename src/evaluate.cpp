@@ -424,7 +424,7 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
     // Also find the supporting heavy pieces that may be on our kingFlank
-    b3 = kingFlank & pos.pieces(Them, QUEEN, ROOK) & ~b1 & ~b2;
+    b3 = kingFlank & pos.pieces(Them, QUEEN, ROOK) & ~attackedBy[Us][ALL_PIECES];
 
     int tropism = popcount(b1) + popcount(b2) + popcount(b3);
 
