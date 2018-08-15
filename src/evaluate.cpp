@@ -413,7 +413,7 @@ namespace {
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
+    Bitboard kingFlank, weak, b, b1, b2, b3, safe, unsafeChecks;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
@@ -423,8 +423,10 @@ namespace {
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
+    // Also find the supporting heavy pieces that may be on our kingFlank and on the back ranks
+    b3 = kingFlank & pos.pieces(Them, QUEEN, ROOK) & ~Camp;
 
-    int tropism = popcount(b1) + popcount(b2);
+    int tropism = popcount(b1) + popcount(b2) + popcount(b3);
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
@@ -481,20 +483,12 @@ namespace {
                      +   4 * tropism
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
-                     -   35;
+                     -   30;
 
         if (tropism > 0 && !pos.can_castle(Us))
         {
             int minPawnDistance = - eg_value(score) / 16;
             kingDanger += minPawnDistance > 0 ? 5 * tropism * (minPawnDistance - 1) : 0;
-        }
-
-        // Transform the kingDanger units into a Score, and subtract it from the evaluation
-        if (kingDanger > 0)
-        {
-            int mobilityDanger = mg_value(mobility[Them] - mobility[Us]);
-            kingDanger = std::max(0, kingDanger + mobilityDanger);
-            score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
         }
     }
 
