@@ -481,12 +481,12 @@ namespace {
                      +   4 * tropism
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
-                     -   30;
+                     -   35;
 
-        if (!pos.can_castle(Us))
+        if (tropism > 0 && !pos.can_castle(Us))
         {
             int minPawnDistance = - eg_value(score) / 16;
-            kingDanger += minPawnDistance > 0 ? 100 * (minPawnDistance - 1) : 0;
+            kingDanger += minPawnDistance > 0 ? 5 * tropism * (minPawnDistance - 1) : 0;
         }
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
