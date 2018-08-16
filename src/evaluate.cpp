@@ -422,18 +422,9 @@ namespace {
     // which are attacked twice in that flank but not defended by our pawns.
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
-    b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
+    b2 = b1 & attackedBy2[Them] & (~attackedBy[Us][PAWN] | (attackedBy[Them][PAWN] & ~attackedBy2[Us]));
 
     int tropism = popcount(b1) + popcount(b2);
-
-    if (tropism > 10)
-    {
-        constexpr Bitboard Camp2 = (Us == WHITE ? Rank6BB
-                                           : Rank3BB);
-        b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp2;
-        b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
-        tropism += popcount(b1) + popcount(b2);
-    }
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
