@@ -409,8 +409,8 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank7BB ^ Rank8BB
-                                           : AllSquares ^ Rank1BB ^ Rank2BB);
+    constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
+                                           : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -425,6 +425,15 @@ namespace {
     b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
 
     int tropism = popcount(b1) + popcount(b2);
+
+    if (tropism > 10)
+    {
+        constexpr Bitboard Camp2 = (Us == WHITE ? Rank6BB
+                                           : Rank3BB);
+        b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp2;
+        b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
+        tropism += popcount(b1) + popcount(b2);
+    }
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
