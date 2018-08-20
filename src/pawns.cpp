@@ -52,10 +52,10 @@ namespace {
   // RANK_1 = 0 is used for files where the enemy has no pawn, or their pawn
   // is behind our king.
   constexpr Value UnblockedStorm[int(FILE_NB) / 2][RANK_NB] = {
-    { V( 89), V(107), V(123), V(93), V(57), V( 45), V( 51) },
-    { V( 44), V(-18), V(123), V(46), V(39), V( -7), V( 23) },
-    { V(  4), V( 52), V(162), V(37), V( 7), V(-14), V( -2) },
-    { V(-10), V(-14), V( 90), V(15), V( 2), V( -7), V(-16) }
+    { V( 89), V(117), V(131), V(99), V(61), V( 49), V( 51) },
+    { V( 44), V(  0), V(131), V(52), V(43), V(  4), V( 23) },
+    { V(  4), V( 62), V(170), V(43), V(29), V(-10), V( -2) },
+    { V(-10), V(  0), V( 98), V(35), V( 8), V( -3), V(-16) }
   };
 
   // Danger of blocked enemy pawns storming our king, by rank
@@ -158,7 +158,7 @@ namespace Pawns {
 
 void init() {
 
-  static constexpr int Seed[RANK_NB] = { 0, 13, 24, 18, 65, 100, 175, 330 };
+  static constexpr int Seed[RANK_NB] = { 0, 12, 25, 18, 68, 98, 171, 334 };
 
   for (int opposed = 0; opposed <= 1; ++opposed)
       for (int phalanx = 0; phalanx <= 1; ++phalanx)
