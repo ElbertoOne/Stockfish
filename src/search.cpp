@@ -999,6 +999,9 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 15)
               r -= ONE_PLY;
 
+          if (pos.has_game_cycle(ss->ply))
+              r -= ONE_PLY;
+
           if (!captureOrPromotion)
           {
               // Decrease reduction for exact PV nodes (~0 Elo)
