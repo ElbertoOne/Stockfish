@@ -380,6 +380,10 @@ namespace {
             if (pe->semiopen_file(Us, file_of(s)))
                 score += RookOnFile[bool(pe->semiopen_file(Them, file_of(s)))];
 
+            // Bonus for rook on a file that can be open or semi-open on the next move
+            else if (forward_file_bb(Us, s) & pos.pieces(Us, PAWN) & attackedBy[Them][PAWN])
+                score += RookOnFile[bool(pe->semiopen_file(Them, file_of(s)))] / 2;
+
             // Penalty when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
             {
@@ -387,6 +391,8 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
+
+
         }
 
         if (Pt == QUEEN)
