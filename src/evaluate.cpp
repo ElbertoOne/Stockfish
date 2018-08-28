@@ -474,7 +474,10 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        int enemiesOnFile = popcount(pos.pieces(Them, ROOK, QUEEN) & (file_bb(ksq) | adjacent_files_bb(file_of(ksq))));
+        int enemiesOnFile = 0;
+
+        if (pos.pieces(Them, PAWN) & kingFlank & Camp)
+        	enemiesOnFile = popcount(pos.pieces(Them, ROOK, QUEEN) & file_bb(ksq));
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
