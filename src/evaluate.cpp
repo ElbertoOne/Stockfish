@@ -474,11 +474,15 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        // Number of enemy pawns close to the king
+        int pawnCamp = popcount(pos.pieces(Them, PAWN) & kingFlank & Camp);
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 129 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +   4 * tropism
+                     +  40 * pawnCamp
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      -   30;
