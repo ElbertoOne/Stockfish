@@ -426,10 +426,9 @@ namespace {
 
     int tropism = popcount(b1) + popcount(b2);
 
-    // Main king safety evaluation
-    if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
-    {
-        int kingDanger = 0;
+        int kingDanger = - 873 * !pos.count<QUEEN>(Them)
+                         -   6 * mg_value(score) / 8
+                         -   30;
         unsafeChecks = 0;
 
         // Attacked squares defended at most once by our queen or king
@@ -474,14 +473,14 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+    // Main king safety evaluation
+    if (kingDanger > 1000 || (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them)))
+    {
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 129 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                     +   4 * tropism
-                     - 873 * !pos.count<QUEEN>(Them)
-                     -   6 * mg_value(score) / 8
-                     -   30;
+                     +   4 * tropism;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
@@ -758,7 +757,7 @@ namespace {
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
-    bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)		
+    bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
     // Compute the initiative bonus for the attacking side
