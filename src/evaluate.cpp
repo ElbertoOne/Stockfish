@@ -426,9 +426,7 @@ namespace {
 
     int tropism = popcount(b1) + popcount(b2);
 
-        int kingDanger = - 873 * !pos.count<QUEEN>(Them)
-                         -   6 * mg_value(score) / 8
-                         -   30;
+        int kingDanger = 0;
         unsafeChecks = 0;
 
         // Attacked squares defended at most once by our queen or king
@@ -469,18 +467,21 @@ namespace {
         else
             unsafeChecks |= b;
 
+    // Main king safety evaluation
+    if ((pos.count<QUEEN>(Them) && kingDanger > 1000) || (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them)))
+    {
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-    // Main king safety evaluation
-    if (kingDanger > 1000 || (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them)))
-    {
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 129 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                     +   4 * tropism;
+                     +   4 * tropism
+                     - 873 * !pos.count<QUEEN>(Them)
+                     -   6 * mg_value(score) / 8
+                     -  30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
