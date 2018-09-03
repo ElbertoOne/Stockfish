@@ -160,7 +160,7 @@ void Search::init() {
 
               // Increase reduction for non-PV nodes when eval is not improving
               if (!imp && r > 1.0)
-                Reductions[NonPV][imp][d][mc]++;
+                Reductions[NonPV][imp][d][mc] += (int) r;
           }
 
   for (int d = 0; d < 16; ++d)
