@@ -454,8 +454,13 @@ namespace {
         // Enemy rooks checks
         if (b1 & safe)
             kingDanger += RookSafeCheck;
-        else
+        else if (b1)
             unsafeChecks |= b1;
+        else
+        {
+            b = kingFlank | rank_bb(ksq);
+            kingDanger += 32 * popcount(pos.pieces(Them, ROOK) & b);
+        }
 
         // Enemy bishops checks
         if (b2 & safe)
