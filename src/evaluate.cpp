@@ -459,7 +459,7 @@ namespace {
         else
         {
             b = kingFlank | rank_bb(ksq);
-            kingDanger += 32 * popcount(pos.pieces(Them, ROOK) & b);
+            kingDanger += 48 * popcount(b & pos.pieces(Them, ROOK));
         }
 
         // Enemy bishops checks
