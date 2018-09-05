@@ -454,13 +454,8 @@ namespace {
         // Enemy rooks checks
         if (b1 & safe)
             kingDanger += RookSafeCheck;
-        else if (b1)
-            unsafeChecks |= b1;
         else
-        {
-            b = kingFlank | rank_bb(ksq);
-            kingDanger += 48 * popcount(b & pos.pieces(Them, ROOK));
-        }
+            unsafeChecks |= b1;
 
         // Enemy bishops checks
         if (b2 & safe)
@@ -479,11 +474,14 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        int openFilesMajors = popcount(kingFlank & pe->all_semiopen_files(Them)) * (pos.count<QUEEN>(Them) + pos.count<ROOK>(Them));
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 129 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +   4 * tropism
+                     +   4 * openFilesMajors
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      -   30;
