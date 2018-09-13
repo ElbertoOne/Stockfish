@@ -474,10 +474,20 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        //Increase blockers for king with the pawns for which the blocker is the only defender.
+        b = b1 = pos.blockers_for_king(Us);
+        b2 = pos.pieces(Us, PAWN) & attackedBy[Us][PAWN] & ~attackedBy2[Us];
+        while (b2)
+        {
+			Square s = pop_lsb(&b2);
+			if (pos.attackers_to(s) & b1)
+			    b |= s;
+		}
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
-                     + 129 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+                     + 129 * popcount(b | unsafeChecks)
                      +   4 * tropism
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
