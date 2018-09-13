@@ -475,13 +475,15 @@ namespace {
         unsafeChecks &= mobilityArea[Them];
 
         //Increase blockers for king with the pieces for which the blocker is the only defender.
-        b = b1 = pos.blockers_for_king(Us);
-        b2 = pos.pieces(Us) & attackedBy[Us][PAWN] & ~attackedBy2[Us] & attackedBy[Them][ALL_PIECES];
-        while (b2)
+        b = pos.blockers_for_king(Us);
+        while (b)
         {
-            Square s = pop_lsb(&b2);
-            if (pos.attackers_to(s) & b1)
-                b |= s;
+            Square s = pop_lsb(&b);
+            if (pos.attacks_from<PAWN>(s) & pos.pieces(Us) & ~attackedBy2[Us] & attackedBy[Them][ALL_PIECES])
+            {
+                kingDanger += 129;
+                break;
+            }
         }
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
