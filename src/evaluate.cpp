@@ -474,9 +474,9 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        //Increase blockers for king with the pawns for which the blocker is the only defender.
+        //Increase blockers for king with the pieces for which the blocker is the only defender.
         b = b1 = pos.blockers_for_king(Us);
-        b2 = pos.pieces(Us, PAWN) & attackedBy[Us][PAWN] & ~attackedBy2[Us] & attackedBy[Them][ALL_PIECES];
+        b2 = pos.pieces(Us) & attackedBy[Us][PAWN] & ~attackedBy2[Us] & attackedBy[Them][ALL_PIECES];
         while (b2)
         {
             Square s = pop_lsb(&b2);
