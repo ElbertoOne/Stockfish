@@ -203,6 +203,7 @@ namespace {
     Pawns::Entry* pe;
     Bitboard mobilityArea[COLOR_NB];
     Score mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
+    int qMobility[COLOR_NB] = { 0, 0};
 
     // attackedBy[color][piece type] is a bitboard representing all squares
     // attacked by a given color and piece type. Special "piece types" which
@@ -391,6 +392,7 @@ namespace {
 
         if (Pt == QUEEN)
         {
+            qMobility[Us] = mob;
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
@@ -603,9 +605,7 @@ namespace {
         int safeKThreat = popcount(b & safe);
         if (safeKThreat > 0)
         {
-            int qMob = popcount(attackedBy[Them][QUEEN] & ~attackedBy[Us][ALL_PIECES] & ~pos.pieces(Them));
-            if (qMob < 2)
-                safeKThreat += 2 - qMob;
+            safeKThreat += std::max(2 - qMobility[Them], 0);
         }
 
         score += KnightOnQueen * safeKThreat;
