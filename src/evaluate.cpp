@@ -603,9 +603,9 @@ namespace {
         int safeKThreat = popcount(b & safe);
         if (safeKThreat > 0)
         {
-            int qMob = popcount(attackedBy[Them][QUEEN] & ~attackedBy[Us][ALL_PIECES]);
+            int qMob = popcount(attackedBy[Them][QUEEN] & ~attackedBy[Us][ALL_PIECES] & ~pos.pieces(Them));
             if (qMob < 2)
-                safeKThreat++;
+                safeKThreat += 2 - qMob;
         }
 
         score += KnightOnQueen * safeKThreat;
