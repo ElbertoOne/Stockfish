@@ -333,12 +333,12 @@ namespace {
 
             else if (bb &= b & ~pos.pieces(Us))
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & bb)];
-            else if (!(pos.pieces(PAWN) & forward_file_bb(Us, s)))
-                score -= MinorBehindPawn;
 
             // Knight and Bishop bonus for being right behind a pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
                 score += MinorBehindPawn;
+            else if (!(pos.pieces(PAWN) & forward_file_bb(Us, s)))
+                score -= MinorBehindPawn / 2;
 
             // Penalty if the piece is far from the king
             score -= KingProtector * distance(s, pos.square<KING>(Us));
