@@ -75,6 +75,8 @@ namespace {
   int FutilityMoveCounts[2][16]; // [improving][depth]
   int Reductions[2][2][64][64];  // [pv][improving][depth][moveNumber]
 
+  int futility_static_margin[7] = {256, 451, 657, 887, 1014, 1258, 1502};
+
   template <bool PvNode> Depth reduction(bool i, Depth d, int mn) {
     return Reductions[PvNode][i][std::min(d / ONE_PLY, 63)][std::min(mn, 63)] * ONE_PLY;
   }
@@ -961,7 +963,7 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + 268 + 198 * lmrDepth <= alpha)
+                  && ss->staticEval + futility_static_margin[lmrDepth] <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
