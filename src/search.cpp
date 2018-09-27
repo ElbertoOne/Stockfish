@@ -961,7 +961,8 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + 256 + 200 * lmrDepth <= alpha)
+                  && ss->staticEval + 256 + 200 * lmrDepth <= alpha
+                  && type_of(movedPiece) != PAWN)
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
