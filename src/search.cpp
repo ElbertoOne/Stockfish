@@ -897,7 +897,7 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = gives_check(pos, move);
 
-      moveCountPruning =   (type_of(movedPiece) != PAWN ? depth < 16 * ONE_PLY : depth < 4 * ONE_PLY)
+      moveCountPruning =   depth < 16 * ONE_PLY
                         && moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY];
 
       // Step 13. Extensions (~70 Elo)
@@ -942,7 +942,7 @@ moves_loop: // When in check, search starts from here
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material() >= Value(5000)))
           {
               // Move count based pruning (~30 Elo)
-              if (moveCountPruning)
+              if (moveCountPruning && !(type_of(movedPiece) == PAWN && depth > 3 * ONE_PLY))
               {
                   skipQuiets = true;
                   continue;
