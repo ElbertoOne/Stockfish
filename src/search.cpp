@@ -898,7 +898,7 @@ moves_loop: // When in check, search starts from here
       givesCheck = gives_check(pos, move);
 
       moveCountPruning =   depth < 16 * ONE_PLY
-                        && moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY];
+                        && type_of(movedPiece) != PAWN ? moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY] : moveCount >= 2 * FutilityMoveCounts[improving][depth / ONE_PLY];
 
       // Step 13. Extensions (~70 Elo)
 
@@ -944,7 +944,7 @@ moves_loop: // When in check, search starts from here
               // Move count based pruning (~30 Elo)
               if (moveCountPruning)
               {
-                  skipQuiets = type_of(movedPiece) != PAWN;
+                  skipQuiets = true;
                   continue;
               }
 
