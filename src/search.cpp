@@ -897,8 +897,8 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = gives_check(pos, move);
 
-      moveCountPruning =   depth < 16 * ONE_PLY
-                        && type_of(movedPiece) != PAWN ? moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY] : moveCount >= 2 * FutilityMoveCounts[improving][depth / ONE_PLY];
+      moveCountPruning =   (type_of(movedPiece) != PAWN ? depth < 16 * ONE_PLY : depth < 4 * ONE_PLY)
+                        && moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY];
 
       // Step 13. Extensions (~70 Elo)
 
