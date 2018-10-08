@@ -968,7 +968,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (   !extension // (~20 Elo)
-                   && (ss-1)->moveCount < 16
+                   && !pvExact
                    && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
                   continue;
       }
