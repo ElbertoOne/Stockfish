@@ -174,6 +174,7 @@ namespace {
   constexpr Score TrappedRook        = S( 92,  0);
   constexpr Score WeakQueen          = S( 50, 10);
   constexpr Score WeakUnopposedPawn  = S(  5, 29);
+  constexpr Score BadPlacedKnight    = S( 10,  0);
 
 #undef S
 
@@ -378,6 +379,10 @@ namespace {
             // Bonus for rook on an open or semi-open file
             if (pe->semiopen_file(Us, file_of(s)))
                 score += RookOnFile[bool(pe->semiopen_file(Them, file_of(s)))];
+
+            Bitboard rookPinners;
+            if (pos.pieces(Us, KNIGHT) & pos.slider_blockers(pos.pieces(Us, QUEEN, ROOK), s, rookPinners))
+                score -= BadPlacedKnight;
 
             // Penalty when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
