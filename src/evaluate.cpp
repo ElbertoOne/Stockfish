@@ -378,11 +378,13 @@ namespace {
 
             // Bonus for rook on an open or semi-open file
             if (pe->semiopen_file(Us, file_of(s)))
+            {
                 score += RookOnFile[bool(pe->semiopen_file(Them, file_of(s)))];
 
-            Bitboard rookPinners;
-            if (pos.pieces(Us, KNIGHT) & pos.slider_blockers(pos.pieces(Us, QUEEN, ROOK), s, rookPinners))
-                score -= BadPlacedKnight;
+                Bitboard rookPinners;
+                if (pos.pieces(Us, KNIGHT) & pos.slider_blockers(pos.pieces(Us, QUEEN, ROOK), s, rookPinners))
+                    score -= BadPlacedKnight;
+            }
 
             // Penalty when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
