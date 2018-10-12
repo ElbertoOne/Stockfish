@@ -381,9 +381,12 @@ namespace {
             {
                 score += RookOnFile[bool(pe->semiopen_file(Them, file_of(s)))];
 
-                Bitboard rookPinners;
-                if (pos.pieces(Us, KNIGHT) & pos.slider_blockers(pos.pieces(Us, QUEEN, ROOK), s, rookPinners))
-                    score -= BadPlacedKnight;
+                if (pe->semiopen_file(Them, file_of(s)))
+                {
+                    Bitboard rookPinners;
+                    if (pos.pieces(Us, KNIGHT) & pos.slider_blockers(pos.pieces(Us, QUEEN, ROOK), s, rookPinners))
+                        score -= BadPlacedKnight;
+                }
             }
 
             // Penalty when trapped by the king, even more if the king cannot castle
