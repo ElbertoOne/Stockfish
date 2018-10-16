@@ -292,7 +292,7 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    const Bitboard TRank8BB = (Us == WHITE ? Rank8BB    : Rank1BB);
+    const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -390,7 +390,7 @@ namespace {
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
             // Bonus when rook can see the enemy back rank and has enough mobility.
-            else if (relative_rank(Us, s) <= RANK_5 && (pos.attacks_from<ROOK>(s) & TRank8BB))
+            else if (relative_rank(Us, s) <= RANK_5 && (pos.attacks_from<ROOK>(s) & TRank7BB))
                 score += MajorAttackEighth;
         }
 
@@ -400,9 +400,6 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
-            // Bonus when queen can see the enemy back rank and has enough mobility.
-            else if (relative_rank(Us, s) <= RANK_5 && (pos.attacks_from<QUEEN>(s) & TRank8BB))
-                score += MajorAttackEighth;
         }
     }
     if (T)
