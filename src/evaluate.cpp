@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -174,6 +175,7 @@ namespace {
   constexpr Score TrappedRook        = S( 92,  0);
   constexpr Score WeakQueen          = S( 50, 10);
   constexpr Score WeakUnopposedPawn  = S(  5, 29);
+  constexpr Score MajorAttackEighth  = S( 20,  0);
 
 #undef S
 
@@ -290,6 +292,7 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    const Bitboard TRank8BB = (Us == WHITE ? Rank8BB    : Rank1BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -386,6 +389,9 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
+            // Bonus when rook can see the enemy back rank and has enough mobility.
+            else if (relative_rank(Us, s) <= RANK_5 && (pos.attacks_from<ROOK>(s) & TRank8BB))
+                score += MajorAttackEighth;
         }
 
         if (Pt == QUEEN)
@@ -394,6 +400,9 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+            // Bonus when queen can see the enemy back rank and has enough mobility.
+            else if (relative_rank(Us, s) <= RANK_5 && (pos.attacks_from<QUEEN>(s) & TRank8BB))
+                score += MajorAttackEighth;
         }
     }
     if (T)
