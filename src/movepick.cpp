@@ -261,7 +261,7 @@ top:
       /* fallthrough */
 
   case QCHECK:
-      return select<Next>(Any);
+      return select<Best>(Any);
   }
 
   assert(false);
