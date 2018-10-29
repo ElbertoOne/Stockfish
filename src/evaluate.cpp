@@ -787,9 +787,8 @@ namespace {
         else
         {
             if (   pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK)
-                && pos.count<PAWN>() > 9
-                && popcount(pos.pieces() & (shift<NORTH>(pos.pieces(WHITE, PAWN)) | shift<SOUTH>(pos.pieces(BLACK, PAWN)))) > pos.count<PAWN>() * 3 / 4)
-                sf = 32;
+                && pe->open_files() == 0)
+                sf = 64 - 8 * std::max(0, popcount(pos.pieces() & (shift<NORTH>(pos.pieces(WHITE, PAWN)) | shift<SOUTH>(pos.pieces(BLACK, PAWN)))) - (pos.count<PAWN>() * 3 / 4));
             else
                 sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
         }
