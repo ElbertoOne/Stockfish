@@ -752,14 +752,8 @@ namespace {
     bool possibleBlockedPosition = false;
     if (pawnsOnBothFlanks && pe->open_files() == 0)
     {
-        int blockedWhite = popcount(shift<NORTH>(pos.pieces(WHITE, PAWN)) & (pos.pieces(BLACK) | attackedBy[BLACK][ALL_PIECES]));
-        int blockedBlack = popcount(shift<SOUTH>(pos.pieces(BLACK, PAWN)) & (pos.pieces(WHITE) | attackedBy[WHITE][ALL_PIECES]));
-        if (   blockedWhite > 0
-            && blockedBlack > 0
-            && pos.count<PAWN>(WHITE) == blockedWhite
-            && pos.count<PAWN>(BLACK) == blockedBlack
-            && !(pos.pieces(WHITE, PAWN) & attackedBy[BLACK][ALL_PIECES] & ~attackedBy[WHITE][ALL_PIECES])
-            && !(pos.pieces(BLACK, PAWN) & attackedBy[WHITE][ALL_PIECES] & ~attackedBy[BLACK][ALL_PIECES]))
+        if (   !(shift<NORTH>(pos.pieces(WHITE, PAWN)) & ~(pos.pieces(BLACK, PAWN) | attackedBy[BLACK][PAWN]))
+            && !(shift<SOUTH>(pos.pieces(BLACK, PAWN)) & ~(pos.pieces(WHITE, PAWN) | attackedBy[WHITE][PAWN])))
             possibleBlockedPosition = true;
     }
 
