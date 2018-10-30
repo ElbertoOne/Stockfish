@@ -319,7 +319,7 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        int mob = popcount(b & mobilityArea[Us]);
+        int mob = popcount(b & mobilityArea[Us] & ~pos.pieces(Us));
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
@@ -384,7 +384,18 @@ namespace {
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
+                {
+                    if (mob == 1)
+                    {
+                        Square s2 = pop_lsb(&b);
+                        Bitboard enemies = pos.pieces(Them, PAWN, KNIGHT) | pos.pieces(Them, BISHOP);
+                        //Correction if the only square to move to, is attacked by an enemy minor piece
+                        if (pos.attackers_to(s2) & enemies)
+                            mob = 0;
+                    }
+
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+                }
             }
         }
 
