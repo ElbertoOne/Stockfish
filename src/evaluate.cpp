@@ -386,8 +386,8 @@ namespace {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
                 {
-                    //Correction if the only square to move to is attacked by an enemy piece
-                    if (mob == 1 && (pos.attackers_to(pop_lsb(&b)) & pos.pieces(Them)))
+                    //Correction if the only square to move to is attacked by an enemy minor piece
+                    if (mob == 1 && (pos.attackers_to(pop_lsb(&b)) & pos.pieces(Them, KNIGHT, BISHOP)))
                         mob = 0;
 
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
