@@ -386,19 +386,9 @@ namespace {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
                 {
-                    if (mob > 0)
-                    {
-                        Bitboard enemies = pos.pieces(Them, PAWN, KNIGHT) | pos.pieces(Them, BISHOP);
-
-                        while (b)
-                        {
-                            Square s2 = pop_lsb(&b);
-
-                            //Correction if the only square to move to, is attacked by an enemy minor piece
-                            if (pos.attackers_to(s2) & enemies)
-                                mob--;
-                        }
-                    }
+                    //Correction if the only square to move to is attacked by an enemy piece
+                    if (mob == 1 && (pos.attackers_to(pop_lsb(&b)) & pos.pieces(Them)))
+                        mob = 0;
 
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
                 }
