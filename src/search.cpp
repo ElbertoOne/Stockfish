@@ -946,7 +946,7 @@ moves_loop: // When in check, search starts from here
       // Extension for king moves that change castling rights
       if (   pos.can_castle(us)
           && type_of(movedPiece) == KING
-          && distance<File>(to_sq(move), from_sq(move))  < 3
+          && distance<File>(to_sq(move), from_sq(move))  > 2
           && depth < 12 * ONE_PLY)
           extension = ONE_PLY;
 
