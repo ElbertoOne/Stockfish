@@ -491,11 +491,8 @@ namespace {
     if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
 
-    else if (pos.pieces(Them, QUEEN, ROOK))
-    {
-        if (!(pos.pieces(PAWN) & forward_file_bb(Us, ksq)))
-            score -= PawnlessKingFile;
-    }
+    else if (pos.pieces(Them, QUEEN, ROOK) && (pos.pieces(PAWN) & forward_file_bb(Them, ksq)))
+        score -= PawnlessKingFile;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
