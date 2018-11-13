@@ -491,7 +491,7 @@ namespace {
     if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
 
-    else if (pos.pieces(Them, QUEEN, ROOK) && (pos.pieces(PAWN) & forward_file_bb(Them, ksq)))
+    else if (pos.pieces(PAWN) & forward_file_bb(Them, ksq))
         score -= PawnlessKingFile;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
