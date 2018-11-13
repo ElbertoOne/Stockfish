@@ -23,7 +23,6 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -491,7 +490,7 @@ namespace {
     if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
 
-    else if (pos.pieces(PAWN) & forward_file_bb(Them, ksq))
+    else if (pos.pieces(Us, PAWN) & forward_file_bb(Them, ksq))
         score -= PawnlessKingFile;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
