@@ -409,7 +409,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -494,7 +493,7 @@ namespace {
 
     else if (pos.pieces(Them, QUEEN, ROOK))
     {
-        if (!(pos.pieces(PAWN) & forward_file_bb(Us, ksq)) && !((attackedBy[Us][BISHOP] | attackedBy[Us][KNIGHT]) & shift<Up>(ksq)))
+        if (!(pos.pieces(PAWN) & forward_file_bb(Us, ksq)))
             score -= PawnlessKingFile;
     }
 
