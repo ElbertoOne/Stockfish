@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -171,6 +172,7 @@ namespace {
   constexpr Score TrappedRook        = S( 96,  5);
   constexpr Score WeakQueen          = S( 50, 10);
   constexpr Score WeakUnopposedPawn  = S( 15, 19);
+  constexpr Score PawnlessKingFile   = S( 19,  0);
 
 #undef S
 
@@ -407,6 +409,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -488,6 +491,12 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
+
+    else if (pos.pieces(Them, QUEEN, ROOK))
+    {
+        if (!(pos.pieces(PAWN) & forward_file_bb(Us, ksq)) && !((attackedBy[Us][BISHOP] | attackedBy[Us][KNIGHT]) & shift<Up>(ksq)))
+            score -= PawnlessKingFile;
+    }
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
