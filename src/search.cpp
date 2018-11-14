@@ -939,7 +939,7 @@ moves_loop: // When in check, search starts from here
           if (value < rBeta)
               extension = ONE_PLY;
       }
-      else if (    (givesCheck || (pos.advanced_pawn_push(move) && pos.non_pawn_material() >= Value(5000))) // Check extension (~2 Elo)
+      else if (    (givesCheck || (pos.advanced_pawn_push(move) && pos.non_pawn_material() < Value(5000))) // Check extension (~2 Elo)
                &&  pos.see_ge(move))
           extension = ONE_PLY;
 
