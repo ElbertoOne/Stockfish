@@ -1228,7 +1228,7 @@ moves_loop: // When in check, search starts from here
     Move ttMove, move, bestMove;
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
-    bool ttHit, inCheck, givesCheck, evasionPrunable;
+    bool ttHit, inCheck, givesCheck, evasionPrunable, castleChange;
     int moveCount;
 
     if (PvNode)
@@ -1328,12 +1328,14 @@ moves_loop: // When in check, search starts from here
       assert(is_ok(move));
 
       givesCheck = gives_check(pos, move);
+      castleChange = pos.can_castle(pos.side_to_move()) && type_of(pos.moved_piece(move)) == KING;
 
       moveCount++;
 
       // Futility pruning
       if (   !inCheck
           && !givesCheck
+          && !castleChange
           &&  futilityBase > -VALUE_KNOWN_WIN
           && !pos.advanced_pawn_push(move))
       {
