@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -383,6 +384,8 @@ namespace {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+                else if (!(pos.attacks_from<ROOK>(s) & (pos.pieces(Us) ^ pos.pieces(Us, PAWN))))
+                    score -= (TrappedRook - make_score(mob * 22, 0));
             }
         }
 
