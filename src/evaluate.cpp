@@ -438,7 +438,7 @@ namespace {
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
 
-        minorSafe = attackedBy2[Them] & ~attackedBy2[Us] & (attackedBy[Us][QUEEN] | attackedBy[Us][ROOK]);
+        minorSafe = attackedBy2[Them] & ~attackedBy2[Us] & (attackedBy[Us][QUEEN] | attackedBy[Us][ROOK]) & mobilityArea[Them];
 
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
