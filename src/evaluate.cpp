@@ -410,7 +410,7 @@ namespace {
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
+    Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks, majorAttacker;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos);
@@ -428,11 +428,12 @@ namespace {
     {
         int kingDanger = 0;
         unsafeChecks = 0;
+        majorAttacker = pos.count<QUEEN>(Us) > 0 ? attackedBy[Us][QUEEN] : attackedBy[Us][ROOK];
 
-        // Attacked squares defended at most once by our queen or king
+        // Attacked squares defended at most once by our queen/rook or king
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
-              & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
+              & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | majorAttacker);
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
