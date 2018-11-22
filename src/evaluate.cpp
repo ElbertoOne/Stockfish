@@ -436,9 +436,8 @@ namespace {
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
+        minorSafe = safe & attackedBy2[Them] & ~attackedBy2[Us] & (attackedBy[Us][QUEEN] | attackedBy[Us][ROOK]);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
-
-        minorSafe = attackedBy2[Them] & ~attackedBy2[Us] & (attackedBy[Us][QUEEN] | attackedBy[Us][ROOK]) & mobilityArea[Them];
 
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
