@@ -428,7 +428,7 @@ namespace {
     {
         int kingDanger = 0;
         unsafeChecks = 0;
-        majorAttacker = pos.count<QUEEN>(Us) > 0 ? attackedBy[Us][QUEEN] : attackedBy[Us][ROOK];
+        majorAttacker = pos.count<QUEEN>(Us) > 0 ? attackedBy[Us][QUEEN] : attackedBy[Us][ROOK] & ~attackedBy[Them][ROOK];
 
         // Attacked squares defended at most once by our queen/rook or king
         weak =  attackedBy[Them][ALL_PIECES]
