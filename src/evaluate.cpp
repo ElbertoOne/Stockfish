@@ -467,9 +467,10 @@ namespace {
         else
             unsafeChecks |= b;
 
-        // Add aligned rooks or queens to unsafeChecks array
-        if (forward_file_bb(Us, ksq) & pos.pieces(Us, PAWN) & attackedBy[Them][PAWN])
-            unsafeChecks |= forward_file_bb(Us, ksq) & pos.pieces(Them, QUEEN, ROOK);
+        b = forward_file_bb(Us, ksq);
+
+        if (!(b & (pos.pieces(Us) ^ pos.pieces(Us, PAWN))))
+            unsafeChecks |= b & pos.pieces(Us, PAWN) & attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN] & (attackedBy[Them][QUEEN] | attackedBy[Them][ROOK]);
 
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
