@@ -557,7 +557,7 @@ namespace {
         if (pos.count<QUEEN>(Them) > 0)
             b &= attackedBy[Them][QUEEN];
         else
-            b &= attackedBy[Them][ROOK];
+            b &= attackedBy[Them][ROOK] & ~attackedBy[Us][QUEEN];
 
         score += Hanging * popcount(weak & (~attackedBy[Them][ALL_PIECES] | b));
 
