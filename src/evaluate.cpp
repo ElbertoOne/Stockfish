@@ -23,7 +23,6 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -554,10 +553,13 @@ namespace {
         if (weak & attackedBy[Us][KING])
             score += ThreatByKing;
 
-        score += Hanging * popcount(weak & (~attackedBy[Them][ALL_PIECES] | (attackedBy[Them][QUEEN] & ~attackedBy2[Them] & attackedBy2[Us])));
+        score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES]);
+
+        if (weak & attackedBy[Them][QUEEN] & ~attackedBy2[Them] & attackedBy2[Us])
+            score += Hanging;
 
         b = weak & nonPawnEnemies & attackedBy[Them][ALL_PIECES];
-            score += Overload * popcount(b);
+        score += Overload * popcount(b);
     }
 
     // Bonus for restricting their piece moves
