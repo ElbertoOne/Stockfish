@@ -510,7 +510,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, bb, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
+    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -554,13 +554,9 @@ namespace {
         if (weak & attackedBy[Us][KING])
             score += ThreatByKing;
 
-        score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES]);
+        score += Hanging * popcount(weak & (~attackedBy[Them][ALL_PIECES] | (attackedBy[Them][QUEEN] & ~attackedBy2[Them] & attackedBy2[Us])));
 
         b = weak & nonPawnEnemies & attackedBy[Them][ALL_PIECES];
-        bb = b & attackedBy[Them][QUEEN] & ~attackedBy2[Them] & attackedBy2[Us];
-        if (bb)
-            score += Hanging * popcount(bb);
-        else
             score += Overload * popcount(b);
     }
 
