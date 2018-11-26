@@ -553,15 +553,13 @@ namespace {
         if (weak & attackedBy[Us][KING])
             score += ThreatByKing;
 
-        score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES]);
-
-        b = weak & ~attackedBy2[Them] & attackedBy2[Us];
+        b = ~attackedBy2[Them] & attackedBy2[Us];
         if (pos.count<QUEEN>(Them) > 0)
             b &= attackedBy[Them][QUEEN];
         else
             b &= attackedBy[Them][ROOK];
 
-        score += Hanging * popcount(b);
+        score += Hanging * popcount(weak & (~attackedBy[Them][ALL_PIECES] | b));
 
         b = weak & nonPawnEnemies & attackedBy[Them][ALL_PIECES];
         score += Overload * popcount(b);
