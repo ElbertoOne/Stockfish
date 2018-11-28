@@ -550,7 +550,7 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-        if (weak & attackedBy[Us][KING])
+        if (weak & attackedBy[Us][KING] & ~(attackedBy[Them][ALL_PIECES] & ~attackedBy2[Us]))
             score += ThreatByKing;
 
         score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES]);
