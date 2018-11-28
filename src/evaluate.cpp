@@ -155,12 +155,12 @@ namespace {
   constexpr Score BishopPawns        = S(  3,  8);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score Hanging            = S( 62, 34);
+  Score Hanging            = S( 62, 34);
+  TUNE(Hanging);
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
-  constexpr Score Overload           = S( 12,  6);
   constexpr Score PawnlessFlank      = S( 18, 94);
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
@@ -553,10 +553,7 @@ namespace {
         if (weak & attackedBy[Us][KING])
             score += ThreatByKing;
 
-        score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES]);
-
-        b = weak & nonPawnEnemies & attackedBy[Them][ALL_PIECES];
-        score += Overload * popcount(b);
+        score += Hanging * popcount(weak & (~attackedBy[Them][ALL_PIECES] | (nonPawnEnemies & attackedBy2[Us])));
     }
 
     // Bonus for restricting their piece moves
