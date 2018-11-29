@@ -403,6 +403,7 @@ void Thread::search() {
           // high/low, re-search with a bigger window until we don't fail
           // high/low anymore.
           int failedHighCnt = 0;
+          int deltaDivider = 4;
           while (true)
           {
               Depth adjustedDepth = std::max(ONE_PLY, rootDepth - failedHighCnt * ONE_PLY);
@@ -453,7 +454,10 @@ void Thread::search() {
               else
                   break;
 
-              delta += delta / 4 + 5;
+              delta += delta / deltaDivider + 5;
+
+              if (deltaDivider > 1)
+                  deltaDivider--;
 
               assert(alpha >= -VALUE_INFINITE && beta <= VALUE_INFINITE);
           }
