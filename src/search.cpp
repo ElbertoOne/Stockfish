@@ -456,8 +456,7 @@ void Thread::search() {
 
               delta += delta / deltaDivider + 5;
 
-              if (deltaDivider > 1)
-                  deltaDivider--;
+              deltaDivider++;
 
               assert(alpha >= -VALUE_INFINITE && beta <= VALUE_INFINITE);
           }
