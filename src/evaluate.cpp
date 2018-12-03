@@ -391,6 +391,8 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+            else if (pos.attackers_to(s) & ~attackedBy2[Us] & attackedBy[Them][ALL_PIECES] & pos.pieces(Them, ROOK, BISHOP))
+                score -= WeakQueen;
         }
     }
     if (T)
@@ -598,14 +600,7 @@ namespace {
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        int sliders = popcount(b & safe & attackedBy2[Us]);
-        score += SliderOnQueen * sliders;
-
-        if (sliders == 0 && !(weak & s))
-        {
-            b = pos.attackers_to(s) & ~attackedBy2[Them] & attackedBy[Us][ALL_PIECES];
-            score += SliderOnQueen * popcount(b & pos.pieces(Us, ROOK, BISHOP));
-        }
+        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
     if (T)
