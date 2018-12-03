@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -602,12 +603,10 @@ namespace {
 
         if (!(weak & s))
         {
-            Bitboard attackers = pos.attackers_to(s) & ~attackedBy2[Them] & attackedBy[Us][ALL_PIECES];
-            b = attackers & pos.pieces(Us, BISHOP);
-            score += ThreatByMinor[QUEEN] * popcount(b);
-
-            b = attackers & pos.pieces(Us, ROOK);
-            score += ThreatByRook[QUEEN] * popcount(b);
+            b = pos.attackers_to(s) & ~attackedBy2[Them] & attackedBy[Us][ALL_PIECES] & pos.pieces(Us, ROOK);
+            int attackCount = popcount(b);
+            score += ThreatByRook[QUEEN] * attackCount;
+            score += ThreatByRank * attackCount * (int)relative_rank(Them, s);
         }
     }
 
