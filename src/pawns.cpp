@@ -32,9 +32,21 @@ namespace {
   #define S(mg, eg) make_score(mg, eg)
 
   // Pawn penalties
-  constexpr Score Backward = S( 9, 24);
+  Score Backward[int(FILE_NB) / 2][RANK_NB] = {
+    { S( 0, 0), S( 9, 24), S( 9, 24), S( 9, 24), S( 9, 24), S( 9, 24), S( 9, 24) },
+    { S( 0, 0), S( 9, 24), S( 9, 24), S( 9, 24), S( 9, 24), S( 9, 24), S( 9, 24) },
+    { S( 0, 0), S( 9, 24), S( 9, 24), S( 9, 24), S( 9, 24), S( 9, 24), S( 9, 24) },
+    { S( 0, 0), S( 9, 24), S( 9, 24), S( 9, 24), S( 9, 24), S( 9, 24), S( 9, 24) }
+  };
   constexpr Score Doubled  = S(11, 56);
-  constexpr Score Isolated = S( 5, 15);
+  Score Isolated[int(FILE_NB) / 2][RANK_NB] = {
+    { S( 0, 0), S( 5, 15), S( 5, 15), S( 5, 15), S( 5, 15), S( 5, 15), S( 5, 15) },
+    { S( 0, 0), S( 5, 15), S( 5, 15), S( 5, 15), S( 5, 15), S( 5, 15), S( 5, 15) },
+    { S( 0, 0), S( 5, 15), S( 5, 15), S( 5, 15), S( 5, 15), S( 5, 15), S( 5, 15) },
+    { S( 0, 0), S( 5, 15), S( 5, 15), S( 5, 15), S( 5, 15), S( 5, 15), S( 5, 15) }
+  };
+
+  TUNE(SetRange(0, 50), Backward, Isolated);
 
   // Connected pawn bonus by opposed, phalanx, #support and rank
   Score Connected[2][2][3][RANK_NB];
@@ -132,10 +144,18 @@ namespace {
             score += Connected[opposed][bool(phalanx)][popcount(supported)][relative_rank(Us, s)];
 
         else if (!neighbours)
-            score -= Isolated, e->weakUnopposed[Us] += !opposed;
+        {
+			File fi = std::min(f, ~f);
+            score -= Isolated[fi][rank_of(s)];
+            e->weakUnopposed[Us] += !opposed;
+		}
 
         else if (backward)
-            score -= Backward, e->weakUnopposed[Us] += !opposed;
+        {
+			File fi = std::min(f, ~f);
+            score -= Backward[fi][rank_of(s)];
+            e->weakUnopposed[Us] += !opposed;
+		}
 
         if (doubled && !supported)
             score -= Doubled;
