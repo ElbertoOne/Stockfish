@@ -553,7 +553,7 @@ namespace {
             score += ThreatByKing;
 
         b =  ~attackedBy[Them][ALL_PIECES]
-           | (attackedBy2[Us] & (nonPawnEnemies | (~attackedBy2[Them] & (attackedBy[Them][QUEEN] | attackedBy[Them][KING]))));
+           | (attackedBy2[Us] & (nonPawnEnemies | (~attackedBy2[Them] & attackedBy[Them][KING])));
         score += Hanging * popcount(weak & b);
     }
 
