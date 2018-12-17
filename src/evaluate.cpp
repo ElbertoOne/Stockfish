@@ -837,6 +837,9 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
+    int unsupportedRatio = 5 * ((popcount(pe->unsupported_pawns(WHITE)) / (1 + pos.count<BISHOP>(WHITE) + pos.count<KNIGHT>(WHITE))) - (popcount(pe->unsupported_pawns(BLACK)) / (1 + pos.count<BISHOP>(BLACK) + pos.count<KNIGHT>(BLACK))));
+    score -= make_score(unsupportedRatio, 5 * unsupportedRatio);
+
     score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
