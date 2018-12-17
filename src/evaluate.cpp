@@ -23,7 +23,6 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -528,7 +527,7 @@ namespace {
     weak = pos.pieces(Them) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
 
     // Safe or protected squares
-    safe = ~attackedBy[Them][ALL_PIECES] | (attackedBy[Us][ALL_PIECES] & ~(attackedBy2[Them] & ~attackedBy2[Us]));
+    safe = ~attackedBy[Them][ALL_PIECES] | (attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][PAWN]);
 
     // Bonus according to the kind of attacking pieces
     if (defended | weak)
@@ -574,7 +573,7 @@ namespace {
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
-    b &= ~attackedBy[Them][PAWN] & safe;
+    b &= safe;
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
