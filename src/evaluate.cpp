@@ -171,6 +171,7 @@ namespace {
   constexpr Score TrappedRook        = S( 96,  4);
   constexpr Score WeakQueen          = S( 49, 15);
   constexpr Score WeakUnopposedPawn  = S( 12, 23);
+  constexpr Score HinderMinor        = S( 20, 20);
 
 #undef S
 
@@ -484,6 +485,10 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
+
+    // Penalty if our king hinders the mobility of a minor.
+    b1 = (attackedBy[Us][BISHOP] | attackedBy[Us][KNIGHT]) & ksq;
+    score -= HinderMinor * popcount(b1);
 
     if (T)
         Trace::add(KING, Us, score);
