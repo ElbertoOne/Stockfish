@@ -487,8 +487,8 @@ namespace {
     score -= CloseEnemies * tropism;
 
     // Penalty if our king hinders the mobility of a minor.
-    b1 = (attackedBy[Us][BISHOP] | attackedBy[Us][KNIGHT]) & ksq;
-    score -= HinderMinor * popcount(b1);
+    if ((attackedBy[Us][BISHOP] | attackedBy[Us][KNIGHT]) & ksq)
+        score -= HinderMinor;
 
     if (T)
         Trace::add(KING, Us, score);
