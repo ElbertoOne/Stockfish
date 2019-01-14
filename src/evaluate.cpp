@@ -479,7 +479,7 @@ namespace {
     if (kingDanger > 0)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
     // Penalty if our king hinders the mobility of at least 2 minors.
-    else if (popcount(pos.attackers_to(ksq) & pos.pieces(Us, BISHOP, KNIGHT)) > 1)
+    else if (more_than_one(pos.attackers_to(ksq) & pos.pieces(Us, BISHOP, KNIGHT)))
         score -= HinderMinors;
 
     // Penalty when our king is on a pawnless flank
