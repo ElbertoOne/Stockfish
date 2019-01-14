@@ -171,6 +171,7 @@ namespace {
   constexpr Score TrappedRook        = S( 96,  4);
   constexpr Score WeakQueen          = S( 49, 15);
   constexpr Score WeakUnopposedPawn  = S( 12, 23);
+  constexpr Score HinderMinors       = S( 10, 15);
 
 #undef S
 
@@ -477,6 +478,9 @@ namespace {
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+    // Penalty if our king hinders the mobility of at least 2 minors.
+    else if (popcount(pos.attackers_to(ksq) & pos.pieces(Us, BISHOP, KNIGHT)) > 1)
+        score -= HinderMinors;
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
