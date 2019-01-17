@@ -135,8 +135,8 @@ namespace {
         {
             score -= Isolated, e->weakUnopposed[Us] += !opposed;
             // extra penalty if the isolated pawn is not on the edge and is at least 2 files away from our other pawns.
-            if (   !(s & (FileABB | FileHBB))
-                && !(ourPawns & wide_adjacent_files_bb(f)))
+            if (  !(ourPawns & wide_adjacent_files_bb(f))
+                && more_than_one(theirPawns & forward_ranks_bb(Us, s) & (file_bb(f) | adjacent_files_bb(f))))
                 score -= Isolated;
         }
 
