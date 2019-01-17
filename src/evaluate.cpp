@@ -346,7 +346,7 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
                 // But give a penalty if the bishop on this diagonal sees 2 opponent pawns in the center.
-                else if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(Us, PAWN)) & Center & pos.pieces(Them, PAWN)))
+                else if (relative_rank(Us, s) < RANK_4 && more_than_one(attacks_bb<BISHOP>(s, pos.pieces(Us, PAWN)) & Center & pos.pieces(Them, PAWN)))
                     score -= LongDiagonalBishop;
             }
 
