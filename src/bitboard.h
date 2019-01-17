@@ -197,6 +197,12 @@ inline Bitboard adjacent_files_bb(File f) {
   return shift<EAST>(FileBB[f]) | shift<WEST>(FileBB[f]);
 }
 
+inline Bitboard wide_adjacent_files_bb(File f) {
+	Bitboard east = shift<EAST>(FileBB[f]);
+	Bitboard west = shift<WEST>(FileBB[f]);
+	return east | west | shift<EAST>(east) | shift<WEST>(west);
+}
+
 
 /// between_bb() returns a bitboard representing all the squares between the two
 /// given ones. For instance, between_bb(SQ_C4, SQ_F7) returns a bitboard with
