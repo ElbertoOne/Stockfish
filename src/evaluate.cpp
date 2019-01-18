@@ -464,6 +464,19 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
+    if (relative_rank(Us, ksq) < RANK_3 && (pos.count<QUEEN>(Them) > 0 || pos.count<ROOK>(Them) > 0))
+    {
+        b = pe->fawn_pawns(Them) & kingFlank /*& weak*/;
+        b &= ~attackedBy[Us][ALL_PIECES] | (attackedBy[Them][ALL_PIECES] & ~attackedBy2[Us]);
+
+        while (b)
+        {
+		    Square s = pop_lsb(&b);
+		    if (distance(ksq, s) < 3)
+                kingDanger += 100;
+	    }
+    }
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
