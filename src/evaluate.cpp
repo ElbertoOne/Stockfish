@@ -466,8 +466,7 @@ namespace {
 
     if (relative_rank(Us, ksq) < RANK_3 && (pos.count<QUEEN>(Them) > 0 || pos.count<ROOK>(Them) > 0))
     {
-        b = pe->fawn_pawns(Them) & kingFlank /*& weak*/;
-        b &= ~attackedBy[Us][ALL_PIECES] | (attackedBy[Them][ALL_PIECES] & ~attackedBy2[Us]);
+        b = pe->fawn_pawns(Them) & kingFlank & weak;
 
         while (b)
         {
