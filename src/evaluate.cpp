@@ -466,13 +466,13 @@ namespace {
 
     if (relative_rank(Us, ksq) < RANK_3 && (pos.count<QUEEN>(Them) > 0 || pos.count<ROOK>(Them) > 0))
     {
-        b = pe->fawn_pawns(Them) & kingFlank & weak;
+        b = pe->fawn_pawns(Them) & kingFlank & (weak | ~attackedBy[Us][ALL_PIECES]);
 
         while (b)
         {
 		    Square s = pop_lsb(&b);
 		    if (distance(ksq, s) < 3)
-                kingDanger += 100;
+                kingDanger += 50;
 	    }
     }
 
