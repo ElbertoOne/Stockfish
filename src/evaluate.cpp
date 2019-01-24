@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -670,7 +671,24 @@ namespace {
 
                 bonus += make_score(k * w, k * w);
             }
+            else if (r == RANK_7 && !pos.pieces(Us, KNIGHT)) //queening square is occupied and there are no knights
+            {
+                bool hasBishops = false;
+                b = pos.pieces(Us, BISHOP);
+                while (b)
+                {
+                    Square sb = pop_lsb(&b);
+                    if (!opposite_colors(blockSq, sb))
+                    {
+                        hasBishops = true;
+                        break;
+                    }
+                }
+                if (!hasBishops)
+                    bonus = bonus / 2;
+            }
         } // rank > RANK_3
+
 
         // Scale down bonus for candidate passers which need more than one
         // pawn push to become passed, or have a pawn in front of them.
