@@ -23,7 +23,6 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -674,10 +673,10 @@ namespace {
             else if (r == RANK_7 && !pos.pieces(Us, KNIGHT)) //queening square is occupied and there are no knights
             {
                 bool hasBishops = false;
-                b = pos.pieces(Us, BISHOP);
-                while (b)
+                Bitboard bbs = pos.pieces(Us, BISHOP);
+                while (bbs)
                 {
-                    Square sb = pop_lsb(&b);
+                    Square sb = pop_lsb(&bbs);
                     if (!opposite_colors(blockSq, sb))
                     {
                         hasBishops = true;
