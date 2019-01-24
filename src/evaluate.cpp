@@ -626,11 +626,11 @@ namespace {
         int r = relative_rank(Us, s);
 
         Score bonus = PassedRank[r];
+        Square blockSq = s + Up;
 
         if (r > RANK_3)
         {
             int w = (r-2) * (r-2) + 2;
-            Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
             bonus += make_score(0, (  king_proximity(Them, blockSq) * 5
@@ -670,22 +670,6 @@ namespace {
 
                 bonus += make_score(k * w, k * w);
             }
-            else if (r == RANK_7 && !pos.pieces(Us, KNIGHT)) //queening square is occupied and there are no knights
-            {
-                bool hasBishops = false;
-                Bitboard bbs = pos.pieces(Us, BISHOP);
-                while (bbs)
-                {
-                    Square sb = pop_lsb(&bbs);
-                    if (!opposite_colors(blockSq, sb))
-                    {
-                        hasBishops = true;
-                        break;
-                    }
-                }
-                if (!hasBishops)
-                    bonus = bonus / 2;
-            }
         } // rank > RANK_3
 
 
@@ -694,6 +678,23 @@ namespace {
         if (   !pos.pawn_passed(Us, s + Up)
             || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
             bonus = bonus / 2;
+        // Scale down bonus if queening square is defended and there are no minors that could help with queening
+        else if (r == RANK_7 && !pos.pieces(Us, KNIGHT) && ((attackedBy[Them][ALL_PIECES] | pos.pieces(Them)) & blockSq))
+        {
+            bool hasBishops = false;
+            Bitboard bbs = pos.pieces(Us, BISHOP);
+            while (bbs)
+            {
+                Square sb = pop_lsb(&bbs);
+                if (!opposite_colors(blockSq, sb))
+                {
+                    hasBishops = true;
+                    break;
+                }
+            }
+            if (!hasBishops)
+                bonus = bonus / 2;
+        }
 
         score += bonus + PassedFile[file_of(s)];
     }
