@@ -550,6 +550,21 @@ namespace {
         score += Hanging * popcount(weak & b);
     }
 
+	// Also consider hidden threats: if we attack an undefended enemy, another
+	// undefended enemy may be present behind that one.
+    weak = pos.pieces(Them) & ~attackedBy[Them][ALL_PIECES];
+    while (weak)
+    {
+		Square s = pop_lsb(&weak);
+		if (!(attackedBy[Us][ALL_PIECES] & s))
+		{
+			Bitboard pinners;
+			Bitboard blockers = pos.slider_blockers(pos.pieces(Us, ROOK, BISHOP), s, pinners);
+			if (blockers & weak)
+			    score += Hanging;
+		}
+	}
+
     // Bonus for restricting their piece moves
     restricted =   attackedBy[Them][ALL_PIECES]
                 & ~stronglyProtected
