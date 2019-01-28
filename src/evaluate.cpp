@@ -553,13 +553,14 @@ namespace {
 	// Also consider hidden threats: if we attack an undefended enemy, another
 	// undefended enemy may be present behind that one.
     weak = pos.pieces(Them) & ~attackedBy[Them][ALL_PIECES];
+    Bitboard sliders = pos.pieces(Us, ROOK, BISHOP) | pos.pieces(Us, QUEEN);
     while (weak)
     {
 		Square s = pop_lsb(&weak);
 		if (!(attackedBy[Us][ALL_PIECES] & s))
 		{
 			Bitboard pinners;
-			Bitboard blockers = pos.slider_blockers(pos.pieces(Us, ROOK, BISHOP), s, pinners);
+			Bitboard blockers = pos.slider_blockers(sliders, s, pinners);
 			if (blockers & weak)
 			    score += Hanging;
 		}
