@@ -963,6 +963,19 @@ moves_loop: // When in check, search starts from here
       else if (type_of(move) == CASTLING)
           extension = ONE_PLY;
 
+      else if (type_of(movedPiece) == PAWN)
+      {
+          Square toSq = to_sq(move);
+          Square kSq = pos.square<KING>(~us);
+          Direction Up = (us == WHITE ? NORTH   : SOUTH);
+          if (   relative_rank(us, kSq) == RANK_8
+              && relative_rank(us, toSq) == RANK_6
+              && distance(toSq, kSq) == 2
+              && distance<File>(toSq, kSq) < 2
+              && pos.pieces(~us, PAWN) & (toSq + Up))
+              extension = ONE_PLY;
+      }
+
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
