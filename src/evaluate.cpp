@@ -481,13 +481,8 @@ namespace {
 
     bool kingRingPawn = false;
 
-    if (relative_rank(Us, ksq) == RANK_1)
-    {
-        if (pos.pieces(Them, PAWN) & kingRing[Us] & ~attackedBy[Us][ALL_PIECES])
-        {
-            kingRingPawn = true;
-        }
-    }
+    if (pos.pieces(Them, PAWN) & kingRing[Us] & ~attackedBy[Us][ALL_PIECES])
+        kingRingPawn = popcount(mobilityArea[Us] & attackedBy[Us][KING]) < 2;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -499,7 +494,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 -   25;
+                 -   30;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
