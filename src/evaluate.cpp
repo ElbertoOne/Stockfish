@@ -457,7 +457,7 @@ namespace {
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
-    Bitboard BishopCheck =  b2 
+    Bitboard BishopCheck =  b2
                           & attackedBy[Them][BISHOP]
                           & safe
                           & ~QueenCheck;
@@ -479,12 +479,23 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
+    bool kingRingPawn = false;
+
+    if (relative_rank(Us, ksq) == RANK_1)
+    {
+        if (pos.pieces(Them, PAWN) & kingRing[Us] & ~attackedBy[Us][ALL_PIECES])
+        {
+            kingRingPawn = true;
+        }
+    }
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +   5 * tropism * tropism / 16
+                 + 100 * kingRingPawn
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
