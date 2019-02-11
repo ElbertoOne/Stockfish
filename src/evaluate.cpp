@@ -75,6 +75,7 @@ namespace {
 
   constexpr Bitboard QueenSide   = FileABB | FileBBB | FileCBB | FileDBB;
   constexpr Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
+  constexpr Bitboard FlankFiles  = FileBBB | FileCBB | FileFBB | FileGBB;
   constexpr Bitboard KingSide    = FileEBB | FileFBB | FileGBB | FileHBB;
   constexpr Bitboard Center      = (FileDBB | FileEBB) & (Rank4BB | Rank5BB);
 
@@ -713,9 +714,20 @@ namespace {
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
-    constexpr Bitboard SpaceMask =
+    Bitboard SpaceMask =
       Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
                   : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
+
+    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN));
+    Bitboard b = (FileEBB | FileDBB);
+    if (more_than_one(blocked & b))
+        SpaceMask =
+          Us == WHITE ? FlankFiles & (Rank2BB | Rank3BB | Rank4BB)
+                      : FlankFiles & (Rank7BB | Rank6BB | Rank5BB);
+    else
+        SpaceMask =
+          Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
+                      : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
 
     // Find the available squares for our pieces inside the area defined by SpaceMask
     Bitboard safe =   SpaceMask
