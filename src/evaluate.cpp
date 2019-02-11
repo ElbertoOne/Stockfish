@@ -75,7 +75,7 @@ namespace {
 
   constexpr Bitboard QueenSide   = FileABB | FileBBB | FileCBB | FileDBB;
   constexpr Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
-  constexpr Bitboard FlankFiles  = FileBBB | FileCBB | FileFBB | FileGBB;
+  constexpr Bitboard FlankFiles  = FileBBB | CenterFiles | FileGBB;
   constexpr Bitboard KingSide    = FileEBB | FileFBB | FileGBB | FileHBB;
   constexpr Bitboard Center      = (FileDBB | FileEBB) & (Rank4BB | Rank5BB);
 
