@@ -718,7 +718,7 @@ namespace {
 
     Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN));
     Bitboard b = (FileEBB | FileDBB);
-    if (more_than_one(blocked & b))
+    if (more_than_one(blocked & b & ~attackedBy[Them][PAWN]))
         SpaceMask =
           Us == WHITE ? FlankFiles & (Rank2BB | Rank3BB | Rank4BB)
                       : FlankFiles & (Rank7BB | Rank6BB | Rank5BB);
