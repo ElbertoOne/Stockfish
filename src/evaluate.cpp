@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -363,8 +364,14 @@ namespace {
         if (Pt == ROOK)
         {
             // Bonus for aligning rook with enemy pawns on the same rank/file
-            if (relative_rank(Us, s) >= RANK_5)
+            Rank rookRank = relative_rank(Us, s);
+            if (rookRank >= RANK_5)
+            {
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
+
+                if (relative_rank(Us, pos.square<KING>(Them)) == rookRank && (rank_bb(s) & pos.pieces(Them, PAWN)))
+                    score += RookOnPawn;
+            }
 
             // Bonus for rook on an open or semi-open file
             if (pe->semiopen_file(Us, file_of(s)))
