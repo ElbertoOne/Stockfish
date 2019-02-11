@@ -369,7 +369,7 @@ namespace {
             {
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
 
-                if (relative_rank(Us, pos.square<KING>(Them)) == rookRank && (rank_bb(s) & pos.pieces(Them, PAWN)))
+                if (rookRank == relative_rank(Us, pos.square<KING>(Them)))
                     score += RookOnPawn;
             }
 
