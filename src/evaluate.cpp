@@ -164,6 +164,7 @@ namespace {
   constexpr Score WeakQueen          = S( 49, 15);
   constexpr Score WeakUnopposedPawn  = S( 12, 23);
   constexpr Score Outpost            = S(  9,  3);
+  constexpr Score PawnsOnKingFlank   = S( 15,  0);
 
 #undef S
 
@@ -399,8 +400,11 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+    constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Bitboard Camp2 = (Us == WHITE ? Rank2BB : Rank7BB);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -491,6 +495,14 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
         score -= PawnlessFlank;
+    else
+    {
+        // Penalty for pawns on the start rank that can't move.
+        b = pos.pieces(Us, PAWN) & KingFlank[file_of(ksq)] & Camp2;
+        Bitboard blocked = b & shift<Down>(pos.pieces(Them, PAWN));
+        Bitboard hindered = shift<Up>(b) & attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN];
+        score -= PawnsOnKingFlank * popcount(blocked | hindered);
+    }
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
