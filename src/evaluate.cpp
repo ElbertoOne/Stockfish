@@ -473,11 +473,6 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
-    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN));
-    b = (FileEBB | FileDBB);
-    // Increase kingFlankAttacks count in case of blocked center.
-    if (more_than_one(blocked & b & ~attackedBy[Them][PAWN]))
-        kingFlankAttacks *= 1.5;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -497,6 +492,12 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
         score -= PawnlessFlank;
+
+    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN));
+    b = (FileEBB | FileDBB);
+    // Increase kingFlankAttacks count in case of blocked center.
+    if (more_than_one(blocked & b & ~attackedBy[Them][PAWN]))
+        kingFlankAttacks *= 1.5;
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
