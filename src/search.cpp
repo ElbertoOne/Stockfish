@@ -1059,7 +1059,7 @@ moves_loop: // When in check, search starts from here
                              - 4000;
 
               // Decrease reduction for captures that improve stats
-              if (ss->statScore < 0 && (ss-2)->statScore < ss->statScore && pos.capture(move))
+              if (ss->statScore < 0 && (ss-1)->statScore > 0 && (ss-2)->statScore < ss->statScore && pos.capture(move))
                   r -= ONE_PLY;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
