@@ -464,7 +464,7 @@ namespace {
     else
         unsafeChecks |= b;
 
-    b = attackedBy[Us][KING] & forward_ranks_bb(Us, ksq) & adjacent_files_bb(file_of(ksq));
+    b = attackedBy[Us][KING] & pawn_attack_span(Us, ksq);
     b &= (attackedBy[Them][PAWN] & pos.pieces(Us)) | (shift<Down>(pos.pieces(Them, PAWN)) & ~pos.pieces());
 
     if (b & ~attackedBy2[Us] & attackedBy2[Them])
