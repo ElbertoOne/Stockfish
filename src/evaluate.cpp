@@ -470,7 +470,7 @@ namespace {
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
-    Bitboard b3 = (attackedBy[Them][PAWN] | pos.pieces(Them, PAWN)) & kingRing[Us] & ~attackedBy[Us][ALL_PIECES];
+    Bitboard b3 = attackedBy[Them][PAWN] & kingRing[Us] & ~attackedBy2[Us];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2) + popcount(b3);
 
