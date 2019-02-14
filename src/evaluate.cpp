@@ -96,6 +96,7 @@ namespace {
   constexpr int RookSafeCheck   = 1080;
   constexpr int BishopSafeCheck = 635;
   constexpr int KnightSafeCheck = 790;
+  constexpr int PawnSafeCheck   = 500;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -399,6 +400,7 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
@@ -459,6 +461,14 @@ namespace {
 
     if (b & safe)
         kingDanger += KnightSafeCheck;
+    else
+        unsafeChecks |= b;
+
+    b = attackedBy[Us][KING] & forward_ranks_bb(Us, ksq) & adjacent_files_bb(file_of(ksq));
+    b &= (attackedBy[Them][PAWN] & pos.pieces(Us)) | (shift<Down>(pos.pieces(Them, PAWN)) & ~pos.pieces());
+
+    if (b & ~attackedBy2[Us] & attackedBy2[Them])
+        kingDanger += PawnSafeCheck;
     else
         unsafeChecks |= b;
 
