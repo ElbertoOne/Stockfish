@@ -1049,7 +1049,6 @@ moves_loop: // When in check, search starts from here
               // castling moves, because they are coded as "king captures rook" and
               // hence break make_move(). (~5 Elo)
               else if (    type_of(move) == NORMAL
-                       && !(!pos.capture((ss-2)->currentMove) && pos.capture((ss-1)->currentMove) && !pos.capture(move))
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
                   r -= 2 * ONE_PLY;
 
@@ -1058,6 +1057,10 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4000;
+
+              // Decrease reduction for captures that improve stats
+              if (ss->statScore < 0 && (ss-2)->statScore < ss->statScore && pos.capture(move))
+                  r -= ONE_PLY;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
