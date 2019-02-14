@@ -470,14 +470,14 @@ namespace {
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
+    Bitboard b3 = attackedBy[Them][PAWN] & kingRing[Us] & ~attackedBy[Us][ALL_PIECES];
 
-    int kingFlankAttacks = popcount(b1) + popcount(b2);
+    int kingFlankAttacks = popcount(b1) + popcount(b2) + 2 * popcount(b3);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                 + 100 * bool(attackedBy[Them][PAWN] & kingRing[Us] & ~attackedBy[Us][ALL_PIECES])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
