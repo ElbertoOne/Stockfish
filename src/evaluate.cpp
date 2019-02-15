@@ -399,7 +399,6 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    //constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
@@ -510,7 +509,6 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
-    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
@@ -584,7 +582,7 @@ namespace {
 
     // Also bonus for pawns that can check their king
     Bitboard b1 = PawnAttacks[Them][pos.square<KING>(Them)];
-    b1 &= (attackedBy[Us][PAWN] & pos.pieces(Them)) | (shift<Down>(pos.pieces(Us, PAWN)) & ~pos.pieces());
+    b1 &= (attackedBy[Us][PAWN] & pos.pieces(Them)) | (shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces());
     b1 &= ~attackedBy2[Them] & attackedBy2[Us];
 
     score += ThreatByPawnPush * popcount(b | b1);
