@@ -582,7 +582,7 @@ namespace {
 
     // Also bonus for pawns that can check their king
     Bitboard b1 = PawnAttacks[Them][pos.square<KING>(Them)] & ~attackedBy2[Them] & attackedBy2[Us];
-    b |= b1 & shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
+    //b |= b1 & shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
 
     score += ThreatByPawnPush * popcount(b);
 
@@ -590,7 +590,7 @@ namespace {
     b = pos.pieces(Us, PAWN) & safe;
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-    //b |= b1 & attackedBy[Us][PAWN] & pos.pieces(Them);
+    b |= b1 & attackedBy[Us][PAWN] & pos.pieces(Them);
 
     score += ThreatBySafePawn * popcount(b);
 
