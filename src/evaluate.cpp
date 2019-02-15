@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -581,15 +582,17 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
 
     // Also bonus for pawns that can check their king
-    Bitboard b1 = PawnAttacks[Them][pos.square<KING>(Them)] & ~attackedBy2[Them] & attackedBy[Us][ALL_PIECES];
-    b1 &= (attackedBy[Us][PAWN] & pos.pieces(Them) & attackedBy2[Us]) | (shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces());
+    Bitboard b1 = PawnAttacks[Them][pos.square<KING>(Them)] & ~attackedBy2[Them] & attackedBy2[Us];
+    b |= b1 & shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
 
-    score += ThreatByPawnPush * popcount(b | b1);
+    score += ThreatByPawnPush * popcount(b);
 
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
+    b |= b1 & attackedBy[Us][PAWN] & pos.pieces(Them);
+
     score += ThreatBySafePawn * popcount(b);
 
     // Bonus for threats on the next moves against enemy queen
