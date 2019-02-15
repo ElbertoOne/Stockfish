@@ -96,7 +96,7 @@ namespace {
   constexpr int RookSafeCheck   = 1080;
   constexpr int BishopSafeCheck = 635;
   constexpr int KnightSafeCheck = 790;
-  constexpr int PawnSafeCheck   = 500;
+  //constexpr int PawnSafeCheck   = 500;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -400,7 +400,7 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+    //constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
@@ -464,13 +464,13 @@ namespace {
     else
         unsafeChecks |= b;
 
-    b = attackedBy[Us][KING] & pawn_attack_span(Us, ksq);
+    /*b = PawnAttacks[Us][ksq];
     b &= (attackedBy[Them][PAWN] & pos.pieces(Us)) | (shift<Down>(pos.pieces(Them, PAWN)) & ~pos.pieces());
 
     if (b & ~attackedBy2[Us] & attackedBy2[Them])
         kingDanger += PawnSafeCheck;
     else
-        unsafeChecks |= b;
+        unsafeChecks |= b;*/
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
@@ -519,6 +519,7 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
@@ -589,7 +590,13 @@ namespace {
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
-    score += ThreatByPawnPush * popcount(b);
+
+    // Also bonus for pawns that can check their king
+    Bitboard b1 = PawnAttacks[Them][pos.square<KING>(Them)];
+    b1 &= (attackedBy[Us][PAWN] & pos.pieces(Them)) | (shift<Down>(pos.pieces(Us, PAWN)) & ~pos.pieces());
+    b1 &= ~attackedBy2[Them] & attackedBy2[Us];
+
+    score += ThreatByPawnPush * popcount(b | b1);
 
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
