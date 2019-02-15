@@ -96,7 +96,6 @@ namespace {
   constexpr int RookSafeCheck   = 1080;
   constexpr int BishopSafeCheck = 635;
   constexpr int KnightSafeCheck = 790;
-  //constexpr int PawnSafeCheck   = 500;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -463,14 +462,6 @@ namespace {
         kingDanger += KnightSafeCheck;
     else
         unsafeChecks |= b;
-
-    /*b = PawnAttacks[Us][ksq];
-    b &= (attackedBy[Them][PAWN] & pos.pieces(Us)) | (shift<Down>(pos.pieces(Them, PAWN)) & ~pos.pieces());
-
-    if (b & ~attackedBy2[Us] & attackedBy2[Them])
-        kingDanger += PawnSafeCheck;
-    else
-        unsafeChecks |= b;*/
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
