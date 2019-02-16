@@ -568,12 +568,12 @@ namespace {
     score += RestrictedPiece * popcount(restricted);
 
     // Bonus for rooks that are only supported by a pawn and both are under our attack with different pieces.
-    b = pos.pieces(Them, ROOK) & attackedBy[Them][PAWN] & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them];
+    b = pos.pieces(Them, ROOK, KNIGHT) & attackedBy[Them][PAWN] & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them];
     while (b)
     {
 		Square s = pop_lsb(&b);
 		Bitboard attackers = pos.attackers_to(s) & pos.pieces(Us);
-		Bitboard b1 = pos.attackers_to(s) & attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][PAWN] & ~attackedBy2[Them];
+		Bitboard b1 = pos.attackers_to(s) & attackedBy[Us][PAWN] & ~attackedBy[Them][PAWN] & ~attackedBy2[Them];
 		while (b1)
 		{
 			Square s1 = pop_lsb(&b1);
