@@ -572,13 +572,11 @@ namespace {
     while (b)
     {
 		Square s = pop_lsb(&b);
-		Bitboard attackers = pos.attackers_to(s) & pos.pieces(Us);
 		Bitboard b1 = pos.attackers_to(s) & attackedBy[Us][PAWN] & ~attackedBy[Them][PAWN] & ~attackedBy2[Them];
 		while (b1)
 		{
 			Square s1 = pop_lsb(&b1);
-			Bitboard attackers1 = pos.attackers_to(s1) & pos.pieces(Us);
-			if ((PawnAttacks[Them][s1] & s) && !(attackers & attackers1))
+			if ((PawnAttacks[Them][s1] & s) && !(pos.attackers_to(s) & pos.attackers_to(s1) & pos.pieces(Us)))
 			    score += Hanging;
 		}
 	}
