@@ -713,9 +713,22 @@ namespace {
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
-    constexpr Bitboard SpaceMask =
-      Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
-                  : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
+
+    int openFiles = popcount(pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK]);
+
+    Bitboard SpaceMask;
+    if (!openFiles)
+    {
+        SpaceMask =
+          Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB | Rank5BB)
+                      : CenterFiles & (Rank7BB | Rank6BB | Rank5BB | Rank4BB);
+    }
+    else
+    {
+        SpaceMask =
+          Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
+                      : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
+    }
 
     // Find the available squares for our pieces inside the area defined by SpaceMask
     Bitboard safe =   SpaceMask
@@ -726,12 +739,6 @@ namespace {
     Bitboard behind = pos.pieces(Us, PAWN);
     behind |= shift<Down>(behind);
     behind |= shift<Down>(shift<Down>(behind));
-
-    int openFiles = popcount(pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK]);
-
-    // If no open files, add an extra square behind a friendly pawn.
-    if (!openFiles)
-        behind |= shift<Down>(shift<Down>(shift<Down>(behind)));
 
     int bonus = popcount(safe) + popcount(behind & safe);
     int weight =  pos.count<ALL_PIECES>(Us)
