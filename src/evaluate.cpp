@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -399,6 +400,7 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
@@ -491,6 +493,19 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
         score -= PawnlessFlank;
+
+    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN)) & ~attackedBy[Them][PAWN];
+    // Increase kingFlankAttacks count in case of blocked center.
+    if (more_than_one(blocked & (FileEBB | FileDBB)) && !(pe->semiopenFiles[WHITE] | pe->semiopenFiles[BLACK]))
+    {
+        if (QueenSide & ksq)
+            b = KingSide & blocked;
+        else
+            b = QueenSide & blocked;
+
+        int blockedCount = popcount(b);
+            kingFlankAttacks *= 1 + 0.2 * blockedCount * blockedCount;
+    }
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
