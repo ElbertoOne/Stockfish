@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -566,18 +567,18 @@ namespace {
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
 
-    // Bonus for rooks that are only supported by a pawn and both are under our attack with different pieces.
-    b = pos.pieces(Them, PAWN) & attackedBy[Us][PAWN] & ~attackedBy[Them][PAWN] & ~attackedBy2[Them];
+    // Bonus for rooks that are only supported by a pawn and both are under our attack.
+    b = attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them];
+    Bitboard b1 = pos.pieces(Them, ROOK, KNIGHT) & b & pe->pawn_attacks(Them);
 
-    while (b)
+    if (b1)
     {
-        Square s = pop_lsb(&b);
-        Bitboard b1 = pos.pieces(Them, ROOK, KNIGHT) & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them] & PawnAttacks[Them][s];
+        Bitboard b2 = pos.pieces(Them, PAWN) & b & ~attackedBy[Them][PAWN] & ~attackedBy[Them][BISHOP] & ~attackedBy[Them][QUEEN];
 
         while (b1)
         {
             Square s1 = pop_lsb(&b1);
-            if (!(pos.attackers_to(s) & pos.attackers_to(s1) & pos.pieces(Us)))
+            if (pos.attackers_to(s1) & b2)
                 score += Hanging;
         }
     }
