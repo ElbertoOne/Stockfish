@@ -727,9 +727,15 @@ namespace {
     behind |= shift<Down>(behind);
     behind |= shift<Down>(shift<Down>(behind));
 
+    int openFiles = popcount(pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK]);
+
+    // If no open files, add an extra square behind a friendly pawn.
+    if (!openFiles)
+        behind |= shift<Down>(shift<Down>(shift<Down>(behind)));
+
     int bonus = popcount(safe) + popcount(behind & safe);
     int weight =  pos.count<ALL_PIECES>(Us)
-                - 2 * popcount(pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK]);
+                - 2 * openFiles;
 
     Score score = make_score(bonus * weight * weight / 16, 0);
 
