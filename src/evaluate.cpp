@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -565,6 +566,36 @@ namespace {
                 & ~stronglyProtected
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
+
+    // Bonus for rooks that are only supported by a pawn and both are under our attack with different pieces.
+    /*b = pos.pieces(Them, ROOK, KNIGHT) & attackedBy[Them][PAWN] & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them];
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+        Bitboard b1 = pos.attackers_to(s) & pos.pieces(Them, PAWN) & attackedBy[Us][PAWN] & ~attackedBy[Them][PAWN] & ~attackedBy2[Them];
+
+        while (b1)
+        {
+            Square s1 = pop_lsb(&b1);
+            if ((PawnAttacks[Them][s1] & s) && !(pos.attackers_to(s) & pos.attackers_to(s1) & pos.pieces(Us)))
+                score += Hanging;
+        }
+    }*/
+
+    b = /*pos.attackers_to(s) &*/ pos.pieces(Them, PAWN) & attackedBy[Us][PAWN] & ~attackedBy[Them][PAWN] & ~attackedBy2[Them];
+
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+        Bitboard b1 = pos.pieces(Them, ROOK, KNIGHT) & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them] & PawnAttacks[Them][s];
+
+        while (b1)
+        {
+            Square s1 = pop_lsb(&b1);
+            if (/*(PawnAttacks[Them][s1] & s) &&*/ !(pos.attackers_to(s) & pos.attackers_to(s1) & pos.pieces(Us)))
+                score += Hanging;
+        }
+    }
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
