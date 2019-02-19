@@ -526,7 +526,7 @@ namespace {
     defended = nonPawnEnemies & stronglyProtected;
 
     // Enemies not strongly protected and under our attack
-    weak = pos.pieces(Them) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
+    weak = pos.pieces(Them) & (~stronglyProtected | pos.blockers_for_king(Them)) & attackedBy[Us][ALL_PIECES];
 
     // Safe or protected squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
