@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
 #include "bitboard.h"
 #include "pawns.h"
@@ -57,6 +58,14 @@ namespace {
     { V(  4), V( 52), V(162), V(37), V( 7), V(-14), V( -2) },
     { V(-10), V(-14), V( 90), V(15), V( 2), V( -7), V(-16) }
   };
+
+  Value BlockedStormThird[int(FILE_NB) / 2][2] = {
+    { V( 66), V(66) },
+    { V( 66), V(66) },
+    { V( 66), V(66) },
+    { V( 66), V(66) }
+  };
+  TUNE(SetRange(0, 200), BlockedStormThird);
 
   #undef S
   #undef V
@@ -200,6 +209,7 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
 
   constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
   constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+  constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
   constexpr Bitboard  BlockRanks = (Us == WHITE ? Rank1BB | Rank2BB : Rank8BB | Rank7BB);
 
   Bitboard b = pos.pieces(PAWN) & ~forward_ranks_bb(Them, ksq);
@@ -216,12 +226,23 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
       Rank ourRank = b ? relative_rank(Us, backmost_sq(Us, b)) : RANK_1;
 
       b = theirPawns & file_bb(f);
-      Rank theirRank = b ? relative_rank(Us, frontmost_sq(Them, b)) : RANK_1;
+      Square frontMostSq = frontmost_sq(Them, b);
+      Rank theirRank = b ? relative_rank(Us, frontMostSq) : RANK_1;
 
       int d = std::min(f, ~f);
       safety += ShelterStrength[d][ourRank];
-      safety -= (ourRank && (ourRank == theirRank - 1)) ? 66 * (theirRank == RANK_3)
-                                                        : UnblockedStorm[d][theirRank];
+
+      if (ourRank && (ourRank == theirRank - 1))
+      {
+          if (theirRank == RANK_3)
+          {
+              Bitboard bb = shift<Up>(ourPawns);
+              bb = shift<WEST>(bb) | shift<EAST>(bb);
+              safety -= BlockedStormThird[distance<File>(ksq, frontMostSq)][!(bb & frontMostSq)];
+          }
+      }
+      else
+          safety -= UnblockedStorm[d][theirRank];
   }
 
   return safety;
