@@ -216,13 +216,15 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
       Rank ourRank = b ? relative_rank(Us, backmost_sq(Us, b)) : RANK_1;
 
       b = theirPawns & file_bb(f);
-      Rank theirRank = b ? relative_rank(Us, frontmost_sq(Them, b)) : RANK_1;
+      Square frontMostSq = frontmost_sq(Them, b);
+      Rank theirRank = b ? relative_rank(Us, frontMostSq) : RANK_1;
 
-      bool nearKingSq = distance<File>(ksq, frontmost_sq(Them, b)) < 2;
+      Bitboard bb = ourPawns & adjacent_files_bb(file_of(frontMostSq)) & shift<Down>(rank_bb(frontMostSq));
+      bool nearKingSq = distance<File>(ksq, frontMostSq) < 2 && !(bb);
 
       int d = std::min(f, ~f);
       safety += ShelterStrength[d][ourRank];
-      safety -= (ourRank && (ourRank == theirRank - 1)) ? 66 * ((theirRank == RANK_3) + nearKingSq)
+      safety -= (ourRank && (ourRank == theirRank - 1)) ? 44 * ((theirRank == RANK_3) + nearKingSq)
                                                         : UnblockedStorm[d][theirRank];
   }
 
