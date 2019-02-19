@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -526,10 +527,19 @@ namespace {
     defended = nonPawnEnemies & stronglyProtected;
 
     // Enemies not strongly protected and under our attack
-    weak = pos.pieces(Them) & (~stronglyProtected | pos.blockers_for_king(Them)) & attackedBy[Us][ALL_PIECES];
+    weak = pos.pieces(Them) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
 
     // Safe or protected squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
+
+    // Consider pieces weak if they are attacked by one of our blockers for the enemy king.
+    b = safe & pos.blockers_for_king(Them) & ~pos.pieces(PAWN) & ~pos.pieces(Them);
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+        PieceType pt = type_of(pos.piece_on(s));
+        weak |= pos.attacks_from(pt, s) & pos.pieces(Them);
+    }
 
     // Bonus according to the kind of attacking pieces
     if (defended | weak)
