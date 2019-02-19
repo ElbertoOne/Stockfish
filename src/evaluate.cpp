@@ -535,7 +535,7 @@ namespace {
     b = pos.blockers_for_king(Them);
     if (b)
     {
-        b &= safe & (pos.pieces(Us) ^ pos.pieces(Us, PAWN, KING));
+        b &= safe & pos.pieces(Us);
         while (b)
         {
             Square s = pop_lsb(&b);
@@ -570,7 +570,7 @@ namespace {
 
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
-        score += Hanging * popcount((weak & b));
+        score += Hanging * popcount(weak & b);
     }
 
     // Bonus for restricting their piece moves
