@@ -512,7 +512,6 @@ namespace {
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
-    Bitboard attackedByKingBlocker = 0;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -532,17 +531,21 @@ namespace {
     // Safe or protected squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
 
-    // Consider pieces hanging if they are attacked by one of our blockers for the enemy king.
-    b = safe & pos.blockers_for_king(Them) & ~pos.pieces(PAWN) & ~pos.pieces(Them);
-    while (b)
+    // Consider pieces weak if they are attacked by one of our blockers for the enemy king.
+    b = pos.blockers_for_king(Them);
+    if (b)
     {
-        Square s = pop_lsb(&b);
-        PieceType pt = type_of(pos.piece_on(s));
-        attackedByKingBlocker |= pos.attacks_from(pt, s) & pos.pieces(Them);
+        b &= safe & (pos.pieces(Us) ^ pos.pieces(Us, PAWN, KING));
+        while (b)
+        {
+            Square s = pop_lsb(&b);
+            PieceType pt = type_of(pos.piece_on(s));
+            weak |= pos.attacks_from(pt, s) & pos.pieces(Them);
+        }
     }
 
     // Bonus according to the kind of attacking pieces
-    if (defended | weak | attackedByKingBlocker)
+    if (defended | weak)
     {
         b = (defended | weak) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
         while (b)
@@ -567,7 +570,7 @@ namespace {
 
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
-        score += Hanging * popcount((weak & b) | attackedByKingBlocker);
+        score += Hanging * popcount((weak & b));
     }
 
     // Bonus for restricting their piece moves
