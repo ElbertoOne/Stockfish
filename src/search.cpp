@@ -1028,8 +1028,8 @@ moves_loop: // When in check, search starts from here
           Depth r = reduction<PvNode>(improving, depth, moveCount);
 
           // Decrease reduction if position is or has been on the PV
-          if (ttPv && !cutNode)
-              r -= ONE_PLY;
+          if (ttPv)
+              r -= (2 - cutNode) * ONE_PLY;
 
           // Decrease reduction if opponent's move count is high (~10 Elo)
           if ((ss-1)->moveCount > 15)
