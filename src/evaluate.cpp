@@ -846,6 +846,12 @@ namespace {
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
+    if (pe->preferredAttackingArea[WHITE])
+    {
+        score +=  make_score(15 * popcount(pe->preferredAttackingArea[WHITE] & attackedBy[WHITE][ALL_PIECES]), 0)
+                - make_score(15 * popcount(pe->preferredAttackingArea[BLACK] & attackedBy[BLACK][ALL_PIECES]), 0);
+    }
+
     score += initiative(eg_value(score));
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score

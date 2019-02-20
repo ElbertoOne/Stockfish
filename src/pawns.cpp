@@ -188,6 +188,45 @@ Entry* probe(const Position& pos) {
   e->asymmetry = popcount(  (e->passedPawns[WHITE]   | e->passedPawns[BLACK])
                           | (e->semiopenFiles[WHITE] ^ e->semiopenFiles[BLACK]));
 
+  e->preferredAttackingArea[WHITE] = 0;
+  e->preferredAttackingArea[BLACK] = 0;
+  if (!(e->semiopenFiles[WHITE] & e->semiopenFiles[BLACK]))
+  {
+      Bitboard centerFiles = (FileEBB | FileDBB);
+      Bitboard blockedWhite = pos.pieces(WHITE, PAWN) & shift<SOUTH>(pos.pieces(BLACK, PAWN));
+      Bitboard BlockRanksWhite = Rank3BB | Rank4BB;
+      Bitboard blockedBlack = pos.pieces(BLACK, PAWN) & shift<NORTH>(pos.pieces(WHITE, PAWN));
+      Bitboard BlockRanksBlack = Rank5BB | Rank6BB;
+      if (more_than_one(blockedWhite & centerFiles & BlockRanksWhite & ~e->pawnAttacks[BLACK]))
+      {
+          Square frontMostSq = frontmost_sq(BLACK, pos.pieces(BLACK, PAWN) & centerFiles);
+          if (FileEBB & frontMostSq)
+          {
+              e->preferredAttackingArea[WHITE] = (FileABB | FileBBB | FileCBB) & (Rank5BB | Rank6BB | Rank7BB | Rank8BB);
+              e->preferredAttackingArea[BLACK] = (FileFBB | FileGBB | FileHBB) & (Rank1BB | Rank2BB | Rank3BB | Rank4BB);
+          }
+          else
+          {
+              e->preferredAttackingArea[WHITE] = (FileFBB | FileGBB | FileHBB) & (Rank5BB | Rank6BB | Rank7BB | Rank8BB);
+              e->preferredAttackingArea[BLACK] = (FileABB | FileBBB | FileCBB) & (Rank1BB | Rank2BB | Rank3BB | Rank4BB);
+          }
+      }
+      else if (more_than_one(blockedBlack & centerFiles & BlockRanksBlack & ~e->pawnAttacks[WHITE]))
+      {
+          Square frontMostSq = frontmost_sq(WHITE, pos.pieces(WHITE, PAWN) & centerFiles);
+          if (FileEBB & frontMostSq)
+          {
+              e->preferredAttackingArea[WHITE] = (FileFBB | FileGBB | FileHBB) & (Rank5BB | Rank6BB | Rank7BB | Rank8BB);
+              e->preferredAttackingArea[BLACK] = (FileABB | FileBBB | FileCBB) & (Rank1BB | Rank2BB | Rank3BB | Rank4BB);
+          }
+          else
+          {
+              e->preferredAttackingArea[WHITE] = (FileABB | FileBBB | FileCBB) & (Rank5BB | Rank6BB | Rank7BB | Rank8BB);
+              e->preferredAttackingArea[BLACK] = (FileFBB | FileGBB | FileHBB) & (Rank1BB | Rank2BB | Rank3BB | Rank4BB);
+          }
+      }
+  }
+
   return e;
 }
 
