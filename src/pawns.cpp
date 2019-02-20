@@ -58,6 +58,13 @@ namespace {
     { V(-10), V(-14), V( 90), V(15), V( 2), V( -7), V(-16) }
   };
 
+  Value BlockedStormThird[int(FILE_NB) / 2][2] = {
+      { V( 60), V(74) },
+      { V( 58), V(66) },
+      { V( 66), V(68) },
+      { V( 60), V(66) }
+  };
+
   #undef S
   #undef V
 
@@ -219,13 +226,15 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
       Square frontMostSq = frontmost_sq(Them, b);
       Rank theirRank = b ? relative_rank(Us, frontMostSq) : RANK_1;
 
-      Bitboard bb = ourPawns & adjacent_files_bb(file_of(frontMostSq)) & shift<Down>(rank_bb(frontMostSq));
-      bool nearKingSq = distance<File>(ksq, frontMostSq) < 2 && !(bb);
-
       int d = std::min(f, ~f);
       safety += ShelterStrength[d][ourRank];
-      safety -= (ourRank && (ourRank == theirRank - 1)) ? 44 * ((theirRank == RANK_3) + nearKingSq)
-                                                        : UnblockedStorm[d][theirRank];
+      if (ourRank && (ourRank == theirRank - 1))
+      {
+          if (theirRank == RANK_3)
+              safety -= BlockedStormThird[distance<File>(ksq, frontMostSq)][!(pawn_attacks_bb<Us>(ourPawns) & frontMostSq)];
+      }
+      else
+          safety -= UnblockedStorm[d][theirRank];
   }
 
   return safety;
