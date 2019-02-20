@@ -499,8 +499,8 @@ namespace {
     {
         Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN));
         constexpr Bitboard BlockRanks = (Us == WHITE ? Rank3BB | Rank4BB : Rank5BB | Rank6BB);
-        b = (FileEBB | FileDBB) & BlockRanks;
-        if (more_than_one(blocked & b & ~attackedBy[Them][PAWN]))
+        b = (FileEBB | FileDBB);
+        if (more_than_one(blocked & b & BlockRanks & ~attackedBy[Them][PAWN]))
         {
             Square frontMostSq = frontmost_sq(Them, pos.pieces(Them, PAWN) & b);
             if (   (ksq & KingSide  && (FileEBB & frontMostSq))
