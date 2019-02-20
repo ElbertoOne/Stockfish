@@ -23,7 +23,6 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -494,17 +493,16 @@ namespace {
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
         score -= PawnlessFlank;
 
-    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN)) & ~attackedBy[Them][PAWN];
-    // Increase kingFlankAttacks count in case of blocked center.
-    if (more_than_one(blocked & (FileEBB | FileDBB)) && !(pe->semiopenFiles[WHITE] | pe->semiopenFiles[BLACK]))
+    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN));
+    b = (FileEBB | FileDBB);
+    // Increase kingFlankAttacks count in case of blocked center
+    // when the pawns are pointing in the direction of the king.
+    if (more_than_one(blocked & b & ~attackedBy[Them][PAWN]))
     {
-        if (QueenSide & ksq)
-            b = KingSide & blocked;
-        else
-            b = QueenSide & blocked;
-
-        int blockedCount = popcount(b);
-            kingFlankAttacks *= 1 + 0.2 * blockedCount * blockedCount;
+        Square frontMostSq = frontmost_sq(Them, pos.pieces(Them, PAWN) & b);
+        if (   (ksq & KingSide  && (FileEBB & frontMostSq))
+            || (ksq & QueenSide && (FileDBB & frontMostSq)))
+            kingFlankAttacks *= 1.5;
     }
 
     // Penalty if king flank is under attack, potentially moving toward the king
