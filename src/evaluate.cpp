@@ -848,8 +848,8 @@ namespace {
 
     if (pe->preferredAttackingArea[WHITE])
     {
-        score +=  make_score(15 * popcount(pe->preferredAttackingArea[WHITE] & attackedBy[WHITE][ALL_PIECES]), 0)
-                - make_score(15 * popcount(pe->preferredAttackingArea[BLACK] & attackedBy[BLACK][ALL_PIECES]), 0);
+        score +=  make_score(5 * popcount(pe->preferredAttackingArea[WHITE] & attackedBy[WHITE][ALL_PIECES]), 0)
+                - make_score(5 * popcount(pe->preferredAttackingArea[BLACK] & attackedBy[BLACK][ALL_PIECES]), 0);
     }
 
     score += initiative(eg_value(score));
