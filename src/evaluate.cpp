@@ -493,16 +493,20 @@ namespace {
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
         score -= PawnlessFlank;
 
-    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN));
-    b = (FileEBB | FileDBB);
-    // Increase kingFlankAttacks count in case of blocked center
+    // Increase kingFlankAttacks count in case of a closed position with a blocked center
     // when the pawns are pointing in the direction of the king.
-    if (more_than_one(blocked & b & ~attackedBy[Them][PAWN]))
+    if (!(pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK]))
     {
-        Square frontMostSq = frontmost_sq(Them, pos.pieces(Them, PAWN) & b);
-        if (   (ksq & KingSide  && (FileEBB & frontMostSq))
-            || (ksq & QueenSide && (FileDBB & frontMostSq)))
+        Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN));
+        constexpr Bitboard BlockRanks = (Us == WHITE ? Rank3BB | Rank4BB : Rank5BB | Rank6BB);
+        b = (FileEBB | FileDBB) & BlockRanks;
+        if (more_than_one(blocked & b & ~attackedBy[Them][PAWN]))
+        {
+            Square frontMostSq = frontmost_sq(Them, pos.pieces(Them, PAWN) & b);
+            if (   (ksq & KingSide  && (FileEBB & frontMostSq))
+                || (ksq & QueenSide && (FileDBB & frontMostSq)))
             kingFlankAttacks *= 1.5;
+        }
     }
 
     // Penalty if king flank is under attack, potentially moving toward the king
