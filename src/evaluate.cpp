@@ -399,7 +399,7 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Direction Up  = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
@@ -475,7 +475,7 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     // Find the number of pushable pawns on our king flank.
-    b1 = shift<Up>(pos.pieces(Them, PAWN)) & KingFlank[file_of(ksq)] & ~pos.pieces(Us) & ~attackedBy[Us][ALL_PIECES];
+    b1 = shift<Down>(pos.pieces(Them, PAWN)) & KingFlank[file_of(ksq)] & ~pos.pieces(Us) & ~attackedBy[Us][ALL_PIECES];
     kingFlankAttacks += popcount(b1);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
