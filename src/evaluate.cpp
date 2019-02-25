@@ -475,7 +475,7 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     // Find the number of pushable pawns on our king flank.
-    b1 = shift<Down>(pos.pieces(Them, PAWN)) & KingFlank[file_of(ksq)] & ~pos.pieces(Us) & ~attackedBy[Us][ALL_PIECES];
+    b1 = shift<Down>(pos.pieces(Them, PAWN)) & KingFlank[file_of(ksq)] & ~pos.pieces() & ~attackedBy[Us][ALL_PIECES];
     kingFlankAttacks += popcount(b1);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
