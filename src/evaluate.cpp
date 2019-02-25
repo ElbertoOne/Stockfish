@@ -323,8 +323,8 @@ namespace {
                 if (supported && !(pos.attackers_to(s) & pe->passed_pawns(Us)))
                     candidatePasser = !bool(forward_file_bb(Us, s) & (pe->pawn_attacks_span(Them) | pos.pieces(Them, PAWN)));
 
-                score += Outpost * (Pt == KNIGHT ? 4 : 2)
-                                 * (1 + supported + candidatePasser);
+                score += Outpost * ((Pt == KNIGHT ? 4 : 2) + candidatePasser)
+                                 * (1 + supported);
             }
 
             else if (bb &= b & ~pos.pieces(Us))
