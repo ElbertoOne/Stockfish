@@ -321,7 +321,7 @@ namespace {
                 bool candidatePasser = false;
                 bool supported = bool(attackedBy[Us][PAWN] & s);
                 if (supported && !(pos.attackers_to(s) & pe->passed_pawns(Us)))
-                    candidatePasser = !bool(forward_file_bb(Us, s) & (pe->pawn_attacks_span(Them) | pos.pieces(Them, PAWN)));
+                    candidatePasser = !bool(forward_file_bb(Us, s) & (pe->pawn_attacks_span(Them) | pos.pieces(Them, PAWN))) && bool(forward_file_bb(Them, s) & (pe->pawn_attacks_span(Us) | pos.pieces(Us, PAWN)));
 
                 score += Outpost * ((Pt == KNIGHT ? 4 : 2) + candidatePasser)
                                  * (1 + supported);
