@@ -317,8 +317,15 @@ namespace {
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
+            {
+                bool candidatePasser = false;
+                bool supported = bool(attackedBy[Us][PAWN] & s);
+                if (supported && !(pos.attackers_to(s) & pe->passed_pawns(Us)))
+                    candidatePasser = !bool(forward_file_bb(Us, s) & (pe->pawn_attacks_span(Them) | pos.pieces(Them, PAWN)));
+
                 score += Outpost * (Pt == KNIGHT ? 4 : 2)
-                                 * (1 + bool(attackedBy[Us][PAWN] & s));
+                                 * (1 + supported + candidatePasser);
+            }
 
             else if (bb &= b & ~pos.pieces(Us))
                 score += Outpost * (Pt == KNIGHT ? 2 : 1)
