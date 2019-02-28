@@ -678,10 +678,9 @@ namespace {
                 else if (defendedSquares & blockSq)
                     k += 4;
 
-                // If there are passed pawns on adjacent files, increase the bonus.
-                bb = adjacent_files_bb(file_of(s)) & pe->passed_pawns(Us);
-                if (bb)
-                    k += 6 - distance<Rank>(s, pop_lsb(&bb));
+                // If the passed pawn is supported by another passed pawn, increase the bonus.
+                if (pos.attackers_to(s) & b)
+                    k += 4;
 
                 bonus += make_score(k * w, k * w);
             }
