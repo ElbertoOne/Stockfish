@@ -678,6 +678,10 @@ namespace {
                 else if (defendedSquares & blockSq)
                     k += 4;
 
+                // If there are passed pawns on adjacent files, increase the bonus.
+                if (adjacent_files_bb(file_of(s)) & pe->passed_pawns(Us))
+                    k += 4;
+
                 bonus += make_score(k * w, k * w);
             }
         } // rank > RANK_3
