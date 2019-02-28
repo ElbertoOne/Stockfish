@@ -346,7 +346,7 @@ namespace {
                     score += LongDiagonalBishop;
 
                 // Bonus for bishop that pins a minor or major piece.
-                if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(Us)) & (pos.pieces(Them) ^ pos.pieces(Them, PAWN))))
+                if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(Us)) & (pos.pieces(Them) ^ pos.pieces(Them, PAWN, BISHOP))))
                     score += BishopPinner;
             }
 
