@@ -678,10 +678,6 @@ namespace {
                 else if (defendedSquares & blockSq)
                     k += 4;
 
-                // If the passed pawn is supported by another passed pawn, increase the bonus.
-                if (pos.attackers_to(s) & b)
-                    k += 4;
-
                 bonus += make_score(k * w, k * w);
             }
         } // rank > RANK_3
@@ -691,6 +687,10 @@ namespace {
         if (   !pos.pawn_passed(Us, s + Up)
             || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
             bonus = bonus / 2;
+        // Scale up bonus for passers that have another passer on one of its
+        // adjacent files.
+        else if (adjacent_files_bb(file_of(s)) & pe->passed_pawns(Us))
+            bonus = bonus * 3 / 2;
 
         score += bonus + PassedFile[file_of(s)];
     }
