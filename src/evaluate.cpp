@@ -687,9 +687,9 @@ namespace {
         if (   !pos.pawn_passed(Us, s + Up)
             || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
             bonus = bonus / 2;
-        // Scale up bonus for passers that have another passer on one of its
-        // adjacent files.
-        else if (adjacent_files_bb(file_of(s)) & pe->passed_pawns(Us))
+        // Scale up bonus for passers that has another passer in its
+        // pawn attack span.
+        else if (pawn_attack_span(Us, s) & pe->passed_pawns(Us))
             bonus = bonus * 3 / 2;
 
         score += bonus + PassedFile[file_of(s)];
