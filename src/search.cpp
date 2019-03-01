@@ -955,6 +955,14 @@ moves_loop: // When in check, search starts from here
       else if (type_of(move) == CASTLING)
           extension = ONE_PLY;
 
+      // King pawn move extension when we have no castling rights
+      // and a lot of pawns on the board
+      else if (     type_of(movedPiece) == PAWN
+                && !pos.castling_rights(us)
+                &&  pos.count<PAWN>() > 14
+                &&  distance(from_sq(move), pos.square<KING>(us)) < 2)
+          extension = ONE_PLY;
+
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
