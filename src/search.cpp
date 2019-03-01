@@ -960,7 +960,7 @@ moves_loop: // When in check, search starts from here
       else if (     type_of(movedPiece) == PAWN
                 && !pos.castling_rights(us)
                 &&  pos.count<PAWN>() > 14
-                &&  distance(from_sq(move), pos.square<KING>(us)) < 2)
+                &&  distance<File>(from_sq(move), pos.square<KING>(us)) < 2)
           extension = ONE_PLY;
 
       // Calculate new depth for this move
