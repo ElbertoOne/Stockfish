@@ -1029,8 +1029,8 @@ moves_loop: // When in check, search starts from here
               r -= ONE_PLY;
 
           // Decrease reduction if opponent's move count is high (~10 Elo)
-          if ((ss-1)->moveCount > 15 && pos.non_pawn_material() > 5000)
-              r -= ONE_PLY;
+          if ((ss-1)->moveCount > 15)
+              r -= ((pos.non_pawn_material() > 5000) + (pos.non_pawn_material() > 10000)) * ONE_PLY;
 
           if (!captureOrPromotion)
           {
