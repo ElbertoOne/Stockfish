@@ -602,9 +602,11 @@ namespace {
 
         b &= safe;
 
+        Bitboard queenPinners;
+
         if (b & attackedBy2[Us])
             score += SliderOnQueen * popcount(b & attackedBy2[Us]);
-        else
+        else if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
         {
             b &= ~attackedBy2[Them];
             while (b)
