@@ -600,7 +600,22 @@ namespace {
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        b &= safe;
+
+        if (b & attackedBy2[Us])
+            score += SliderOnQueen * popcount(b & attackedBy2[Us]);
+        else
+        {
+            b &= ~attackedBy2[Them];
+            while (b)
+            {
+                Square s2 = pop_lsb(&b);
+                Bitboard sliders = pos.attackers_to(s2) & pos.pieces(Us);
+                Bitboard snipers = (  (PseudoAttacks[ROOK][s2] & pos.pieces(Us, QUEEN, ROOK))
+                      | (PseudoAttacks[BISHOP][s2] & pos.pieces(Us, QUEEN, BISHOP))) & ~sliders;
+                score += SliderOnQueen * popcount(snipers);
+            }
+        }
     }
 
     if (T)
