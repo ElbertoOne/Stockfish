@@ -1062,6 +1062,10 @@ moves_loop: // When in check, search starts from here
               else if ((ss-1)->statScore >= 0 && ss->statScore < 0)
                   r += ONE_PLY;
 
+              if (   type_of(movedPiece) == PAWN
+                  && (pos.pieces(~us, QUEEN) & PawnAttacks[us][to_sq(move)]))
+                  r -= ONE_PLY;
+
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 20000 * ONE_PLY;
           }
