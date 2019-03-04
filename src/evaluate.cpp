@@ -602,22 +602,10 @@ namespace {
 
         b &= safe;
 
-        Bitboard queenPinners;
-
         if (b & attackedBy2[Us])
             score += SliderOnQueen * popcount(b & attackedBy2[Us]);
-        else if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
-        {
-            b &= ~attackedBy2[Them];
-            while (b)
-            {
-                Square s2 = pop_lsb(&b);
-                Bitboard sliders = pos.attackers_to(s2) & pos.pieces(Us);
-                Bitboard snipers = (  (PseudoAttacks[ROOK][s2] & pos.pieces(Us, QUEEN, ROOK))
-                      | (PseudoAttacks[BISHOP][s2] & pos.pieces(Us, QUEEN, BISHOP))) & ~sliders;
-                score += SliderOnQueen * popcount(snipers);
-            }
-        }
+        else
+			score += SliderOnQueen * popcount(b & ~attackedBy2[Them]) / 4;
     }
 
     if (T)
