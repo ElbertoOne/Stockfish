@@ -225,9 +225,6 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
-
-    Bitboard mobilityAreaQueen[COLOR_NB];
-    int mobilityQueen[COLOR_NB];
   };
 
 
@@ -386,8 +383,6 @@ namespace {
         {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
-            mobilityAreaQueen[Us] = b & mobilityArea[Us];
-            mobilityQueen[Us] = mob;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
         }
@@ -608,9 +603,9 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
 
         // Mobility correction for queen
-        int trueMobility = popcount(mobilityAreaQueen[Them] & ~attackedBy[Us][ALL_PIECES] & ~pos.pieces(Them));
-        int mobDiff = mobilityQueen[Them] - trueMobility -5;
-        score += make_score(5 * mobDiff, 10 * mobDiff);
+        int trueMobility = popcount(attackedBy[Them][QUEEN] & ~attackedBy[Us][ALL_PIECES] & ~pos.pieces(Them));
+        if (trueMobility < 2)
+            score += make_score(0, 30);
     }
 
     if (T)
