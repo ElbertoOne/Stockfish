@@ -226,8 +226,8 @@ namespace {
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
 
-    Bitboard mobilityAreaWeakQueen[COLOR_NB];
-    int mobilityWeakQueen[COLOR_NB];
+    Bitboard mobilityAreaQueen[COLOR_NB];
+    int mobilityQueen[COLOR_NB];
   };
 
 
@@ -386,14 +386,10 @@ namespace {
         {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
-            mobilityAreaWeakQueen[Us] = 0;
-            mobilityWeakQueen[Us] = 0;
+            mobilityAreaQueen[Us] = b & mobilityArea[Us];
+            mobilityQueen[Us] = mob;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
-            {
                 score -= WeakQueen;
-                mobilityAreaWeakQueen[Us] = b & mobilityArea[Us];
-                mobilityWeakQueen[Us] = mob;
-            }
         }
     }
     if (T)
@@ -611,13 +607,10 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
 
-        // Bonus for trapped weak queen
-        if (mobilityAreaWeakQueen[Them] && mobilityWeakQueen[Them] > 5)
-        {
-            int trueMobility = popcount(mobilityAreaWeakQueen[Them] & ~attackedBy[Us][ALL_PIECES] & ~pos.pieces(Them));
-            if (trueMobility < 3)
-                score += WeakQueen;
-        }
+        // Mobility correction for queen
+        int trueMobility = popcount(mobilityAreaQueen[Them] & ~attackedBy[Us][ALL_PIECES] & ~pos.pieces(Them));
+        int mobDiff = mobilityQueen[Them] - trueMobility -5;
+        score += make_score(5 * mobDiff, 10 * mobDiff);
     }
 
     if (T)
