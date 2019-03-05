@@ -75,6 +75,7 @@ namespace {
 
   constexpr Bitboard QueenSide   = FileABB | FileBBB | FileCBB | FileDBB;
   constexpr Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
+  constexpr Bitboard FlankFiles  = FileABB | FileBBB | FileCBB | FileFBB | FileGBB | FileHBB;
   constexpr Bitboard KingSide    = FileEBB | FileFBB | FileGBB | FileHBB;
   constexpr Bitboard Center      = (FileDBB | FileEBB) & (Rank4BB | Rank5BB);
 
@@ -732,6 +733,20 @@ namespace {
                 - 2 * popcount(pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK]);
 
     Score score = make_score(bonus * weight * weight / 16, 0);
+
+    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN));
+    Bitboard b = (FileEBB | FileDBB);
+    if (more_than_one(blocked & b & ~attackedBy[Them][PAWN]))
+    {
+        Bitboard SpaceMask2 =
+          Us == WHITE ? FlankFiles & (Rank2BB | Rank3BB | Rank4BB)
+                      : FlankFiles & (Rank7BB | Rank6BB | Rank5BB);
+        safe =   SpaceMask2
+               & ~pos.pieces(Us, PAWN)
+               & ~attackedBy[Them][PAWN];
+        bonus = popcount(safe) + popcount(behind & safe);
+        score += make_score(bonus * weight / 16, 0);
+    }
 
     if (T)
         Trace::add(SPACE, Us, score);
