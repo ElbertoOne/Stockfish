@@ -640,7 +640,7 @@ namespace {
                 bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
 
             // If the pawn is free to advance, then increase the bonus if there are no more passed pawns forward on the file.
-            if (pos.empty(blockSq) && !(forward_file_bb(Us, s) & b))
+            if (pos.empty(blockSq))
             {
                 // If there is a rook or queen attacking/defending the pawn from behind,
                 // consider all the squaresToQueen. Otherwise consider only the squares
@@ -666,6 +666,10 @@ namespace {
 
                 else if (defendedSquares & blockSq)
                     k += 4;
+
+                // Reduce bonus for doubled pawns that have a passed pawn in front of them.
+                if (k > 0 && (forward_file_bb(Us, s) & b))
+                    k -= 4;
 
                 bonus += make_score(k * w, k * w);
             }
