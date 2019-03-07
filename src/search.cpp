@@ -519,6 +519,13 @@ void Thread::search() {
 
 namespace {
 
+	int A = 1000;
+	int B = 1000;
+	int C = 1000;
+	int D = 1000;
+	int E = 4000;
+	TUNE(A, B, C, D, E);
+
   // search<>() is the main search function for both PV and non-PV nodes
 
   template <NodeType NT>
@@ -1038,11 +1045,11 @@ moves_loop: // When in check, search starts from here
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
                   r -= 2 * ONE_PLY;
 
-              ss->statScore =  thisThread->mainHistory[us][from_to(move)]
-                             + (*contHist[0])[movedPiece][to_sq(move)]
-                             + (*contHist[1])[movedPiece][to_sq(move)]
-                             + (*contHist[3])[movedPiece][to_sq(move)]
-                             - 4000;
+              ss->statScore =  (A * thisThread->mainHistory[us][from_to(move)]
+                             + B * (*contHist[0])[movedPiece][to_sq(move)]
+                             + C * (*contHist[1])[movedPiece][to_sq(move)]
+                             + D * (*contHist[3])[movedPiece][to_sq(move)]) / 1000
+                             - E;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
