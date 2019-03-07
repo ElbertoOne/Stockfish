@@ -1038,11 +1038,11 @@ moves_loop: // When in check, search starts from here
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
                   r -= 2 * ONE_PLY;
 
-              ss->statScore =  thisThread->mainHistory[us][from_to(move)]
-                             + (*contHist[0])[movedPiece][to_sq(move)]
-                             + (*contHist[1])[movedPiece][to_sq(move)]
-                             + (*contHist[3])[movedPiece][to_sq(move)]
-                             - 4000;
+              ss->statScore =  (11 *thisThread->mainHistory[us][from_to(move)]
+                             + 10 *(*contHist[0])[movedPiece][to_sq(move)]
+                             + 10 *(*contHist[1])[movedPiece][to_sq(move)]
+                             + 12 *(*contHist[3])[movedPiece][to_sq(move)]) / 10
+                             - 4180;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
