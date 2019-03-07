@@ -48,6 +48,12 @@ namespace {
 
 } // namespace
 
+int A = 1000;
+int B = 1000;
+int C = 1000;
+int D = 1000;
+int E = 1000;
+TUNE(A, B, C, D, E);
 
 /// Constructors of the MovePicker class. As arguments we pass information
 /// to help it to return the (presumably) good moves first, to decide which
@@ -111,11 +117,11 @@ void MovePicker::score() {
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))] / 8;
 
       else if (Type == QUIETS)
-          m.value =  (*mainHistory)[pos.side_to_move()][from_to(m)]
-                   + (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
-                   + (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
-                   + (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
-                   + (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)] / 2;
+          m.value =  (A * (*mainHistory)[pos.side_to_move()][from_to(m)]
+                   + B * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
+                   + C * (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
+                   + D * (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
+                   + E * (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)] / 2) / 1000;
 
       else // Type == EVASIONS
       {
