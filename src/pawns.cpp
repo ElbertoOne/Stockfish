@@ -66,6 +66,7 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Bitboard  Rank4 = (Us == WHITE ? Rank4BB : Rank5BB);
 
     Bitboard b, neighbours, stoppers, doubled, support, phalanx;
     Bitboard lever, leverPush;
@@ -109,7 +110,7 @@ namespace {
         backward =  !(ourPawns & pawn_attack_span(Them, s + Up))
                   && (stoppers & (leverPush | (s + Up)));
 
-        startstop = relative_rank(Us, s) == RANK_2 && (theirPawns & pawn_attack_span(Us, s + Up));
+        startstop = relative_rank(Us, s) == RANK_2 && (theirPawns & Rank4 & pawn_attack_span(Us, s + Up));
 
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them. Include also not passed pawns
