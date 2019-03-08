@@ -109,9 +109,7 @@ namespace {
         backward =  !(ourPawns & pawn_attack_span(Them, s + Up))
                   && (stoppers & (leverPush | (s + Up)));
 
-        startstop   = false;
-        if (relative_rank(Us, s) == RANK_2 && (theirPawns & pawn_attack_span(Us, s + Up)))
-            startstop = true;
+        startstop = relative_rank(Us, s) == RANK_2 && (theirPawns & pawn_attack_span(Us, s + Up));
         backward |= startstop;
 
         // Passed pawns will be properly scored in evaluation because we need
