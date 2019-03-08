@@ -70,7 +70,7 @@ namespace {
     Bitboard b, neighbours, stoppers, doubled, support, phalanx;
     Bitboard lever, leverPush;
     Square s;
-    bool opposed, backward;
+    bool opposed, backward, startstop;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
 
@@ -109,6 +109,11 @@ namespace {
         backward =  !(ourPawns & pawn_attack_span(Them, s + Up))
                   && (stoppers & (leverPush | (s + Up)));
 
+        startstop   = false;
+        if (relative_rank(Us, s) == RANK_2 && (theirPawns & pawn_attack_span(Us, s + Up)))
+            startstop = true;
+        backward |= startstop;
+
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them. Include also not passed pawns
         // which could become passed after one or two pawn pushes when are
@@ -128,7 +133,7 @@ namespace {
         }
 
         // Score this pawn
-        if (support | phalanx)
+        if (!startstop && (support | phalanx))
             score += Connected[opposed][bool(phalanx)][popcount(support)][relative_rank(Us, s)];
 
         else if (!neighbours)
