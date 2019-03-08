@@ -110,7 +110,6 @@ namespace {
                   && (stoppers & (leverPush | (s + Up)));
 
         startstop = relative_rank(Us, s) == RANK_2 && (theirPawns & pawn_attack_span(Us, s + Up));
-        backward |= startstop;
 
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them. Include also not passed pawns
@@ -131,7 +130,7 @@ namespace {
         }
 
         // Score this pawn
-        if (!startstop && (support | phalanx))
+        if (support | phalanx)
             score += Connected[opposed][bool(phalanx)][popcount(support)][relative_rank(Us, s)];
 
         else if (!neighbours)
@@ -139,6 +138,9 @@ namespace {
 
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
+
+        if (startstop && !backward)
+            score -= Backward;
 
         if (doubled && !support)
             score -= Doubled;
