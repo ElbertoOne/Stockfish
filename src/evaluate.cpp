@@ -565,19 +565,17 @@ namespace {
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
-    b &= ~attackedBy[Them][PAWN];
+    b &= ~attackedBy[Them][PAWN] & safe;
 
-    Bitboard b2 = b & ~safe & ~attackedBy2[Them];
-    b &= safe;
-    while (b2)
-    {
-        Square s = pop_lsb(&b2);
-        if (attacks_bb<ROOK>(s, pos.pieces() ^ (s + Down)) & file_bb(s) & pos.pieces(Us, ROOK, QUEEN))
-            b |= s;
-    }
+    // Find some other candidates
+    Bitboard rqb = attackedBy[Us][ROOK] | attackedBy[Us][QUEEN];
+    Bitboard b2 = shift<Up>(shift<Down>(pos.pieces(Us, PAWN) & rqb) & rqb);
+    b2  = shift<Up>(b2) & ~pos.pieces();
+    b2 |= shift<Up>(b2 & TRank3BB) & ~pos.pieces();
+    b2 &= ~attackedBy[Them][PAWN] & (safe | ~attackedBy2[Them]);
 
     // Bonus for safe pawn threats on the next move
-    b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
+    b = pawn_attacks_bb<Us>(b | b2) & pos.pieces(Them);
 
     score += ThreatByPawnPush * popcount(b);
 
