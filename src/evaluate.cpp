@@ -497,7 +497,6 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
-    constexpr Direction Down     = (Us == WHITE ? SOUTH   : NORTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
@@ -567,15 +566,8 @@ namespace {
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
-    // Find some other candidates
-    Bitboard rqb = attackedBy[Us][ROOK] | attackedBy[Us][QUEEN];
-    Bitboard b2 = shift<Up>(shift<Down>(pos.pieces(Us, PAWN) & rqb) & rqb);
-    b2  = shift<Up>(b2) & ~pos.pieces();
-    b2 |= shift<Up>(b2 & TRank3BB) & ~pos.pieces();
-    b2 &= ~attackedBy[Them][PAWN] & (safe | ~attackedBy2[Them]);
-
     // Bonus for safe pawn threats on the next move
-    b = pawn_attacks_bb<Us>(b | b2) & pos.pieces(Them);
+    b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
 
     score += ThreatByPawnPush * popcount(b);
 
@@ -588,6 +580,7 @@ namespace {
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
     {
+        constexpr Direction Down     = (Us == WHITE ? SOUTH   : NORTH);
         Square s = pos.square<QUEEN>(Them);
         safe = mobilityArea[Us] & ~stronglyProtected;
 
@@ -598,7 +591,14 @@ namespace {
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        // Pawn attacks on next move that don't fall under the ThreatByPawnPush bonus.
+        Bitboard rqb = attackedBy[Us][ROOK] | attackedBy[Us][QUEEN];
+        Bitboard b2 = shift<Up>(shift<Down>(pos.pieces(Us, PAWN) & rqb) & rqb);
+        b2  = shift<Up>(b2) & ~pos.pieces();
+        b2 |= shift<Up>(b2 & TRank3BB) & ~pos.pieces();
+        b2 &= ~attackedBy[Them][PAWN] & ~attackedBy2[Them];
+
+        score += SliderOnQueen * popcount((b & safe & attackedBy2[Us]) | (b2 & PawnAttacks[Them][s]));
     }
 
     if (T)
