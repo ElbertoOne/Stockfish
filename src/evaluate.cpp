@@ -497,6 +497,7 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction Down     = (Us == WHITE ? SOUTH   : NORTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
@@ -564,10 +565,20 @@ namespace {
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
-    b &= ~attackedBy[Them][PAWN] & (safe | ~attackedBy2[Them]);
+    b &= ~attackedBy[Them][PAWN];
+
+    Bitboard b2 = b & ~safe & ~attackedBy2[Them];
+    b &= safe;
+    while (b2)
+    {
+        Square s = pop_lsb(&b2);
+        if (attacks_bb<ROOK>(s, pos.pieces() ^ (s + Down)) & file_bb(s) & pos.pieces(Us, ROOK, QUEEN))
+            b |= s;
+    }
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
+
     score += ThreatByPawnPush * popcount(b);
 
     // Our safe or protected pawns
