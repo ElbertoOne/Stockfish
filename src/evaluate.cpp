@@ -354,7 +354,8 @@ namespace {
 
         if (Pt == ROOK || Pt == QUEEN)
         {
-            supportedPawnsFromMajorsOnFile[Us] |= pos.pieces(Us, PAWN) & b & forward_file_bb(Us, s);
+            constexpr Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB: Rank7BB | Rank6BB);
+            supportedPawnsFromMajorsOnFile[Us] |= pos.pieces(Us, PAWN) & ~LowRanks & b & file_bb(s);
         }
 
         if (Pt == ROOK)
@@ -575,11 +576,7 @@ namespace {
     b &= ~attackedBy[Them][PAWN] & safe;
 
     // Add pawns that are protected from behind.
-    Bitboard b2 = shift<Up>(supportedPawnsFromMajorsOnFile[Us]) & ~pos.pieces();
-    b2 |= shift<Up>(b2 & TRank3BB) & ~pos.pieces();
-
-    // Keep only the squares which are relatively safe
-    b2 &= ~attackedBy[Them][PAWN] & ~attackedBy2[Them];
+    Bitboard b2 = shift<Up>(supportedPawnsFromMajorsOnFile[Us]) & ~pos.pieces() & ~attackedBy[Them][PAWN] & ~attackedBy2[Them];
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b | b2) & pos.pieces(Them);
