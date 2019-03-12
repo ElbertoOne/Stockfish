@@ -579,7 +579,7 @@ namespace {
     b2 |= shift<Up>(b2 & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
-    b2 &= ~attackedBy[Them][PAWN] & (safe | ~attackedBy2[Them]);
+    b2 &= ~attackedBy[Them][PAWN] & ~attackedBy2[Them];
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b | b2) & pos.pieces(Them);
