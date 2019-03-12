@@ -214,6 +214,8 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+
+    Bitboard supportedPawnsFromMajorsOnFile[COLOR_NB];
   };
 
 
@@ -347,6 +349,11 @@ namespace {
                             : pos.piece_on(s + d + d) == make_piece(Us, PAWN) ? CorneredBishop * 2
                                                                               : CorneredBishop;
             }
+        }
+
+        if (Pt == ROOK || Pt == QUEEN)
+        {
+            supportedPawnsFromMajorsOnFile[Us] |= pos.pieces(Us, PAWN) & b & forward_file_bb(Us, s);
         }
 
         if (Pt == ROOK)
@@ -566,8 +573,15 @@ namespace {
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
+    // Add pawns that are protected from behind.
+    Bitboard b2 = shift<Up>(supportedPawnsFromMajorsOnFile[Us]) & ~pos.pieces();
+    b2 |= shift<Up>(b2 & TRank3BB) & ~pos.pieces();
+
+    // Keep only the squares which are relatively safe
+    b2 &= ~attackedBy[Them][PAWN] & (safe | ~attackedBy2[Them]);
+
     // Bonus for safe pawn threats on the next move
-    b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
+    b = pawn_attacks_bb<Us>(b | b2) & pos.pieces(Them);
     score += ThreatByPawnPush * popcount(b);
 
     // Our safe or protected pawns
