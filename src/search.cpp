@@ -944,6 +944,19 @@ moves_loop: // When in check, search starts from here
       else if (type_of(move) == CASTLING)
           extension = ONE_PLY;
 
+      else if (   type_of(movedPiece) == PAWN
+               && !pos.capture_or_promotion(move)
+               && !(file_bb(from_sq(move)) & (FileABB | FileHBB))
+               && (attacks_bb<BISHOP>(from_sq(move), pos.pieces()) & pos.square<KING>(~us))
+               && (   more_than_one(DarkSquares &  (pos.pieces(us, BISHOP) | pos.square<KING>(~us)))
+                   || more_than_one(~DarkSquares & (pos.pieces(us, BISHOP) | pos.square<KING>(~us))))
+               && pos.see_ge(move))
+               {
+				   //if (pos.fen() == "1b1r3k/2q2r1p/p1n1bp2/P2pp3/1Pp2PPN/3P3P/BP2Q2B/R4R1K b - - 0 29" && from_sq(move) == SQ_D5)
+				       //std::cerr << pos.fen() << " move: " << UCI::move(move, pos.is_chess960()) << std::endl;
+          extension = ONE_PLY;
+	  }
+
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
