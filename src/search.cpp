@@ -555,6 +555,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, pureStaticEval;
     bool ttHit, ttPv, inCheck, givesCheck, improving;
+    bool sameValue = false;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
@@ -1120,6 +1121,7 @@ moves_loop: // When in check, search starts from here
               rm.score = -VALUE_INFINITE;
       }
 
+      sameValue = (value == bestValue);
       if (value > bestValue)
       {
           bestValue = value;
@@ -1189,6 +1191,10 @@ moves_loop: // When in check, search starts from here
     else if (   (depth >= 3 * ONE_PLY || PvNode)
              && !pos.captured_piece())
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
+    // Bonus for quiet moves that are as good as the best move
+    else if (sameValue && !pos.capture_or_promotion(move))
+        update_quiet_stats(pos, ss, move, quietsSearched, quietCount,
+                               stat_bonus(depth + (value > beta + PawnValueMg ? ONE_PLY : DEPTH_ZERO)));
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
