@@ -661,7 +661,7 @@ namespace {
                 int k = !unsafeSquares ? 20 : !(unsafeSquares & blockSq) ? 9 : 0;
 
                 Bitboard pinners;
-                if (k > 0 && (pos.slider_blockers(pos.pieces(Them), blockSq, pinners) & ~pos.pieces(Us)))
+                if (k > 0 && pos.slider_blockers(pos.pieces(Them), blockSq, pinners))
                     k -= 4;
 
                 // If the path to the queen is fully defended, assign a big bonus.
