@@ -662,7 +662,7 @@ namespace {
 
                 Bitboard pinners;
                 if (k > 0 && (pos.slider_blockers(pos.pieces(Them), blockSq, pinners) & ~pos.pieces(Us)))
-                    k = k / 2;
+                    k -= 4;
 
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
