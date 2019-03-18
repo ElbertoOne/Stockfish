@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -658,6 +659,10 @@ namespace {
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
                 int k = !unsafeSquares ? 20 : !(unsafeSquares & blockSq) ? 9 : 0;
+
+                Bitboard pinners;
+                if (k > 0 && (pos.slider_blockers(pos.pieces(Them), blockSq, pinners) & ~pos.pieces(Us)))
+                    k = k / 2;
 
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
