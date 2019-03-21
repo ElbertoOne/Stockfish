@@ -461,23 +461,21 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    int kingDangerA =        kingAttackersCount[Them] * kingAttackersWeight[Them]
+    kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
+                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+                 - 873 * !pos.count<QUEEN>(Them)
+                 -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 +   5 * kingFlankAttacks * kingFlankAttacks / 16;
-
-    int kingDangerB = - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                      - 873 * !pos.count<QUEEN>(Them)
-                      -   6 * mg_value(score) / 8
-                      -   25;
-    kingDanger += kingDangerA + kingDangerB;
+                 +   5 * kingFlankAttacks * kingFlankAttacks / 16
+                 -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-    else if (kingDangerA <= 0)
+    else if (mg_value(score) > 0)
         score = score / 2;
 
     // Penalty when our king is on a pawnless flank
