@@ -475,11 +475,21 @@ namespace {
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
     {
-        constexpr Bitboard  TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
-        if (  (pos.count<QUEEN>(Them) > 0 || pos.count<ROOK>(Them) > 0)
-            && relative_rank(Us, ksq) == RANK_1
-            && !(mobilityArea[Us] & attackedBy[Us][KING] & TRank2BB)
-            && (attackedBy[Them][PAWN] & attackedBy[Us][KING] & TRank2BB))
+        bool possibleMateSquare = false;
+        if (pos.count<QUEEN>(Them) > 0)
+        {
+            Bitboard b = attackedBy[Us][KING] & attackedBy[Them][PAWN] & ~pos.pieces(Us) & ~attackedBy2[Us];
+            while (b)
+            {
+                Square s = pop_lsb(&b);
+                if (!(mobilityArea[Us] & attackedBy[Us][KING] & ~(pos.attacks_from<ROOK>(s) | pos.attacks_from<BISHOP>(s))))
+                {
+                    possibleMateSquare = true;
+                    break;
+                }
+            }
+        }
+        if (possibleMateSquare)
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger * kingDanger / 4096);
         else
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
