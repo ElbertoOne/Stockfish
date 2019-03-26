@@ -267,8 +267,6 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
-    constexpr Direction DownLeft  = (Us == WHITE ? SOUTH_WEST : NORTH_EAST);
-    constexpr Direction DownRight = (Us == WHITE ? SOUTH_EAST : NORTH_WEST);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
@@ -319,6 +317,12 @@ namespace {
             if (shift<Down>(pos.pieces(PAWN)) & s)
                 score += MinorBehindPawn;
 
+            else if (Pt == KNIGHT)
+            {
+                if (pawn_attacks_bb<Them>(pos.pieces(Us, PAWN)) & s)
+                    score += MinorBehindPawn;
+            }
+
             // Penalty if the piece is far from the king
             score -= KingProtector * distance(s, pos.square<KING>(Us));
 
@@ -353,10 +357,6 @@ namespace {
 
         if (Pt == ROOK)
         {
-            if (   (shift<DownLeft>(pos.pieces(PAWN)) & s)
-                || (shift<DownRight>(pos.pieces(PAWN)) & s))
-                score += MinorBehindPawn;
-
             // Bonus for aligning rook with enemy pawns on the same rank/file
             if (relative_rank(Us, s) >= RANK_5)
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
