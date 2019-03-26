@@ -317,12 +317,6 @@ namespace {
             if (shift<Down>(pos.pieces(PAWN)) & s)
                 score += MinorBehindPawn;
 
-            else if (Pt == KNIGHT)
-            {
-                if (pawn_attacks_bb<Them>(pos.pieces(Us, PAWN)) & s)
-                    score += MinorBehindPawn;
-            }
-
             // Penalty if the piece is far from the king
             score -= KingProtector * distance(s, pos.square<KING>(Us));
 
@@ -357,6 +351,9 @@ namespace {
 
         if (Pt == ROOK)
         {
+            if (pawn_attacks_bb<Them>(pos.pieces(Us, PAWN)) & s)
+                score += MinorBehindPawn;
+
             // Bonus for aligning rook with enemy pawns on the same rank/file
             if (relative_rank(Us, s) >= RANK_5)
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
