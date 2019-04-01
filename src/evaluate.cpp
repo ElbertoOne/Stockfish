@@ -537,7 +537,7 @@ namespace {
         {
             Square s = pop_lsb(&b);
             if (!(b1 & s) && (pos.attackers_to(s) & defenders))
-                score += ThreatByMinor[1];
+                score += RestrictedPiece;
             score += ThreatByRook[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
