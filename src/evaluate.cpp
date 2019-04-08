@@ -618,6 +618,28 @@ namespace {
 
     b = pe->passed_pawns(Us);
 
+    // Add additional candidate passed pawns
+    Bitboard kq = pos.pieces(Us, PAWN) & ~b & ~pe->pawn_attacks_span(Them) & ~attackedBy[Them][ALL_PIECES];
+    if (kq)
+    {
+        // Squares strongly protected by the enemy, either because they defend the
+        // square with a pawn, or because they defend the square twice and we don't.
+        Bitboard stronglyProtected =  attackedBy[Them][PAWN]
+                       | (attackedBy2[Them] & ~attackedBy2[Us]);
+
+        // Enemy pawns not strongly protected and under our attack
+        Bitboard weak = pos.pieces(Them, PAWN) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
+        while (kq)
+        {
+            Square s = pop_lsb(&kq);
+            Square blockSq = s + Up;
+            if (weak & blockSq)
+                b |= s;
+            else if (weak & (blockSq + Up))
+                b |= s;
+        }
+    }
+
     while (b)
     {
         Square s = pop_lsb(&b);
