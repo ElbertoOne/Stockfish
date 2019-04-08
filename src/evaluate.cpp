@@ -499,6 +499,7 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction Down     = (Us == WHITE ? SOUTH   : NORTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
@@ -548,6 +549,12 @@ namespace {
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
         score += Hanging * popcount(weak & b);
+
+        // Threat of getting a passed pawn by taking a weak opposing pawn.
+        Bitboard kq = pos.pieces(Us, PAWN) & ~pe->passed_pawns(Us) & ~pe->pawn_attacks_span(Them) & ~attackedBy[Them][ALL_PIECES];
+        Bitboard upw = shift<Down>(weak & pos.pieces(Them, PAWN));
+        upw |= shift<Down>(upw);
+        score += PassedRank[1] * popcount(upw & kq);
     }
 
     // Bonus for restricting their piece moves
