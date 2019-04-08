@@ -152,6 +152,7 @@ namespace {
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
   constexpr Score WeakUnopposedPawn  = S( 12, 23);
+  constexpr Score ThreatPassed       = S( 12, 23);
 
 #undef S
 
@@ -550,11 +551,14 @@ namespace {
            | (nonPawnEnemies & attackedBy2[Us]);
         score += Hanging * popcount(weak & b);
 
-        // Threat of getting a passed pawn by taking a weak opposing pawn.
-        Bitboard kq = pos.pieces(Us, PAWN) & ~pe->passed_pawns(Us) & ~pe->pawn_attacks_span(Them) & ~attackedBy[Them][ALL_PIECES];
-        Bitboard upw = shift<Down>(weak & pos.pieces(Them, PAWN));
-        upw |= shift<Down>(upw);
-        score += PassedRank[1] * popcount(upw & kq);
+        if (weak)
+        {
+            // Threat of getting a passed pawn by taking a weak opposing pawn.
+            Bitboard upw = shift<Down>(weak & pos.pieces(Them, PAWN));
+            upw |= shift<Down>(upw);
+            Bitboard kq = pos.pieces(Us, PAWN) & ~pe->passed_pawns(Us) & ~pe->pawn_attacks_span(Them);
+            score += ThreatPassed * popcount(upw & kq);
+        }
     }
 
     // Bonus for restricting their piece moves
