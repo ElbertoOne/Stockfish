@@ -608,6 +608,7 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
 
     auto king_proximity = [&](Color c, Square s) {
       return std::min(distance(pos.square<KING>(c), s), 5);
@@ -625,17 +626,9 @@ namespace {
 
     // Enemy pawns not strongly protected and under our attack
     Bitboard weak = pos.pieces(Them, PAWN) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
-    if (weak)
-    {
-        // Add additional candidate passed pawns
-        Bitboard kq = pos.pieces(Us, PAWN) & ~b & ~pe->pawn_attacks_span(Them) & ~attackedBy[Them][ALL_PIECES];
-        while (kq)
-        {
-            Square s = pop_lsb(&kq);
-            if (weak & forward_file_bb(Us, s))
-                b |= s;
-        }
-    }
+    Bitboard kq = pos.pieces(Us, PAWN) & ~b & ~pe->pawn_attacks_span(Them) & ~attackedBy[Them][ALL_PIECES];
+    //Additional candidate passed pawn if the pawn is blocked by a weak pawn
+    b |= shift<Down>(weak) & kq;
 
     while (b)
     {
