@@ -559,7 +559,16 @@ namespace {
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
+    {
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
+        Square ksq = pos.square<KING>(Them);
+        if (pe->semiopen_file(Us, file_of(ksq)))
+        {
+            Bitboard kp = pos.pieces(Them, PAWN) & file_bb(ksq) & ~attackedBy[Them][PAWN];
+            if (kp && !(pe->weakUnopposed[Them] & kp))
+                score += WeakUnopposedPawn;
+        }
+    }
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
