@@ -152,6 +152,7 @@ namespace {
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
   constexpr Score WeakUnopposedPawn  = S( 12, 23);
+  constexpr Score KingPawnPressure   = S( 15,  5);
 
 #undef S
 
@@ -559,17 +560,16 @@ namespace {
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
-    {
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
-        Square ksq = pos.square<KING>(Them);
-        if (pe->semiopen_file(Us, file_of(ksq)))
-        {
-            Bitboard kp = pos.pieces(Them, PAWN) & file_bb(ksq) & ~attackedBy[Them][PAWN];
-            if (kp && !(pe->weakUnopposed[Them] & kp))
-                score += WeakUnopposedPawn;
-        }
-    }
 
+    Square ksq = pos.square<KING>(Them);
+    Bitboard kp = pos.pieces(Them, PAWN) & file_bb(ksq) & ~attackedBy[Them][PAWN];
+    while (kp)
+    {
+        Square kpSq = pop_lsb(&kp);
+        if (pos.attacks_from<PAWN>(kpSq, Them) & pos.pieces(Them) & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them])
+            score += KingPawnPressure;
+    }
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
