@@ -136,11 +136,13 @@ namespace {
         }
         else if (backward || !neighbours)
         {
+            e->weakUnopposed[Us] += !opposed;
+
             if (backward)
-                score -= Backward, e->weakUnopposed[Us] += !opposed;
+                score -= Backward;
 
             if (!neighbours)
-                score -= Isolated, e->weakUnopposed[Us] += !opposed;
+                score -= Isolated;
         }
 
         if (doubled && !support)
