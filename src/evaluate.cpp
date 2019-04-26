@@ -576,11 +576,8 @@ namespace {
     Bitboard safePawns = pos.pieces(Us, PAWN) & safe;
 
     b = pawn_attacks_bb<Us>(safePawns) & nonPawnEnemies;
-    score += ThreatBySafePawn * popcount(b);
-
-    // Threat by safe pawn correction.
-    if (pawn_attacks_bb<Us>(safePawns & attackedBy[Them][ROOK] & pos.blockers_for_king(Us)) & nonPawnEnemies & ~pos.pinners_for_king(Them))
-        score -= ThreatBySafePawn;
+    Bitboard b1 = pawn_attacks_bb<Us>(safePawns & attackedBy[Them][ALL_PIECES] & pos.blockers_for_king(Us)) & nonPawnEnemies & ~pos.pinners_for_king(Them);
+    score += ThreatBySafePawn * popcount(b & ~b1);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
