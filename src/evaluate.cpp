@@ -613,7 +613,7 @@ namespace {
     auto king_proximity = [&](Color c, Square s, int correction) {
       Square ksq = pos.square<KING>(c);
       int dist = distance(ksq, s);
-      if (dist > 1 && c == Us && relative_rank(Us, ksq) < relative_rank(Us, s) + correction)
+      if (dist > 1 && c == Us && relative_rank(Us, ksq) < relative_rank(Us, s) - correction)
       {
          Bitboard rq = rank_bb(ksq + Up) & attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us);
          // If square is not directly reachable for our king, increase distance.
