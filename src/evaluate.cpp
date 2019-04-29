@@ -610,13 +610,13 @@ namespace {
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
 
-    auto king_proximity = [&](Color c, Square s, bool secondPush) {
+    auto king_proximity = [&](Color c, Square s, bool firstPush) {
       Square ksq = pos.square<KING>(c);
       int dist = distance(ksq, s);
-      if (dist > 1 && secondPush && relative_rank(Us, ksq) < relative_rank(Us, s) - 1)
+      if (dist > 1 && firstPush && relative_rank(Us, ksq) < relative_rank(Us, s))
       {
          Bitboard rq = rank_bb(ksq + Up) & attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us);
-         // If second push square is not directly reachable for our king, increase distance.
+         // If push square is not directly reachable for our king, increase distance.
          if (!rq)
              return std::min(dist + 2, 5);
       }
@@ -645,11 +645,11 @@ namespace {
 
             // Adjust bonus based on the king's proximity
             bonus += make_score(0, (  king_proximity(Them, blockSq, false) * 5
-                                    - king_proximity(Us,   blockSq, false) * 2) * w);
+                                    - king_proximity(Us,   blockSq, true) * 2) * w);
 
             // If blockSq is not the queening square then consider also a second push
             if (r != RANK_7)
-                bonus -= make_score(0, king_proximity(Us, blockSq + Up, true) * w);
+                bonus -= make_score(0, king_proximity(Us, blockSq + Up, false) * w);
 
             // If the pawn is free to advance, then increase the bonus
             if (pos.empty(blockSq))
