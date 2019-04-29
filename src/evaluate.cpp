@@ -615,9 +615,9 @@ namespace {
       if (c == Us && relative_rank(Us, ksq) < relative_rank(Us, s))
       {
          Bitboard rq = rank_bb(ksq + Up) & attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us);
-         // Square is unreachable for our king, give maximum value.
+         // If square is not directly reachable for our king, increase distance.
          if (!rq)
-             return 5;
+             return std::min(distance(ksq, s) + 2, 5);
       }
       return std::min(distance(ksq, s), 5);
     };
