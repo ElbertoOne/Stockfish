@@ -672,8 +672,10 @@ namespace {
 
                 extraBonus += make_score(k * w, k * w);
             }
-            if (eg_value(extraBonus) < 0)
+            // Scale down bonus if extraBonus is negative and the pawn is undefended.
+            if (eg_value(extraBonus) < 0 && !(pos.attackers_to(s) & pos.pieces(Us)))
                 bonus = bonus / 2;
+
             bonus += extraBonus;
         } // rank > RANK_3
 
