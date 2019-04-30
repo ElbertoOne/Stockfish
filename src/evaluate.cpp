@@ -635,12 +635,12 @@ namespace {
             Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
-            bonus += make_score(0, (  king_proximity(Them, blockSq) * 5
+            Score extraBonus = make_score(0, (  king_proximity(Them, blockSq) * 5
                                     - king_proximity(Us,   blockSq) * 2) * w);
 
             // If blockSq is not the queening square then consider also a second push
             if (r != RANK_7)
-                bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
+                extraBonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
 
             // If the pawn is free to advance, then increase the bonus
             if (pos.empty(blockSq))
@@ -670,14 +670,17 @@ namespace {
                 else if (defendedSquares & blockSq)
                     k += 4;
 
-                bonus += make_score(k * w, k * w);
+                extraBonus += make_score(k * w, k * w);
             }
+            if (eg_value(extraBonus) < 0)
+                bonus = bonus / 2;
+            bonus += extraBonus;
         } // rank > RANK_3
 
         // Scale down bonus for candidate passers which need more than one
         // pawn push to become passed, or have a pawn in front of them.
-        if (   !pos.pawn_passed(Us, s + Up)
-            || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
+        if (  eg_value(bonus) > 0 && (!pos.pawn_passed(Us, s + Up)
+            || (pos.pieces(PAWN) & forward_file_bb(Us, s))))
             bonus = bonus / 2;
 
         score += bonus + PassedFile[file_of(s)];
