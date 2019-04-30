@@ -180,9 +180,10 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
   Bitboard b = pos.pieces(PAWN) & ~forward_ranks_bb(Them, ksq);
   Bitboard ourPawns = b & pos.pieces(Us);
   Bitboard theirPawns = b & pos.pieces(Them);
+  Bitboard sidePawns = shift<Down>(theirPawns) & (FileABB | FileHBB);
 
-  Value safety = (shift<Down>(theirPawns) & (FileABB | FileHBB) & BlockRanks & ksq) ?
-                 Value(374) : Value(5);
+  Value safety = (sidePawns & BlockRanks & ksq) ?
+                 Value(374) : relative_rank(Us, ksq) < RANK_3 && (sidePawns & pos.pieces(Us, PAWN) & pos.attacks_from<KING>(ksq)) ? Value(-200) : Value(5);
 
   File center = clamp(file_of(ksq), FILE_B, FILE_G);
   for (File f = File(center - 1); f <= File(center + 1); ++f)
