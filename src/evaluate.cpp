@@ -628,6 +628,7 @@ namespace {
         int r = relative_rank(Us, s);
 
         Score bonus = PassedRank[r];
+        bool negativeExtraBonus = false;
 
         if (r > RANK_3)
         {
@@ -672,16 +673,16 @@ namespace {
 
                 extraBonus += make_score(k * w, k * w);
             }
-            // Scale down bonus if extraBonus is negative and the pawn is undefended.
             if (eg_value(extraBonus) < 0 && !(pos.attackers_to(s) & pos.pieces(Us)))
-                bonus = bonus / 2;
+                negativeExtraBonus = true;
 
             bonus += extraBonus;
         } // rank > RANK_3
 
         // Scale down bonus for candidate passers which need more than one
-        // pawn push to become passed, or have a pawn in front of them.
-        if (  eg_value(bonus) > 0 && (!pos.pawn_passed(Us, s + Up)
+        // pawn push to become passed, or have a pawn in front of them,
+        // or if extraBonus is negative and the pawn is undefended.
+        if (  eg_value(bonus) > 0 && (negativeExtraBonus || !pos.pawn_passed(Us, s + Up)
             || (pos.pieces(PAWN) & forward_file_bb(Us, s))))
             bonus = bonus / 2;
 
