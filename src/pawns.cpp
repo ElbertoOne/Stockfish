@@ -19,7 +19,7 @@
 */
 
 #include <cassert>
-#include <iostream>
+
 #include "bitboard.h"
 #include "pawns.h"
 #include "position.h"
@@ -105,6 +105,10 @@ namespace {
         backward =  !(ourPawns & pawn_attack_span(Them, s + Up))
                   && (stoppers & (leverPush | (s + Up)));
 
+        // Also consider an extra pawn push
+        backward |= !(ourPawns & pawn_attack_span(Them, s + Up + Up))
+                  && (stoppers & (s + Up + Up));
+
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them. Include also not passed pawns
         // which could become passed after one or two pawn pushes when are
@@ -121,11 +125,6 @@ namespace {
                 if (!more_than_one(theirPawns & PawnAttacks[Us][pop_lsb(&b)]))
                     e->passedPawns[Us] |= s;
         }
-        else if (   r >= RANK_4
-                 && (f == FILE_A || f == FILE_H)
-                 && !(theirPawns & pawn_attack_span(Us, s))
-                 && (ourPawns & pawn_attack_span(Them, s)))
-            e->passedPawns[Us] |= s;
 
         // Score this pawn
         if (support | phalanx)
