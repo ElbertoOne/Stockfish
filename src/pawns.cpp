@@ -137,7 +137,7 @@ namespace {
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
             // extra penalty for thorn pawns
-            if (r == RANK_2 && !phalanx && (theirPawns & (s + Up)) && distance(s, pos.square<KING>(Us)) < 2)
+            if (r == RANK_2 && !phalanx && (f == FILE_A || f == FILE_H) && (theirPawns & (s + Up)) && distance(s, pos.square<KING>(Us)) < 2)
                 score -= Backward;
         }
 
