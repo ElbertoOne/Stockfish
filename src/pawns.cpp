@@ -19,7 +19,7 @@
 */
 
 #include <cassert>
-
+#include <iostream>
 #include "bitboard.h"
 #include "pawns.h"
 #include "position.h"
@@ -121,6 +121,11 @@ namespace {
                 if (!more_than_one(theirPawns & PawnAttacks[Us][pop_lsb(&b)]))
                     e->passedPawns[Us] |= s;
         }
+        else if (   r >= RANK_4
+                 && (f == FILE_A || f == FILE_H)
+                 && !(theirPawns & pawn_attack_span(Us, s))
+                 && (ourPawns & pawn_attack_span(Them, s)))
+            e->passedPawns[Us] |= s;
 
         // Score this pawn
         if (support | phalanx)
