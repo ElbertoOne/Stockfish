@@ -133,7 +133,13 @@ namespace {
             score -= Isolated, e->weakUnopposed[Us] += !opposed;
 
         else if (backward)
+        {
             score -= Backward, e->weakUnopposed[Us] += !opposed;
+
+            // extra penalty for thorn pawns
+            if (r == RANK_2 && (f == FILE_A || f == FILE_H) && !phalanx && (theirPawns & (s + Up)))
+                score -= Backward;
+        }
 
         if (doubled && !support)
             score -= Doubled;
