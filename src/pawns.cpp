@@ -32,6 +32,7 @@ namespace {
 
   // Pawn penalties
   constexpr Score Backward = S( 9, 24);
+  constexpr Score Thorn    = S(18, 48);
   constexpr Score Doubled  = S(11, 56);
   constexpr Score Isolated = S( 5, 15);
 
@@ -138,7 +139,7 @@ namespace {
 
             // extra penalty for thorn pawns
             if (r == RANK_2 && !phalanx && (f == FILE_A || f == FILE_H) && (theirPawns & (s + Up)) && distance(s, pos.square<KING>(Us)) < 2)
-                score -= Backward;
+                score -= Thorn;
         }
 
         if (doubled && !support)
