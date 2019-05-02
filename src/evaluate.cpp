@@ -133,6 +133,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
+  constexpr Score BishopWeakPawns    = S(  5, 10);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score FlankAttacks       = S(  8,  0);
   constexpr Score Hanging            = S( 69, 36);
@@ -336,8 +337,8 @@ namespace {
                     score += LongDiagonalBishop;
 
                 // Bonus for bishop aligning with weak enemy pawns.
-                Bitboard pawns = PseudoAttacks[BISHOP][s] & pos.pieces(Them, PAWN) & ~attackedBy[Them][PAWN];
-                score += BishopPawns * popcount(pawns);
+                Bitboard pawns = b & pos.pieces(Them, PAWN) & ~attackedBy[Them][PAWN];
+                score += BishopWeakPawns * popcount(pawns);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
