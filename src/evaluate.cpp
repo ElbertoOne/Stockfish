@@ -270,8 +270,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard BackRanks = (Us == WHITE ? Rank7BB | Rank8BB
-                                           : Rank2BB | Rank3BB);
+    constexpr Bitboard ForwardRanks = (Us == WHITE ? Rank7BB | Rank8BB
+                                                   : Rank1BB | Rank2BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -319,7 +319,7 @@ namespace {
                      && relative_rank(Us, s) < RANK_8
                      && file_of(s) > FILE_A
                      && file_of(s) < FILE_H
-                     && (b & BackRanks)
+                     && (b & ForwardRanks)
                      && !(pe->pawn_attacks_span(Them) & s))
                 score += Outpost;
 
