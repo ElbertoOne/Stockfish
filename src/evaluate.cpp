@@ -363,8 +363,10 @@ namespace {
             // Penalty when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
             {
-                File kf = file_of(pos.square<KING>(Us));
-                if (((kf < FILE_E) == (file_of(s) < kf)) || (mob == 0 && distance(pos.square<KING>(Us), s) == 1))
+                Square ksq = pos.square<KING>(Us);
+                File kf = file_of(ksq);
+                File rf = file_of(s);
+                if (((kf < FILE_E) == (rf < kf)) || (mob == 0 && (rf == kf || rank_of(ksq) == rank_of(s)) && distance(ksq, s) == 1))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
         }
