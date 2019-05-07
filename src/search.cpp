@@ -803,7 +803,7 @@ namespace {
 
         while (  (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode)
-            if (move != excludedMove && pos.legal(move) && !pos.gives_check(move))
+            if (move != excludedMove && pos.legal(move))
             {
                 probCutCount++;
 
@@ -823,7 +823,7 @@ namespace {
 
                 pos.undo_move(move);
 
-                if (value >= raisedBeta)
+                if (value >= raisedBeta || (value > beta && pos.gives_check(move)))
                     return value;
             }
     }
