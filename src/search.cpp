@@ -802,7 +802,7 @@ namespace {
         int probCutCount = 0;
         int probCutMax = 2 + 2 * cutNode;
         if (ttHit && pos.capture_or_promotion(tte->move()))
-            probCutMax++;
+            probCutMax--;
 
         while (  (move = mp.next_move()) != MOVE_NONE
                && probCutCount < probCutMax)
