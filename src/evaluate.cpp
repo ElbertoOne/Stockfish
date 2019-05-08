@@ -153,6 +153,7 @@ namespace {
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
   constexpr Score WeakUnopposedPawn  = S( 12, 23);
+  constexpr Score Fork               = S( 20, 20);
 
 #undef S
 
@@ -366,6 +367,23 @@ namespace {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
+            }
+        }
+
+        if (Pt != QUEEN)
+        {
+            Bitboard attackedPieces = pos.attacks_from<Pt>(s) & pos.pieces(Them);
+            if (popcount(attackedPieces) > 1)
+            {
+                int count = 0;
+                while (attackedPieces)
+                {
+                    Square pc = pop_lsb(&attackedPieces);
+                    if (type_of(pos.piece_on(pc)) > Pt)
+                        count++;
+                }
+                if (count > 1)
+                    score += Fork;
             }
         }
 
