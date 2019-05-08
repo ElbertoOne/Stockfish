@@ -370,9 +370,9 @@ namespace {
             }
         }
 
-        if (Pt != QUEEN && (attackedBy[Us][PAWN] & s) && !(attackedBy[Them][PAWN] & s))
+        if (Pt != QUEEN && (pos.attackers_to(s) & pe->passed_pawns(Us)))
         {
-            Bitboard attackedPieces = pos.attacks_from<Pt>(s) & pos.pieces(Them);
+            Bitboard attackedPieces = pos.attacks_from<Pt>(s) & (pos.pieces(Them) ^ pos.pieces(Them, PAWN, KNIGHT));
             if (popcount(attackedPieces) > 1)
             {
                 int count = 0;
