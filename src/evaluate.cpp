@@ -372,7 +372,7 @@ namespace {
 
         if (Pt != QUEEN)
         {
-            Bitboard attackedPieces = pos.attacks_from<Pt>(s) & pos.pieces(Them);
+            Bitboard attackedPieces = pos.attacks_from<Pt>(s) & (pos.pieces(Them, ROOK, QUEEN) | pos.pieces(Them, KING));
             if (popcount(attackedPieces) > 1)
             {
                 int count = 0;
