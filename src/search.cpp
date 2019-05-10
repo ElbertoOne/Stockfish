@@ -1038,6 +1038,12 @@ moves_loop: // When in check, search starts from here
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
                   r -= 2 * ONE_PLY;
+              else if (type_of(movedPiece) == PAWN)
+              {
+                  Direction Up   = (us == WHITE ? NORTH : SOUTH);
+                  if (pos.pieces(~us, KING, BISHOP) & (to_sq(move) + Up + Up))
+                      r -= ONE_PLY;
+              }
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
