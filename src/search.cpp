@@ -1042,7 +1042,7 @@ moves_loop: // When in check, search starts from here
               {
                   Direction Up   = (us == WHITE ? NORTH : SOUTH);
                   if (pos.pieces(~us, KING, BISHOP) & (to_sq(move) + Up + Up))
-                      r -= ONE_PLY;
+                      r -= 2 * ONE_PLY;
               }
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
