@@ -1038,7 +1038,7 @@ moves_loop: // When in check, search starts from here
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
                   r -= 2 * ONE_PLY;
-              else if (type_of(movedPiece) == PAWN)
+              else if (type_of(movedPiece) == PAWN && relative_rank(us, to_sq(move)) < RANK_7)
               {
                   Direction Up   = (us == WHITE ? NORTH : SOUTH);
                   if (pos.pieces(~us, KING, BISHOP) & (to_sq(move) + Up + Up))
