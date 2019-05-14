@@ -529,7 +529,8 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByMinor[type_of(pos.piece_on(s))];
-            if (type_of(pos.piece_on(s)) != PAWN)
+            PieceType pt = type_of(pos.piece_on(s));
+            if (pt != PAWN && !(defended && (pt == BISHOP || pt == KNIGHT)))
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
