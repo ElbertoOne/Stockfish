@@ -461,12 +461,18 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+    Bitboard knightDefense = attackedBy[Us][KNIGHT] & attackedBy[Us][KING];
+    Bitboard bishopDefense = attackedBy[Us][BISHOP] & attackedBy[Us][KING];
+
+    if (knightDefense)
+        kingDanger -= 70 * (1 + more_than_one(knightDefense));
+
+    if (bishopDefense)
+        kingDanger -= 27 * (1 + more_than_one(bishopDefense));
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 -  66 * popcount(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                 -  24 * popcount(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
