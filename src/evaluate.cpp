@@ -524,12 +524,14 @@ namespace {
     // Bonus according to the kind of attacking pieces
     if (defended | weak)
     {
+        bool closed = pos.count<PAWN>() > 13;
         b = (defended | weak) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
         while (b)
         {
             Square s = pop_lsb(&b);
-            score += ThreatByMinor[type_of(pos.piece_on(s))];
-            if (type_of(pos.piece_on(s)) != PAWN)
+            PieceType pt = type_of(pos.piece_on(s));
+            score += ThreatByMinor[pt];
+            if (pt != PAWN || (closed && (weak & s)))
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
@@ -537,8 +539,9 @@ namespace {
         while (b)
         {
             Square s = pop_lsb(&b);
-            score += ThreatByRook[type_of(pos.piece_on(s))];
-            if (type_of(pos.piece_on(s)) != PAWN)
+            PieceType pt = type_of(pos.piece_on(s));
+            score += ThreatByRook[pt];
+            if (closed || pt != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
