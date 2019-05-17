@@ -124,7 +124,7 @@ namespace {
         }
 
         // Score this pawn
-        if (support | phalanx)
+        if ((support | phalanx) && !(r == RANK_2 && (leverPush | opposed)))
         {
             int v =  Connected[r] * (phalanx ? 3 : 2) / (opposed ? 2 : 1)
                    + 17 * popcount(support);
