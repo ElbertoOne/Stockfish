@@ -139,7 +139,7 @@ namespace {
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
         else if (!support && !doubled)
-            score -= Unsupported;
+            score += Unsupported;
 
         if (doubled && !support)
             score -= Doubled;
