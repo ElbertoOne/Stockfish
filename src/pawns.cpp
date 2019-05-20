@@ -137,6 +137,9 @@ namespace {
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
+        else if (opposed && more_than_one(ourPawns & PawnAttacks[Us][s]))
+            score -= Isolated / 2;
+
         if (doubled && !support)
             score -= Doubled;
     }
