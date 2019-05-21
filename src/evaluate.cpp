@@ -663,7 +663,7 @@ namespace {
 
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
-                if ((pos.attackers_to(blockSq) | pos.attackers_to(s - Up)) & pos.pieces(Them))
+                if (k > 0 || ((pos.attackers_to(blockSq) | pos.attackers_to(s - Up)) & pos.pieces(Us)))
                 {
                     if (defendedSquares == squaresToQueen)
                         k += 6;
