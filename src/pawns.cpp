@@ -35,6 +35,7 @@ namespace {
   constexpr Score Backward = S( 9, 24);
   constexpr Score Doubled  = S(11, 56);
   constexpr Score Isolated = S( 5, 15);
+  constexpr Score Anchor   = S(11,  9);
 
   // Connected pawn bonus
   constexpr int Connected[RANK_NB] = { 0, 7, 8, 12, 29, 48, 86 };
@@ -139,6 +140,9 @@ namespace {
 
         else if (opposed && more_than_one(ourPawns & PawnAttacks[Us][s]))
             score -= Isolated / 2;
+
+        else if (opposed && more_than_one(ourPawns & PawnAttacks[Us][s]))
+            score -= Anchor;
 
         if (doubled && !support)
             score -= Doubled;
