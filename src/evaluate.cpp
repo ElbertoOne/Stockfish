@@ -661,16 +661,15 @@ namespace {
                 // assign a smaller bonus if the block square isn't attacked.
                 int k = !unsafeSquares ? 20 : !(unsafeSquares & blockSq) ? 9 : 0;
 
+                int factor = !((pos.attackers_to(blockSq) | pos.attackers_to(s - Up)) & pos.pieces(Them)) ? 1 : 2;
+
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
-                if (!((pos.attackers_to(blockSq) | pos.attackers_to(s - Up)) & pos.pieces(Them)))
-                {
-                    if (defendedSquares == squaresToQueen)
-                        k += 6;
+                if (defendedSquares == squaresToQueen)
+                    k += 6 / factor;
 
-                    else if (defendedSquares & blockSq)
-                        k += 4;
-                }
+                else if (defendedSquares & blockSq)
+                    k += 4 / factor;
 
                 bonus += make_score(k * w, k * w);
             }
