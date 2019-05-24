@@ -420,8 +420,8 @@ namespace {
     else
     {
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
-        if (unsafeChecks & pos.pieces(Us, ROOK, QUEEN))
-            kingDanger += RookSafeCheck / 4;
+        if (unsafeChecks & pos.pieces(Us, ROOK, QUEEN) & ~attackedBy2[Us])
+            kingDanger += RookSafeCheck / 2;
     }
 
     // Enemy queen safe checks: we count them only if they are from squares from
