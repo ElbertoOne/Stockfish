@@ -651,7 +651,7 @@ namespace {
 
                 bb = forward_file_bb(Them, s) & pos.pieces(ROOK, QUEEN);
 
-                if (!(pos.pieces(Us) & bb) || (forward_file_bb(Them, s) & pos.pieces(Them) & pos.attacks_from<ROOK>(s)))
+                if (!(pos.attacks_from<ROOK>(s) & pos.pieces(Us) & bb))
                     defendedSquares &= attackedBy[Us][ALL_PIECES];
 
                 if (!(pos.pieces(Them) & bb))
