@@ -114,8 +114,6 @@ namespace {
             && (support || !more_than_one(lever))
             && popcount(phalanx) >= popcount(leverPush))
             e->passedPawns[Us] |= s;
-        else if (!(pawn_attack_span(Us, s) & theirPawns))
-            e->passedPawns[Us] |= s;
 
         else if (stoppers == square_bb(s + Up) && r >= RANK_5)
         {

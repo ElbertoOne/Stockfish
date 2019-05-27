@@ -669,6 +669,8 @@ namespace {
                 else if (defendedSquares & blockSq)
                     k += 4;
 
+                k += 2 * popcount(b & adjacent_files_bb(file_of(s)));
+
                 bonus += make_score(k * w, k * w);
             }
         } // r > RANK_3
