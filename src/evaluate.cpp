@@ -631,6 +631,11 @@ namespace {
         if (r > RANK_3)
         {
             int w = (r-2) * (r-2) + 2;
+
+            // Give extra bonus if the pawns are connected
+            if (adjacent_files_bb(file_of(s)) & close_ranks_bb(s) & b)
+                w += 2;
+
             Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
@@ -668,10 +673,6 @@ namespace {
 
                 else if (defendedSquares & blockSq)
                     k += 4;
-
-                // Give extra bonus if the pawns are connected
-                if (adjacent_files_bb(file_of(s)) & close_ranks_bb(s) & b)
-                    k += 6;
 
                 bonus += make_score(k * w, k * w);
             }
