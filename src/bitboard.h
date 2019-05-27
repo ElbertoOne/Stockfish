@@ -188,6 +188,11 @@ inline Bitboard adjacent_files_bb(File f) {
   return shift<EAST>(file_bb(f)) | shift<WEST>(file_bb(f));
 }
 
+inline Bitboard close_ranks_bb(Square s) {
+	Bitboard b = rank_bb(s);
+	return b | shift<NORTH>(b) | shift<SOUTH>(b);
+}
+
 
 /// between_bb() returns squares that are linearly between the given squares
 /// If the given squares are not on a same file/rank/diagonal, return 0.

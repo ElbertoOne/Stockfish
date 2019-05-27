@@ -669,14 +669,18 @@ namespace {
                 else if (defendedSquares & blockSq)
                     k += 4;
 
+                // Give extra bonus if the pawns are connected
+                if (adjacent_files_bb(file_of(s)) & close_ranks_bb(s) & b)
+                    k+= 2;
+
                 bonus += make_score(k * w, k * w);
             }
         } // r > RANK_3
 
         // Scale down bonus for candidate passers which need more than one
         // pawn push to become passed, or have a pawn in front of them.
-        if (!(b & adjacent_files_bb(file_of(s))
-            && (!pos.pawn_passed(Us, s + Up) || (pos.pieces(PAWN) & forward_file_bb(Us, s)))))
+        if (   !pos.pawn_passed(Us, s + Up)
+            || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
             bonus = bonus / 2;
 
         score += bonus + PassedFile[file_of(s)];
