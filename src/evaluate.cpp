@@ -671,7 +671,7 @@ namespace {
 
                 // Give extra bonus if the pawns are connected
                 if (adjacent_files_bb(file_of(s)) & close_ranks_bb(s) & b)
-                    k+= 2;
+                    k += 6;
 
                 bonus += make_score(k * w, k * w);
             }
