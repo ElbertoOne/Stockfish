@@ -674,8 +674,8 @@ namespace {
                     // If the blockSq is only attacked by a queen, increase the bonus.
                     if (attackedBy[Them][QUEEN] & ~attackedBy2[Them] & blockSq)
                         k += k / 2;
-                    // If the blockSq is not directly defended by us and attacked twice and the pawn is defended only by a queen, decrease the bonus.
-                    else if (!(bb & pos.pieces(Us, ROOK)) && (attackedBy2[Them] & ~attackedBy[Us][ALL_PIECES] & blockSq))
+                    // If the blockSq is not directly defended by us and attacked twice and the pawn is defended only by one major, decrease the bonus.
+                    else if (!more_than_one(bb & pos.pieces(Us)) && (attackedBy2[Them] & ~attackedBy[Us][ALL_PIECES] & blockSq))
                         k -= k / 2;
                 }
 
