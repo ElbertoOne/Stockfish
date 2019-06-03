@@ -650,11 +650,13 @@ namespace {
                 defendedSquares = unsafeSquares = squaresToQueen = forward_file_bb(Us, s);
 
                 bb = forward_file_bb(Them, s) & pos.pieces(ROOK, QUEEN);
+                Bitboard ourPieces = pos.pieces(Us) & bb;
+                Bitboard theirPieces = pos.pieces(Them) & bb;
 
-                if (!(pos.pieces(Us) & bb))
+                if (!ourPieces)
                     defendedSquares &= attackedBy[Us][ALL_PIECES];
 
-                if (!(pos.pieces(Them) & bb))
+                if (!theirPieces)
                     unsafeSquares &= attackedBy[Them][ALL_PIECES] | pos.pieces(Them);
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
@@ -671,12 +673,11 @@ namespace {
 
                 if (k == 4 || k == 6)
                 {
-                    // If the blockSq is only attacked by a queen, increase the bonus.
-                    if (attackedBy[Them][QUEEN] & ~attackedBy2[Them] & blockSq)
-                        k += k / 2;
-                    // If the blockSq is not directly defended by us and attacked twice and the pawn is defended only by one major, decrease the bonus.
-                    else if (!more_than_one(bb & pos.pieces(Us)) && (attackedBy2[Them] & ~attackedBy[Us][ALL_PIECES] & blockSq))
+                    // Adjust the bonus according to the number of defending/attacking pieces.
+                    if (!more_than_one(ourPieces) && more_than_one(theirPieces))
                         k -= k / 2;
+                    else if (more_than_one(ourPieces) && !more_than_one(theirPieces))
+                        k += k / 2;
                 }
 
                 bonus += make_score(k * w, k * w);
