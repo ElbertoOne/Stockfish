@@ -664,22 +664,20 @@ namespace {
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
                 if (defendedSquares == squaresToQueen)
-                {
                     k += 6;
-
-                    if (k == 6)
-                    {
-                        // If the blockSq is only attacked by a queen, increase the bonus.
-                        if (attackedBy[Them][QUEEN] & ~attackedBy2[Them] & blockSq)
-                            k += 3;
-                        // If the blockSq is only defended by us from behind the pawn and attacked twice, decrease the bonus.
-                        else if (attackedBy2[Them] & ~attackedBy[Us][ALL_PIECES] & blockSq)
-                            k -= 2;
-                    }
-                }
 
                 else if (defendedSquares & blockSq)
                     k += 4;
+
+                if (k == 4 || k == 6)
+                {
+                    // If the blockSq is only attacked by a queen, increase the bonus.
+                    if (attackedBy[Them][QUEEN] & ~attackedBy2[Them] & blockSq)
+                        k += k / 2;
+                    // If the blockSq is not directly defended by us and attacked twice and the pawn is defended only by a queen, decrease the bonus.
+                    else if (!(bb & pos.pieces(Us, ROOK)) && (attackedBy2[Them] & ~attackedBy[Us][ALL_PIECES] & blockSq))
+                        k -= k / 2;
+                }
 
                 bonus += make_score(k * w, k * w);
             }
