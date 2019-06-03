@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -664,10 +665,23 @@ namespace {
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
                 if (defendedSquares == squaresToQueen)
+                {
                     k += 6;
+                    // If the blockSq is only defended by a queen, increase the bonus.
+                    if (k == 6 && (attackedBy[Them][QUEEN] & ~attackedBy2[Them] & blockSq))
+                        k += 3;
+                }
 
                 else if (defendedSquares & blockSq)
                     k += 4;
+
+                if (pos.fen() == "1r6/kpq5/p1b5/P1pB3R/2PpP1pP/6P1/6PK/4Q3 b - - 1 38")
+                {
+					std::cerr << "Square: " << s << " k: " << k << std::endl;
+					std::cerr << Bitboards::pretty(defendedSquares) << std::endl;
+					std::cerr << Bitboards::pretty(squaresToQueen) << std::endl;
+					std::cerr << Bitboards::pretty(unsafeSquares) << std::endl;
+				}
 
                 bonus += make_score(k * w, k * w);
             }
