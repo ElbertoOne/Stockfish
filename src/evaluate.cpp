@@ -666,9 +666,16 @@ namespace {
                 if (defendedSquares == squaresToQueen)
                 {
                     k += 6;
-                    // If the blockSq is only defended by a queen, increase the bonus.
-                    if (k == 6 && (attackedBy[Them][QUEEN] & ~attackedBy2[Them] & blockSq))
-                        k += 3;
+
+                    if (k == 6)
+                    {
+                        // If the blockSq is only attacked by a queen, increase the bonus.
+                        if (attackedBy[Them][QUEEN] & ~attackedBy2[Them] & blockSq)
+                            k += 3;
+                        // If the blockSq is only defended by us from behind the pawn and attacked twice, decrease the bonus.
+                        else if (attackedBy2[Them] & ~attackedBy[Us][ALL_PIECES] & blockSq)
+                            k -= 2;
+                    }
                 }
 
                 else if (defendedSquares & blockSq)
