@@ -682,6 +682,26 @@ namespace {
         score += bonus + PassedFile[file_of(s)];
     }
 
+    Bitboard potentialPassers = pos.pieces(Us, PAWN) & ~b;
+    b = (pos.pieces(Us) ^ pos.pieces(Us, KING, PAWN)) & attackedBy[Us][PAWN];
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+        int r = relative_rank(Us, s);
+        if (r > RANK_4)
+        {
+            Bitboard b2 = pos.attackers_to(s) & potentialPassers;
+            if (b2)
+            {
+                if (!(passed_pawn_span(Us, s) & pos.pieces(Them, PAWN)) && !pos.is_chess960())
+                {
+                    Score bonus = PassedRank[r] / 2;
+                    score += bonus + PassedFile[file_of(s)];
+                }
+            }
+        }
+    }
+
     if (T)
         Trace::add(PASSED, Us, score);
 
