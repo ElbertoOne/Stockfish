@@ -693,7 +693,7 @@ namespace {
             Bitboard b2 = pos.attackers_to(s) & potentialPassers;
             if (b2)
             {
-                if (!(passed_pawn_span(Us, s) & pos.pieces(Them, PAWN)) && !pos.is_chess960())
+                if (!(passed_pawn_span(Us, s) & pos.pieces(Them, PAWN)))
                 {
                     Score bonus = PassedRank[r] / 2;
                     score += bonus + PassedFile[file_of(s)];
