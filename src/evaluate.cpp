@@ -152,6 +152,7 @@ namespace {
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
+  constexpr Score QueenFlanksReach   = S( 20,  0);
 
 #undef S
 
@@ -370,6 +371,9 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+
+            if ((b & QueenSide) && (b & KingSide))
+                score += QueenFlanksReach;
         }
     }
     if (T)
