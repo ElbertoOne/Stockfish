@@ -372,7 +372,7 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
 
-            if (b & pos.pieces(Us, BISHOP) & forward_ranks_bb(Us, s))
+            if (pos.attacks_from<QUEEN>(s) & pos.pieces(Us, BISHOP, ROOK) & forward_ranks_bb(Us, s))
                 score += QueenBishopSupport;
         }
     }
