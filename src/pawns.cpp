@@ -115,7 +115,7 @@ namespace {
         {
             e->passedPawns[Us] |= s;
             // also include supporting pawns if the current one is far enough advanced
-            if (r >= RANK_5)
+            if (r > RANK_5)
                 e->passedPawns[Us] |= support;
         }
 
