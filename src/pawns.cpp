@@ -114,7 +114,9 @@ namespace {
               (!(stoppers ^ leverPush) && popcount(phalanx) >= popcount(leverPush)))
         {
             e->passedPawns[Us] |= s;
-            e->passedPawns[Us] |= support;
+            // also include supporting pawns if the current one is far enough advanced
+            if (r >= RANK_5)
+                e->passedPawns[Us] |= support;
         }
 
         else if (stoppers == square_bb(s + Up) && r >= RANK_5)
