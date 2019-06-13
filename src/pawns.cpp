@@ -112,7 +112,9 @@ namespace {
         // not attacked more times than defended.
         if (   !(stoppers ^ lever) ||
               (!(stoppers ^ leverPush) && popcount(phalanx) >= popcount(leverPush)))
+        {
             e->passedPawns[Us] |= s;
+        }
 
         else if (stoppers == square_bb(s + Up) && r >= RANK_5)
         {
@@ -127,8 +129,15 @@ namespace {
         {
             int v =  Connected[r] * (phalanx ? 3 : 2) / (opposed ? 2 : 1)
                    + 17 * popcount(support);
-
-            score += make_score(v, v * (r - 2) / 4);
+            int factor = 4;
+            if (e->passedPawns[Us] & s)
+            {
+                if (more_than_one(support))
+                    factor = factor / 2;
+                if (more_than_one(theirPawns & adjacent_files_bb(s) & rank_bb(s)))
+                    factor = factor / 2;
+            }
+            score += make_score(v, v * (r - 2) / factor);
         }
         else if (!neighbours)
             score -= Isolated + WeakUnopposed * int(!opposed);
