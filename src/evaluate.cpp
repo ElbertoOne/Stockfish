@@ -738,7 +738,7 @@ namespace {
                     -103 ;
 
     if (more_than_one(shift<NORTH>(pos.pieces(WHITE, PAWN) & (FileDBB | FileEBB)) & pos.pieces(BLACK, PAWN) & ~attackedBy[WHITE][PAWN]))
-        complexity -= 18;
+        complexity += 18;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
