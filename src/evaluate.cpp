@@ -526,6 +526,12 @@ namespace {
             score += ThreatByMinor[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
+            else if (weak & s)
+            {
+                if (pos.count<PAWN>() > 10
+                      && more_than_one(shift<Up>(pos.pieces(Us, PAWN) & (FileDBB | FileEBB)) & pos.pieces(Them, PAWN) & ~attackedBy[Us][PAWN]))
+                    score += ThreatByMinor[PAWN];
+            }
         }
 
         b = weak & attackedBy[Us][ROOK];
@@ -535,6 +541,12 @@ namespace {
             score += ThreatByRook[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
+            else if (weak & s)
+            {
+                if (pos.count<PAWN>() > 10
+                      && more_than_one(shift<Up>(pos.pieces(Us, PAWN) & (FileDBB | FileEBB)) & pos.pieces(Them, PAWN) & ~attackedBy[Us][PAWN]))
+                    score += ThreatByRook[PAWN];
+            }
         }
 
         if (weak & attackedBy[Us][KING])
