@@ -737,10 +737,14 @@ namespace {
                     + 49 * !pos.non_pawn_material()
                     -103 ;
 
+    if (more_than_one(shift<NORTH>(pos.pieces(WHITE, PAWN) & (FileDBB | FileEBB)) & pos.pieces(BLACK, PAWN) & ~attackedBy[WHITE][PAWN]))
+        complexity -= 18;
+
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
+
 
     if (T)
         Trace::add(INITIATIVE, make_score(0, v));
