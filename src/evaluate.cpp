@@ -735,7 +735,7 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    + 18 * more_than_one(shift<NORTH>(pos.pieces(WHITE, PAWN) & (FileDBB | FileEBB)) & pos.pieces(BLACK, PAWN))
+                    + 36 * more_than_one(shift<NORTH>(pos.pieces(WHITE, PAWN) & (FileDBB | FileEBB) & ~attackedBy[BLACK][PAWN]) & pos.pieces(BLACK, PAWN) & ~attackedBy[WHITE][PAWN])
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
