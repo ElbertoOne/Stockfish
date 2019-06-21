@@ -651,7 +651,9 @@ namespace {
                 // and even smaller bonus if it is attacked but block square is not.
                 int k = !unsafeSquares                    ? 35 :
                         !(unsafeSquares & squaresToQueen) ? 20 :
-                        !(unsafeSquares & blockSq)        ?  9 :
+                        !(unsafeSquares & blockSq)        ? r != RANK_7 && !(unsafeSquares & (blockSq + Up)) ?
+                                                            14 :
+                                                             9 :
                                                              0 ;
 
                 // Assign a larger bonus if the block square is defended.
