@@ -149,7 +149,7 @@ namespace {
   constexpr Score ThreatByKing       = S( 24, 89);
   constexpr Score ThreatByPawnPush   = S( 48, 39);
   constexpr Score ThreatByRank       = S( 13,  0);
-  constexpr Score ThreatBySafePawn   = S(175, 95);
+  constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
 
@@ -553,7 +553,7 @@ namespace {
     score += RestrictedPiece * popcount(b);
 
     // Find squares where our pawns can push on the next move
-    b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
+    b  = shift<Up>(pos.pieces(Us, PAWN) & ~pos.blockers_for_king(Us)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
@@ -566,14 +566,8 @@ namespace {
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
 
-    Bitboard b2 = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-    if (b2)
-    {
-        Bitboard b3;
-        // Exclude pawns that are blockers for our king and can't move
-        b2 &= ~(pawn_attacks_bb<Us>(b & pos.slider_blockers(nonPawnEnemies ^ b2, pos.square<KING>(Us), b3)) & nonPawnEnemies);
-        score += ThreatBySafePawn * popcount(b2);
-    }
+    b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
+    score += ThreatBySafePawn * popcount(b);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
