@@ -567,13 +567,12 @@ namespace {
     b = pos.pieces(Us, PAWN) & safe;
 
     Bitboard b2 = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-
     if (b2)
     {
         Bitboard b3;
-        Bitboard blockingPawns = pos.slider_blockers(pos.pieces(Them) ^ b2, pos.square<KING>(Us), b3) & pos.blockers_for_king(Us) & b;
-        if (!(blockingPawns && (pawn_attacks_bb<Us>(blockingPawns) & nonPawnEnemies)))
-            score += ThreatBySafePawn * popcount(b2);
+        // Exclude pawns that are blockers for our king
+        b2 &= ~(pawn_attacks_bb<Us>(b & pos.blockers_for_king(Us) & pos.slider_blockers(nonPawnEnemies ^ b2, pos.square<KING>(Us), b3)) & nonPawnEnemies);
+        score += ThreatBySafePawn * popcount(b2);
     }
 
     // Bonus for threats on the next moves against enemy queen
