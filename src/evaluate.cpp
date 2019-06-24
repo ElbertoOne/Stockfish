@@ -570,8 +570,8 @@ namespace {
     if (b2)
     {
         Bitboard b3;
-        // Exclude pawns that are blockers for our king
-        b2 &= ~(pawn_attacks_bb<Us>(b & pos.blockers_for_king(Us) & pos.slider_blockers(nonPawnEnemies ^ b2, pos.square<KING>(Us), b3)) & nonPawnEnemies);
+        // Exclude pawns that are blockers for our king and can't move
+        b2 &= ~(pawn_attacks_bb<Us>(b & pos.slider_blockers(nonPawnEnemies ^ b2, pos.square<KING>(Us), b3)) & nonPawnEnemies);
         score += ThreatBySafePawn * popcount(b2);
     }
 
