@@ -210,6 +210,8 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+
+    Bitboard queenBlockers[COLOR_NB];
   };
 
 
@@ -256,6 +258,8 @@ namespace {
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
+
+    queenBlockers[Us] = 0;
   }
 
 
@@ -368,7 +372,8 @@ namespace {
         {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
-            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
+            queenBlockers[Us] = pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners);
+            if (queenBlockers[Us])
                 score -= WeakQueen;
         }
     }
@@ -574,8 +579,8 @@ namespace {
         b2 &= ~(pawn_attacks_bb<Us>(b & pos.slider_blockers(nonPawnEnemies ^ b2, pos.square<KING>(Us), b3)) & nonPawnEnemies);
 
         // Exclude pawns that are blockers for the queen.
-        if (pos.count<QUEEN>(Us) == 1)
-            b2 &= ~(pawn_attacks_bb<Us>(b & pos.slider_blockers(nonPawnEnemies ^ b2, pos.square<QUEEN>(Us), b3)) & nonPawnEnemies);
+        if (pos.count<QUEEN>(Us) == 1 && queenBlockers[Us])
+            b2 &= ~(pawn_attacks_bb<Us>(b & queenBlockers[Us]) & nonPawnEnemies);
 
         score += ThreatBySafePawn * popcount(b2);
     }
