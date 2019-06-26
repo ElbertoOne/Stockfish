@@ -68,13 +68,12 @@ namespace {
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
 
-    Bitboard b, neighbours, stoppers, doubled, support, phalanx;
+    Bitboard b, neighbours, stoppers, doubled, support, supporting, phalanx;
     Bitboard lever, leverPush;
     Square s;
     bool opposed, backward;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
-    int connectedCount = 0;
 
     Bitboard ourPawns   = pos.pieces(  Us, PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
@@ -101,6 +100,7 @@ namespace {
         neighbours = ourPawns   & adjacent_files_bb(s);
         phalanx    = neighbours & rank_bb(s);
         support    = neighbours & rank_bb(s - Up);
+        supporting = neighbours & rank_bb(s + Up);
 
         // A pawn is backward when it is behind all pawns of the same color
         // on the adjacent files and cannot be safely advanced.
@@ -126,21 +126,16 @@ namespace {
         // Score this pawn
         if ((support | phalanx))
         {
-            connectedCount++;
-            int v =  Connected[r] * (phalanx ? 3 : 2) / ((opposed || connectedCount > 4)? 2 : 1)
+            int v =  Connected[r] * (phalanx ? 3 : 2) / (opposed ? (supporting && phalanx) ? 3 : 2 : 1)
                    + 17 * popcount(support);
 
             score += make_score(v, v * (r - 2) / 4);
         }
-        else
-        {
-            connectedCount = 0;
-            if (!neighbours)
-                score -= Isolated + WeakUnopposed * int(!opposed);
+        else if (!neighbours)
+            score -= Isolated + WeakUnopposed * int(!opposed);
 
-            else if (backward)
-                score -= Backward + WeakUnopposed * int(!opposed);
-        }
+        else if (backward)
+            score -= Backward + WeakUnopposed * int(!opposed);
 
         if (doubled && !support)
             score -= Doubled;
