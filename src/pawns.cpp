@@ -74,6 +74,7 @@ namespace {
     bool opposed, backward;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
+    int connectedCount = 0;
 
     Bitboard ourPawns   = pos.pieces(  Us, PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
@@ -123,18 +124,23 @@ namespace {
         }
 
         // Score this pawn
-        if (support | phalanx)
+        if ((support | phalanx) && connectedCount < 4)
         {
+            connectedCount++;
             int v =  Connected[r] * (phalanx ? 3 : 2) / (opposed ? 2 : 1)
                    + 17 * popcount(support);
 
             score += make_score(v, v * (r - 2) / 4);
         }
-        else if (!neighbours)
-            score -= Isolated + WeakUnopposed * int(!opposed);
+        else
+        {
+            connectedCount = 0;
+            if (!neighbours)
+                score -= Isolated + WeakUnopposed * int(!opposed);
 
-        else if (backward)
-            score -= Backward + WeakUnopposed * int(!opposed);
+            else if (backward)
+                score -= Backward + WeakUnopposed * int(!opposed);
+        }
 
         if (doubled && !support)
             score -= Doubled;
