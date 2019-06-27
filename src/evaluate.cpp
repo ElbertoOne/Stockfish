@@ -769,7 +769,14 @@ namespace {
             && pos.non_pawn_material() == 2 * BishopValueMg)
             sf = 16 + 4 * pe->passed_count();
         else
-            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+        {
+			int blockedPawns = 0;
+			if (strongSide == WHITE)
+			    blockedPawns = popcount(shift<NORTH>(pos.pieces(strongSide, PAWN) & ~attackedBy[~strongSide][PAWN]) & (pos.pieces(~strongSide, PAWN) | attackedBy[~strongSide][PAWN]));
+			else
+			    blockedPawns = popcount(shift<SOUTH>(pos.pieces(strongSide, PAWN) & ~attackedBy[~strongSide][PAWN]) & (pos.pieces(~strongSide, PAWN) | attackedBy[~strongSide][PAWN]));
+            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * (pos.count<PAWN>(strongSide) - blockedPawns), sf);
+		}
 
     }
 
