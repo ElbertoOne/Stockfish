@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -770,13 +771,16 @@ namespace {
             sf = 16 + 4 * pe->passed_count();
         else
         {
-			int blockedPawns = 0;
-			if (strongSide == WHITE)
-			    blockedPawns = popcount(shift<NORTH>(pos.pieces(strongSide, PAWN) & ~attackedBy[~strongSide][PAWN]) & (pos.pieces(~strongSide, PAWN) | attackedBy[~strongSide][PAWN]));
-			else
-			    blockedPawns = popcount(shift<SOUTH>(pos.pieces(strongSide, PAWN) & ~attackedBy[~strongSide][PAWN]) & (pos.pieces(~strongSide, PAWN) | attackedBy[~strongSide][PAWN]));
+            int blockedPawns = 0;
+            if (!(pe->passed_pawns(strongSide) || pe->passed_pawns(~strongSide)))
+            {
+                if (strongSide == WHITE)
+                    blockedPawns = popcount(shift<NORTH>(pos.pieces(strongSide, PAWN) & ~attackedBy[~strongSide][PAWN]) & (pos.pieces(~strongSide, PAWN) | attackedBy[~strongSide][PAWN]));
+                else
+                    blockedPawns = popcount(shift<SOUTH>(pos.pieces(strongSide, PAWN) & ~attackedBy[~strongSide][PAWN]) & (pos.pieces(~strongSide, PAWN) | attackedBy[~strongSide][PAWN]));
+            }
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * (pos.count<PAWN>(strongSide) - blockedPawns), sf);
-		}
+        }
 
     }
 
