@@ -145,6 +145,7 @@ namespace {
   constexpr Score Outpost            = S( 36, 12);
   constexpr Score PawnlessFlank      = S( 17, 95);
   constexpr Score RestrictedPiece    = S(  7,  7);
+  constexpr Score PivotControl       = S(  0,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score SliderOnQueen      = S( 59, 18);
   constexpr Score ThreatByKing       = S( 24, 89);
@@ -552,6 +553,17 @@ namespace {
        &  attackedBy[Us][ALL_PIECES];
 
     score += RestrictedPiece * popcount(b);
+
+    b = pos.pieces(Them, PAWN) & ~attackedBy[Them][PAWN];
+    Bitboard pivot = 0;
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+        pivot |= pos.attacks_from<KNIGHT>(s) & attackedBy[Us][KNIGHT];
+        pivot |= pos.attacks_from<BISHOP>(s) & (attackedBy[Us][BISHOP] | attackedBy[Us][QUEEN]);
+        pivot |= pos.attacks_from<ROOK>(s) & (attackedBy[Us][ROOK] | attackedBy[Us][QUEEN]);
+    }
+    score += PivotControl * popcount(pivot & ~attackedBy[Them][ALL_PIECES]);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
