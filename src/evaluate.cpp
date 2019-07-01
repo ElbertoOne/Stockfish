@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -543,7 +544,17 @@ namespace {
 
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
-        score += Hanging * popcount(weak & b);
+        b = weak & b;
+        score += Hanging * popcount(b);
+
+        Bitboard theirPawns = pos.pieces(Them, PAWN);
+        b &= theirPawns;
+        while (b)
+        {
+            Square s = pop_lsb(&b) - Up;
+            if ((pos.pieces(Us, PAWN) & s) && !(pawn_attack_span(Us, s) & theirPawns) && !more_than_one(forward_file_bb(Us, s) & theirPawns))
+                pe->passedPawns[Us] |= s;
+        }
     }
 
     // Bonus for restricting their piece moves
