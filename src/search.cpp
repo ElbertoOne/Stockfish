@@ -934,9 +934,6 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
-      if (!th.marked())
-      {
-
       // Step 13. Extensions (~70 Elo)
 
       // Singular extension search (~60 Elo). If all moves but one fail low on a
@@ -1000,7 +997,6 @@ moves_loop: // When in check, search starts from here
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
           extension = ONE_PLY;
-      }
 
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
@@ -1074,8 +1070,8 @@ moves_loop: // When in check, search starts from here
           Depth r = reduction(improving, depth, moveCount);
 
           // Reduction if other threads are searching this position.
-	  if (th.marked())
-              r += ONE_PLY;
+	      if (th.marked())
+              r += 2 * ONE_PLY;
 
           // Decrease reduction if position is or has been on the PV
           if (ttPv)
