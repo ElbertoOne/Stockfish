@@ -1069,10 +1069,6 @@ moves_loop: // When in check, search starts from here
       {
           Depth r = reduction(improving, depth, moveCount);
 
-          // Reduction if other threads are searching this position.
-	      if (th.marked())
-              r += 2 * ONE_PLY;
-
           // Decrease reduction if position is or has been on the PV
           if (ttPv)
               r -= 2 * ONE_PLY;
@@ -1086,6 +1082,10 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion)
           {
+              // Reduction if other threads are searching this position.
+              if (th.marked())
+                  r += ONE_PLY;
+
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
                   r += ONE_PLY;
