@@ -1084,7 +1084,7 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
 
-          if (ss->excludedMove != MOVE_NONE)
+          if (ss->excludedMove != MOVE_NONE && moveCount < 15)
               r -= ONE_PLY;
 
           if (!captureOrPromotion)
