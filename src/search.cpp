@@ -605,7 +605,7 @@ namespace {
         if (   Threads.stop.load(std::memory_order_relaxed)
             || pos.is_draw(ss->ply)
             || ss->ply >= MAX_PLY)
-            return (ss->ply >= MAX_PLY && !inCheck) ? evaluate(pos)
+            return (ss->ply >= MAX_PLY && !inCheck) ? evaluate(pos).mainEval
                                                     : value_draw(depth, pos.this_thread());
 
         // Step 3. Mate distance pruning. Even if we mate at the next move our score
@@ -742,7 +742,11 @@ namespace {
         // Never assume anything on values stored in TT
         ss->staticEval = eval = tte->eval();
         if (eval == VALUE_NONE)
-            ss->staticEval = eval = evaluate(pos);
+        {
+            EvalValue evValue = evaluate(pos);
+            ss->staticEval = eval = evValue.mainEval;
+            ss->kingEval = evValue.kingEval;
+        }
 
         // Can ttValue be used as a better position evaluation?
         if (    ttValue != VALUE_NONE
@@ -754,8 +758,9 @@ namespace {
         if ((ss-1)->currentMove != MOVE_NULL)
         {
             int bonus = -(ss-1)->statScore / 512;
-
-            ss->staticEval = eval = evaluate(pos) + bonus;
+            EvalValue evValue = evaluate(pos);
+            ss->staticEval = eval = evValue.mainEval + bonus;
+            ss->kingEval = evValue.kingEval;
         }
         else
             ss->staticEval = eval = -(ss-1)->staticEval + 2 * Eval::Tempo;
@@ -1111,11 +1116,16 @@ moves_loop: // When in check, search starts from here
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
                   r -= ONE_PLY;
 
-              else if ((ss-1)->currentMove != MOVE_NONE && (ss-1)->statScore >= 0 && ss->statScore < 0)
+              else if ((ss-1)->statScore >= 0 && ss->statScore < 0)
                   r += ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 20000 * ONE_PLY;
+
+              if (ss->kingEval > 0 && (ss-1)->kingEval < 0)
+                  r -= ONE_PLY;
+              else if (ss->kingEval < 0 && (ss-1)->kingEval > 0)
+                  r += ONE_PLY;
           }
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
@@ -1307,7 +1317,7 @@ moves_loop: // When in check, search starts from here
     // Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
         || ss->ply >= MAX_PLY)
-        return (ss->ply >= MAX_PLY && !inCheck) ? evaluate(pos) : VALUE_DRAW;
+        return (ss->ply >= MAX_PLY && !inCheck) ? evaluate(pos).mainEval : VALUE_DRAW;
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -1343,7 +1353,11 @@ moves_loop: // When in check, search starts from here
         {
             // Never assume anything on values stored in TT
             if ((ss->staticEval = bestValue = tte->eval()) == VALUE_NONE)
-                ss->staticEval = bestValue = evaluate(pos);
+            {
+                EvalValue evValue = evaluate(pos);
+                ss->staticEval = bestValue = evValue.mainEval;
+                ss->kingEval = evValue.kingEval;
+            }
 
             // Can ttValue be used as a better position evaluation?
             if (    ttValue != VALUE_NONE
@@ -1351,9 +1365,16 @@ moves_loop: // When in check, search starts from here
                 bestValue = ttValue;
         }
         else
-            ss->staticEval = bestValue =
-            (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
-                                             : -(ss-1)->staticEval + 2 * Eval::Tempo;
+        {
+            if ((ss-1)->currentMove != MOVE_NULL)
+            {
+                EvalValue evValue = evaluate(pos);
+                ss->staticEval = bestValue = evValue.mainEval;
+                ss->kingEval = evValue.kingEval;
+            }
+            else
+                ss->staticEval = bestValue = -(ss-1)->staticEval + 2 * Eval::Tempo;
+        }
 
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)

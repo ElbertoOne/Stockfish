@@ -27,13 +27,20 @@
 
 class Position;
 
+struct EvalValue {
+    Value mainEval;
+    Value kingEval;
+};
+
 namespace Eval {
 
 constexpr Value Tempo = Value(28); // Must be visible to search
 
 std::string trace(const Position& pos);
 
-Value evaluate(const Position& pos);
+EvalValue evaluate(const Position& pos);
+
+
 }
 
 #endif // #ifndef EVALUATE_H_INCLUDED

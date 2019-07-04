@@ -164,7 +164,7 @@ namespace {
     Evaluation() = delete;
     explicit Evaluation(const Position& p) : pos(p) {}
     Evaluation& operator=(const Evaluation&) = delete;
-    Value value();
+    EvalValue value();
 
   private:
     template<Color Us> void initialize();
@@ -782,9 +782,10 @@ namespace {
   // of view of the side to move.
 
   template<Tracing T>
-  Value Evaluation<T>::value() {
+  EvalValue Evaluation<T>::value() {
 
     assert(!pos.checkers());
+    EvalValue evalValue;
 
     // Probe the material hash table
     me = Material::probe(pos);
@@ -792,7 +793,11 @@ namespace {
     // If we have a specialized evaluation function for the current material
     // configuration, call it and return.
     if (me->specialized_eval_exists())
-        return me->evaluate(pos);
+    {
+        evalValue.mainEval = me->evaluate(pos);
+        evalValue.kingEval = Value(0);
+        return evalValue;
+    }
 
     // Initialize score by reading the incrementally updated scores included in
     // the position object (material + piece square tables) and the material
@@ -806,7 +811,11 @@ namespace {
     // Early exit if score is high
     Value v = (mg_value(score) + eg_value(score)) / 2;
     if (abs(v) > LazyThreshold + pos.non_pawn_material() / 64)
-       return pos.side_to_move() == WHITE ? v : -v;
+    {
+        evalValue.mainEval = pos.side_to_move() == WHITE ? v : -v;
+        evalValue.kingEval = Value(0);
+        return evalValue;
+    }
 
     // Main evaluation begins here
 
@@ -821,7 +830,10 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
-    score +=  king<   WHITE>() - king<   BLACK>()
+    Score kingScore = king<   WHITE>() - king<   BLACK>();
+    Value v2 = (mg_value(kingScore) + eg_value(kingScore)) / 2;
+
+    score +=  kingScore
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
@@ -845,8 +857,10 @@ namespace {
         Trace::add(TOTAL, score);
     }
 
-    return  (pos.side_to_move() == WHITE ? v : -v) // Side to move point of view
+    evalValue.mainEval = (pos.side_to_move() == WHITE ? v : -v) // Side to move point of view
            + Eval::Tempo;
+    evalValue.kingEval = (pos.side_to_move() == WHITE ? v2 : -v2);
+    return evalValue;
   }
 
 } // namespace
@@ -855,7 +869,7 @@ namespace {
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
-Value Eval::evaluate(const Position& pos) {
+EvalValue Eval::evaluate(const Position& pos) {
   return Evaluation<NO_TRACE>(pos).value();
 }
 
@@ -870,7 +884,7 @@ std::string Eval::trace(const Position& pos) {
 
   pos.this_thread()->contempt = SCORE_ZERO; // Reset any dynamic contempt
 
-  Value v = Evaluation<TRACE>(pos).value();
+  Value v = Evaluation<TRACE>(pos).value().mainEval;
 
   v = pos.side_to_move() == WHITE ? v : -v; // Trace scores are from white's point of view
 
