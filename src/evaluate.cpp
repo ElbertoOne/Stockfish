@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -291,7 +292,7 @@ namespace {
 
         Bitboard kingRingAttacks = b & kingRing[Them];
 
-        if (kingRingAttacks && !(Pt == KNIGHT && !more_than_one(kingRingAttacks) && !(pos.attacks_from<KNIGHT>(pos.square<KING>(Them)) & kingRingAttacks)))
+        if (kingRingAttacks && !(Pt == KNIGHT && !more_than_one(kingRingAttacks) && (adjacent_files_bb(s) & pos.square<KING>(Them))))
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
