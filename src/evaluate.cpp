@@ -289,7 +289,9 @@ namespace {
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
 
-        if (b & kingRing[Them])
+        Bitboard kingRingAttacks = b & kingRing[Them];
+
+        if (kingRingAttacks && !(Pt == KNIGHT && !more_than_one(kingRingAttacks) && !(pos.attacks_from<KNIGHT>(pos.square<KING>(Them)) & kingRingAttacks)))
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
