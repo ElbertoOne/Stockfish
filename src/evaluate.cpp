@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -414,7 +415,7 @@ namespace {
     if (rookChecks)
         kingDanger += RookSafeCheck;
     else
-        unsafeChecks |= b1 & attackedBy[Them][ROOK];
+        unsafeChecks |= b1 & attackedBy[Them][ROOK] & ~pos.pieces(Them);
 
     // Enemy queen safe checks: we count them only if they are from squares from
     // which we can't give a rook check, because rook checks are more valuable.
@@ -445,11 +446,11 @@ namespace {
     if (knightChecks & safe)
         kingDanger += KnightSafeCheck;
     else
-        unsafeChecks |= knightChecks;
+        unsafeChecks |= knightChecks & ~pos.pieces(Them);
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
-    unsafeChecks &= mobilityArea[Them] & ~(pos.pieces(Them) & ~pos.blockers_for_king(Them));
+    unsafeChecks &= mobilityArea[Them];
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
