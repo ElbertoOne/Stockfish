@@ -414,7 +414,7 @@ namespace {
     if (rookChecks)
         kingDanger += RookSafeCheck;
     else
-        unsafeChecks |= b1 & attackedBy[Them][ROOK] & ~pos.pieces(Them);
+        unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
     // Enemy queen safe checks: we count them only if they are from squares from
     // which we can't give a rook check, because rook checks are more valuable.
@@ -449,7 +449,7 @@ namespace {
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
-    unsafeChecks &= mobilityArea[Them];
+    unsafeChecks &= mobilityArea[Them] & ~pos.pieces(Them);
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
