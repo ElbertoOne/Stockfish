@@ -600,6 +600,7 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
 
     auto king_proximity = [&](Color c, Square s) {
       return std::min(distance(pos.square<KING>(c), s), 5);
@@ -610,66 +611,87 @@ namespace {
 
     b = pe->passed_pawns(Us);
 
-    while (b)
+    if (b)
     {
-        Square s = pop_lsb(&b);
-
-        assert(!(pos.pieces(Them, PAWN) & forward_file_bb(Us, s + Up)));
-
-        int r = relative_rank(Us, s);
-
-        Score bonus = PassedRank[r];
-
-        if (r > RANK_3)
+        while (b)
         {
-            int w = (r-2) * (r-2) + 2;
-            Square blockSq = s + Up;
+            Square s = pop_lsb(&b);
 
-            // Adjust bonus based on the king's proximity
-            bonus += make_score(0, (  king_proximity(Them, blockSq) * 5
-                                    - king_proximity(Us,   blockSq) * 2) * w);
+            assert(!(pos.pieces(Them, PAWN) & forward_file_bb(Us, s + Up)));
 
-            // If blockSq is not the queening square then consider also a second push
-            if (r != RANK_7)
-                bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
+            int r = relative_rank(Us, s);
 
-            // If the pawn is free to advance, then increase the bonus
-            if (pos.empty(blockSq))
+            Score bonus = PassedRank[r];
+
+            if (r > RANK_3)
             {
-                defendedSquares = squaresToQueen = forward_file_bb(Us, s);
-                unsafeSquares = passed_pawn_span(Us, s);
+                int w = (r-2) * (r-2) + 2;
+                Square blockSq = s + Up;
 
-                bb = forward_file_bb(Them, s) & pos.pieces(ROOK, QUEEN);
+                // Adjust bonus based on the king's proximity
+                bonus += make_score(0, (  king_proximity(Them, blockSq) * 5
+                                        - king_proximity(Us,   blockSq) * 2) * w);
 
-                if (!(pos.pieces(Us) & bb))
-                    defendedSquares &= attackedBy[Us][ALL_PIECES];
+                // If blockSq is not the queening square then consider also a second push
+                if (r != RANK_7)
+                    bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
 
-                if (!(pos.pieces(Them) & bb))
-                    unsafeSquares &= attackedBy[Them][ALL_PIECES] | pos.pieces(Them);
+                // If the pawn is free to advance, then increase the bonus
+                if (pos.empty(blockSq))
+                {
+                    defendedSquares = squaresToQueen = forward_file_bb(Us, s);
+                    unsafeSquares = passed_pawn_span(Us, s);
 
-                // If there are no enemy attacks on passed pawn span, assign a big bonus.
-                // Otherwise assign a smaller bonus if the path to queen is not attacked
-                // and even smaller bonus if it is attacked but block square is not.
-                int k = !unsafeSquares                    ? 35 :
-                        !(unsafeSquares & squaresToQueen) ? 20 :
-                        !(unsafeSquares & blockSq)        ?  9 :
-                                                             0 ;
+                    bb = forward_file_bb(Them, s) & pos.pieces(ROOK, QUEEN);
 
-                // Assign a larger bonus if the block square is defended.
-                if (defendedSquares & blockSq)
-                    k += 5;
+                    if (!(pos.pieces(Us) & bb))
+                        defendedSquares &= attackedBy[Us][ALL_PIECES];
 
-                bonus += make_score(k * w, k * w);
-            }
-        } // r > RANK_3
+                    if (!(pos.pieces(Them) & bb))
+                        unsafeSquares &= attackedBy[Them][ALL_PIECES] | pos.pieces(Them);
 
-        // Scale down bonus for candidate passers which need more than one
-        // pawn push to become passed, or have a pawn in front of them.
-        if (   !pos.pawn_passed(Us, s + Up)
-            || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
-            bonus = bonus / 2;
+                    // If there are no enemy attacks on passed pawn span, assign a big bonus.
+                    // Otherwise assign a smaller bonus if the path to queen is not attacked
+                    // and even smaller bonus if it is attacked but block square is not.
+                    int k = !unsafeSquares                    ? 35 :
+                            !(unsafeSquares & squaresToQueen) ? 20 :
+                            !(unsafeSquares & blockSq)        ?  9 :
+                                                                 0 ;
 
-        score += bonus + PassedFile[file_of(s)];
+                    // Assign a larger bonus if the block square is defended.
+                    if (defendedSquares & blockSq)
+                        k += 5;
+
+                    bonus += make_score(k * w, k * w);
+                }
+            } // r > RANK_3
+
+            // Scale down bonus for candidate passers which need more than one
+            // pawn push to become passed, or have a pawn in front of them.
+            if (   !pos.pawn_passed(Us, s + Up)
+                || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
+                bonus = bonus / 2;
+
+            score += bonus + PassedFile[file_of(s)];
+        }
+    }
+    else
+    {
+        b = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
+        Bitboard moveAblePawns = b & ~attackedBy[Them][ALL_PIECES];
+
+        b &= attackedBy[Them][ALL_PIECES];
+        moveAblePawns |= b & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them];
+        b &= ~(attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them]);
+
+        while (b)
+        {
+            Square s = pop_lsb(&b);
+            bb = forward_file_bb(Them, s) & pos.pieces(Us, ROOK, QUEEN);
+            if ((~attackedBy2[Them] & s) && (pos.attacks_from<ROOK>(s + Down) & bb))
+                moveAblePawns |= s;
+        }
+        score += make_score(0, 2 * popcount(moveAblePawns));
     }
 
     if (T)
