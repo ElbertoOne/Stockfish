@@ -675,9 +675,9 @@ namespace {
             score += bonus + PassedFile[file_of(s)];
         }
     }
-    else
+    else if (pos.count<PAWN>(Us) > 0)
     {
-        b = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
+        b = shift<Up>(pos.pieces(Us, PAWN) & ~attackedBy[Them][PAWN]) & ~pos.pieces();
         Bitboard moveAblePawns = b & ~attackedBy[Them][ALL_PIECES];
 
         b &= attackedBy[Them][ALL_PIECES];
@@ -691,7 +691,8 @@ namespace {
             if ((~attackedBy2[Them] & s) && (pos.attacks_from<ROOK>(s + Down) & bb))
                 moveAblePawns |= s;
         }
-        score += make_score(0, 2 * popcount(moveAblePawns));
+        if (!moveAblePawns)
+            score -= make_score(0, 4 * pos.count<PAWN>(Us));
     }
 
     if (T)
