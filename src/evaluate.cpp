@@ -551,6 +551,8 @@ namespace {
        & ~stronglyProtected
        &  attackedBy[Us][ALL_PIECES];
 
+    b |= shift<Up>(pe->passed_pawns(Us)) & (attackedBy[Them][ALL_PIECES] | pos.pieces(Them));
+
     score += RestrictedPiece * popcount(b);
 
     // Find squares where our pawns can push on the next move
