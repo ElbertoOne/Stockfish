@@ -802,8 +802,9 @@ namespace {
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
     Score pawnScore = (pe->pawn_score(WHITE) - pe->pawn_score(BLACK));
-    int pawnCount = pos.count<PAWN>();
-    pawnScore = make_score(mg_value(pawnScore) * pawnCount / 10, eg_value(pawnScore) * pawnCount / 10);
+    int material = pos.non_pawn_material();
+    if (material > 11000)
+        pawnScore = make_score(mg_value(pawnScore) * material / 11000, eg_value(pawnScore) * material / 11000);
     score += pawnScore;
 
     // Early exit if score is high
