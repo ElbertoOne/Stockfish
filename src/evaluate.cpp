@@ -801,7 +801,11 @@ namespace {
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
-    score += pe->pawn_score(WHITE) - pe->pawn_score(BLACK);
+    Score pawnScore = (pe->pawn_score(WHITE) - pe->pawn_score(BLACK));
+    int material = pos.non_pawn_material();
+    if (material > SpaceThreshold)
+        pawnScore = make_score(mg_value(pawnScore) * material / SpaceThreshold, eg_value(pawnScore) * material / SpaceThreshold);
+    score += pawnScore;
 
     // Early exit if score is high
     Value v = (mg_value(score) + eg_value(score)) / 2;
