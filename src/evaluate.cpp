@@ -803,8 +803,8 @@ namespace {
     pe = Pawns::probe(pos);
     Score pawnScore = (pe->pawn_score(WHITE) - pe->pawn_score(BLACK));
     int material = pos.non_pawn_material();
-    if (material > 11000)
-        pawnScore = make_score(mg_value(pawnScore) * material / 11000, eg_value(pawnScore) * material / 11000);
+    if (material > SpaceThreshold)
+        pawnScore = make_score(mg_value(pawnScore) * material ^ 2 / SpaceThreshold ^ 2, eg_value(pawnScore) * material ^ 2 / SpaceThreshold ^ 2);
     score += pawnScore;
 
     // Early exit if score is high
