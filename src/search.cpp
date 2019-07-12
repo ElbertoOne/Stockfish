@@ -1132,10 +1132,10 @@ moves_loop: // When in check, search starts from here
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
-          if (doLMR && !captureOrPromotion)
+          if (doLMR && !captureOrPromotion && value != alpha)
           {
               int bonus = stat_bonus(newDepth) / 2;
-              if (value <= alpha)
+              if (value < alpha)
                   bonus = -bonus;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
