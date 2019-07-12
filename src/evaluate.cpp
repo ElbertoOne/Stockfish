@@ -445,7 +445,20 @@ namespace {
     if (knightChecks & safe)
         kingDanger += KnightSafeCheck;
     else
+    {
         unsafeChecks |= knightChecks;
+        Bitboard b = knightChecks & attackedBy[Us][PAWN] & ~attackedBy2[Us];
+        while (b)
+        {
+            Square s = pop_lsb(&b);
+
+            if (PawnAttacks[Them][s] & pos.blockers_for_king(Us) & pos.pieces(Us, PAWN))
+            {
+                kingDanger += KnightSafeCheck;
+                unsafeChecks &= ~s;
+            }
+        }
+    }
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
