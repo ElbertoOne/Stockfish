@@ -83,6 +83,7 @@ namespace {
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = 0;
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = pawn_attacks_bb<Us>(ourPawns);
+    e->semiopenFiles[Us] = 0xFF;
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -90,7 +91,9 @@ namespace {
         assert(pos.piece_on(s) == make_piece(Us, PAWN));
 
         Rank r = relative_rank(Us, s);
+        File f = file_of(s);
 
+        e->semiopenFiles[Us] &= ~(1 << f);
         e->pawnAttacksSpan[Us] |= pawn_attack_span(Us, s);
 
         // Flag the pawn
@@ -173,6 +176,7 @@ Entry* probe(const Position& pos) {
   e->key = key;
   e->scores[WHITE] = evaluate<WHITE>(pos, e);
   e->scores[BLACK] = evaluate<BLACK>(pos, e);
+  e->openFiles = popcount(e->semiopenFiles[WHITE] & e->semiopenFiles[BLACK]);
 
   return e;
 }
