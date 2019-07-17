@@ -37,7 +37,7 @@ namespace {
   constexpr Score Isolated      = S( 5, 15);
   constexpr Score WeakUnopposed = S(13, 27);
   constexpr Score Attacked2Unsupported = S(0, 56);
-  constexpr Score Unsupported   = S(0, 10);
+  constexpr Score Unsupported   = S(0, 20);
 
   // Connected pawn bonus
   constexpr int Connected[RANK_NB] = { 0, 7, 8, 12, 29, 48, 86 };
