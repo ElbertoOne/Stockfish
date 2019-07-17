@@ -367,6 +367,13 @@ namespace {
 
         if (Pt == QUEEN)
         {
+            if (!(pos.pieces(Them, BISHOP) & ((DarkSquares & s) ? DarkSquares : ~DarkSquares)))
+            {
+                // Bonus for Queen on a long diagonal which can "see" both center squares if no enemy bishop on the same color squares is present.
+                if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
+                    score += LongDiagonalBishop;
+            }
+
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
