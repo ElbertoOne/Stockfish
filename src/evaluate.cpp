@@ -153,6 +153,7 @@ namespace {
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
+  constexpr Score BadBishopPair      = S(  0, 40);
 
 #undef S
 
@@ -274,6 +275,7 @@ namespace {
     Score score = SCORE_ZERO;
 
     attackedBy[Us][Pt] = 0;
+    bool badBishop = false;
 
     for (Square s = *pl; s != SQ_NONE; s = *++pl)
     {
@@ -329,6 +331,12 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
+
+                // Penalty for bad bishop pair
+                if (badBishop && more_than_one(attacks_bb<BISHOP>(s, pos.pieces(Us, PAWN)) & pos.pieces(Us, PAWN) & forward_ranks_bb(Us, s)))
+                    score -= BadBishopPair;
+                else
+                    badBishop = more_than_one(attacks_bb<BISHOP>(s, pos.pieces(Us, PAWN)) & pos.pieces(Us, PAWN) & forward_ranks_bb(Us, s));
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
