@@ -153,7 +153,7 @@ namespace {
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
-  constexpr Score BadBishopPair      = S(  0, 40);
+  constexpr Score BadBishopPair      = S(  0, 60);
 
 #undef S
 
@@ -276,6 +276,7 @@ namespace {
 
     attackedBy[Us][Pt] = 0;
     bool badBishop = false;
+    int bishopCount = 0;
 
     for (Square s = *pl; s != SQ_NONE; s = *++pl)
     {
@@ -321,6 +322,7 @@ namespace {
 
             if (Pt == BISHOP)
             {
+                bishopCount++;
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
                 Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
@@ -335,7 +337,7 @@ namespace {
                 // Penalty for bad bishop pair
                 if (badBishop && more_than_one(attacks_bb<BISHOP>(s, pos.pieces(Us, PAWN)) & pos.pieces(Us, PAWN) & forward_ranks_bb(Us, s)))
                     score -= BadBishopPair;
-                else
+                else if (bishopCount < 2)
                     badBishop = more_than_one(attacks_bb<BISHOP>(s, pos.pieces(Us, PAWN)) & pos.pieces(Us, PAWN) & forward_ranks_bb(Us, s));
             }
 
