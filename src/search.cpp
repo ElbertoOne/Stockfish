@@ -1005,6 +1005,10 @@ moves_loop: // When in check, search starts from here
                && pos.pawn_passed(us, to_sq(move)))
           extension = ONE_PLY;
 
+      else if (   pos.knight_attacks_queen(move)
+               && pos.see_ge(move))
+          extension = ONE_PLY;
+
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 

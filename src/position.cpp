@@ -361,6 +361,14 @@ void Position::set_check_info(StateInfo* si) const {
   si->checkSquares[ROOK]   = attacks_from<ROOK>(ksq);
   si->checkSquares[QUEEN]  = si->checkSquares[BISHOP] | si->checkSquares[ROOK];
   si->checkSquares[KING]   = 0;
+
+  if (count<QUEEN>(~sideToMove) == 1)
+  {
+      Square qsq = square<QUEEN>(~sideToMove);
+      si->knightQueenAttackSquares = attacks_from<KNIGHT>(qsq);
+  }
+  else
+      si->knightQueenAttackSquares = 0;
 }
 
 
@@ -655,6 +663,19 @@ bool Position::pseudo_legal(const Move m) const {
   }
 
   return true;
+}
+
+bool Position::knight_attacks_queen(Move m) const {
+  assert(is_ok(m));
+  assert(color_of(moved_piece(m)) == sideToMove);
+
+  Square from = from_sq(m);
+  Square to = to_sq(m);
+
+  if (type_of(piece_on(from)) == KNIGHT && (st->knightQueenAttackSquares & to))
+      return true;
+
+  return false;
 }
 
 

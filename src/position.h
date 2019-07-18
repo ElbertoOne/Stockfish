@@ -54,6 +54,7 @@ struct StateInfo {
   Bitboard   blockersForKing[COLOR_NB];
   Bitboard   pinners[COLOR_NB];
   Bitboard   checkSquares[PIECE_TYPE_NB];
+  Bitboard   knightQueenAttackSquares;
 };
 
 /// A list to keep track of the position states along the setup moves (from the
@@ -117,12 +118,14 @@ public:
   template<PieceType> Bitboard attacks_from(Square s) const;
   template<PieceType> Bitboard attacks_from(Square s, Color c) const;
   Bitboard slider_blockers(Bitboard sliders, Square s, Bitboard& pinners) const;
+  Bitboard knight_queen_attack_squares() const;
 
   // Properties of moves
   bool legal(Move m) const;
   bool pseudo_legal(const Move m) const;
   bool capture(Move m) const;
   bool capture_or_promotion(Move m) const;
+  bool knight_attacks_queen(Move m) const;
   bool gives_check(Move m) const;
   bool advanced_pawn_push(Move m) const;
   Piece moved_piece(Move m) const;
@@ -315,6 +318,10 @@ inline Bitboard Position::blockers_for_king(Color c) const {
 
 inline Bitboard Position::check_squares(PieceType pt) const {
   return st->checkSquares[pt];
+}
+
+inline Bitboard Position::knight_queen_attack_squares() const {
+	return st->knightQueenAttackSquares;
 }
 
 inline bool Position::is_discovery_check_on_king(Color c, Move m) const {
