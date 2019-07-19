@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -655,6 +656,11 @@ namespace {
                 // Assign a larger bonus if the block square is defended
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
                     k += 5;
+
+                Bitboard targets = PawnAttacks[Us][s] & pe->passed_pawns(Them);
+                if (   targets
+                    && pos.pawn_passed(Us, lsb(targets)))
+                    k += k;
 
                 bonus += make_score(k * w, k * w);
             }
