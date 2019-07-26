@@ -574,6 +574,17 @@ namespace {
 
         score += KnightOnQueen * popcount(b & safe);
 
+        if (b & safe)
+        {
+            Square ksq = pos.square<KING>(Them);
+            b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(ksq))
+               | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(ksq));
+
+            // If an attack on the Queen can be combined with an attack on the king, increase the bonus.
+            if (b & safe)
+                score += KnightOnQueen;
+        }
+
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
