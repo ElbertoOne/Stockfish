@@ -571,24 +571,19 @@ namespace {
         safe = mobilityArea[Us] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
-
-        score += KnightOnQueen * popcount(b & safe);
-
-        if (b & safe)
-        {
-            Square ksq = pos.square<KING>(Them);
-            b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(ksq))
-               | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(ksq));
-
-            // If an attack on the Queen can be combined with an attack on the king, increase the bonus.
-            if (b & safe)
-                score += KnightOnQueen;
-        }
+        Bitboard attacksOnQueen = b & safe;
+        score += KnightOnQueen * popcount(attacksOnQueen);
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        b &= safe & attackedBy2[Us];
+        score += SliderOnQueen * popcount(b);
+        attacksOnQueen |= b;
+
+        // Bonus for attacks on the queen when it is inside their kingRing.
+        if (attacksOnQueen && (kingRing[Them] & s))
+            score += KnightOnQueen;
     }
 
     if (T)
