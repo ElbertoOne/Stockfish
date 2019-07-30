@@ -464,11 +464,13 @@ namespace {
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   7;
 
-    if (relative_rank(Us, ksq) == RANK_1)
+    if (   kingDanger < 100
+        && kingDanger > -500
+        && relative_rank(Us, ksq) == RANK_1)
     {
         constexpr Bitboard  TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
         if (pos.pieces(Them, PAWN) & TRank2BB & (~attackedBy[Us][ALL_PIECES] | attackedBy[Them][ALL_PIECES]))
-            kingDanger += 100;
+            kingDanger = 101;
     }
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
