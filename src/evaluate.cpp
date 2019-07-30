@@ -452,13 +452,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    if (relative_rank(Us, ksq) == RANK_1)
-    {
-        constexpr Bitboard  TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
-        if (pos.pieces(Them, PAWN) & TRank2BB)
-            kingDanger += 100;
-    }
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -470,6 +463,13 @@ namespace {
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   7;
+
+    if (relative_rank(Us, ksq) == RANK_1)
+    {
+        constexpr Bitboard  TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
+        if (pos.pieces(Them, PAWN) & TRank2BB & (~attackedBy[Us][ALL_PIECES] | attackedBy[Them][ALL_PIECES]))
+            kingDanger += 100;
+    }
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
