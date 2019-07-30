@@ -464,7 +464,7 @@ namespace {
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   7;
 
-    if (   kingDanger < 100
+    if (   kingDanger < 101
         && relative_rank(Us, ksq) == RANK_1)
     {
         constexpr Bitboard  TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
