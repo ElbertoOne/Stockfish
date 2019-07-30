@@ -452,6 +452,13 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    if (relative_rank(Us, ksq) == RANK_1)
+    {
+        constexpr Bitboard  TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
+        if (pos.pieces(Them, PAWN) & TRank2BB)
+            kingDanger += 100;
+    }
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
