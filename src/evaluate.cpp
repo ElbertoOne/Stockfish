@@ -467,6 +467,12 @@ namespace {
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+    else if (relative_rank(Us, ksq) == RANK_1)
+    {
+        constexpr Bitboard  TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
+        if (pos.pieces(Them, PAWN) & TRank2BB & (~attackedBy[Us][ALL_PIECES] | attackedBy[Them][ALL_PIECES]))
+            score -= make_score(10, 13);
+    }
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
