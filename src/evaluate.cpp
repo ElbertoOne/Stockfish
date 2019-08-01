@@ -467,9 +467,7 @@ namespace {
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-    else if (   relative_rank(Us, ksq) == RANK_1
-             && (rank_bb(rank_of(ksq)) & (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & ~attackedBy[Us][ALL_PIECES])
-             && !(forward_ranks_bb(Us, ksq) & attackedBy[Us][KING] & ~(pos.pieces(Us) | attackedBy[Them][ALL_PIECES])))
+    else if (  (rank_bb(rank_of(ksq)) & (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN] | pos.pieces(Them, ROOK, QUEEN)) & ~attackedBy[Us][ALL_PIECES]))
         score -= make_score(20, 20);
 
     // Penalty when our king is on a pawnless flank
