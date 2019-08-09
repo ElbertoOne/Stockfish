@@ -292,13 +292,6 @@ namespace {
 
         int mob = popcount(b & mobilityArea[Us]);
 
-        if (Pt == QUEEN
-            && mob > 0
-            && mob <= 5
-            && relative_rank(Us, s) > RANK_2
-            && (pos.pieces(Us, PAWN) & (s + Down)))
-            mob -= 1;
-
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (Pt == BISHOP || Pt == KNIGHT)
@@ -585,6 +578,12 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+
+        if (    relative_rank(Them, s) > RANK_2
+            && (pos.pieces(Them, PAWN) & (s + Up))
+            && !(attackedBy[Us][ALL_PIECES] & s)
+            && popcount((pos.attacks_from<BISHOP>(s) | pos.attacks_from<ROOK>(s)) & ~attackedBy[Us][ALL_PIECES] & ~(attackedBy2[Them] & pos.pieces(Us))) < 2)
+            score += make_score(20, 20);
     }
 
     if (T)
