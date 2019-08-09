@@ -295,6 +295,7 @@ namespace {
         if (Pt == QUEEN
             && mob > 0
             && mob <= 5
+            && relative_rank(Us, s) > RANK_2
             && (pos.pieces(Us, PAWN) & (s + Down)))
             mob -= 1;
 
