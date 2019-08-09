@@ -291,6 +291,10 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
+        if (Pt == QUEEN
+            && mob <= 5
+            && (pos.pieces(Us, PAWN) & (s + Down)))
+            mob -= 1;
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
