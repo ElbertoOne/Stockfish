@@ -291,7 +291,9 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
+
         if (Pt == QUEEN
+            && mob > 0
             && mob <= 5
             && (pos.pieces(Us, PAWN) & (s + Down)))
             mob -= 1;
