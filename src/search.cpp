@@ -660,6 +660,7 @@ namespace {
     ttValue = ttHit ? value_from_tt(tte->value(), ss->ply) : VALUE_NONE;
     ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
             : ttHit    ? tte->move() : MOVE_NONE;
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
     ttPv = PvNode || (ttHit && tte->is_pv());
 
     // At non-PV nodes we check for an early TT cutoff
@@ -854,7 +855,7 @@ namespace {
         int probCutCount = 0;
 
         while (  (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
+               && probCutCount < 2 + 2 * cutNode + ttCapture)
             if (move != excludedMove && pos.legal(move))
             {
                 probCutCount++;
