@@ -855,7 +855,7 @@ namespace {
         int probCutCount = 0;
 
         while (  (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * (cutNode && !ttCapture))
+               && probCutCount < 2 + 2 * cutNode - ttCapture)
             if (move != excludedMove && pos.legal(move))
             {
                 probCutCount++;
