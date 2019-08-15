@@ -147,6 +147,7 @@ namespace {
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
+  constexpr Score KnightWeakPawn     = S(  0, 40);
 
 #undef S
 
@@ -323,6 +324,11 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
+            }
+            else if (!pos.pieces(Them, BISHOP))
+            {
+                if (b & pos.pieces(Them, PAWN) & ~attackedBy[Them][PAWN])
+                    score += KnightWeakPawn;
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
