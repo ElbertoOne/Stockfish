@@ -81,10 +81,11 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 780;
-  constexpr int RookSafeCheck   = 1080;
+  int QueenSafeCheck[2]  = { 780, 780 };
+  int RookSafeCheck[2]   = { 1080, 1080 };
   constexpr int BishopSafeCheck = 635;
   constexpr int KnightSafeCheck = 790;
+  TUNE(QueenSafeCheck, RookSafeCheck);
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -406,7 +407,7 @@ namespace {
     rookChecks = b1 & safe & attackedBy[Them][ROOK];
 
     if (rookChecks)
-        kingDanger += RookSafeCheck;
+        kingDanger += RookSafeCheck[more_than_one(rookChecks)];
     else
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
@@ -419,7 +420,7 @@ namespace {
                  & ~rookChecks;
 
     if (queenChecks)
-        kingDanger += QueenSafeCheck;
+        kingDanger += QueenSafeCheck[more_than_one(queenChecks)];
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
