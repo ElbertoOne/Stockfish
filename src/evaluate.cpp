@@ -84,7 +84,7 @@ namespace {
   constexpr int QueenSafeCheck[2]  = { 740, 820 };
   constexpr int RookSafeCheck   = 1120;
   constexpr int BishopSafeCheck = 635;
-  constexpr int KnightSafeCheck = 790;
+  constexpr int KnightSafeCheck[2] = { 790, 890 };
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -437,7 +437,7 @@ namespace {
     knightChecks = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
 
     if (knightChecks & safe)
-        kingDanger += KnightSafeCheck;
+        kingDanger += KnightSafeCheck[more_than_one(knightChecks & safe)];
     else
         unsafeChecks |= knightChecks;
 
