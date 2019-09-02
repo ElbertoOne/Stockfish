@@ -1012,6 +1012,7 @@ moves_loop: // When in check, search starts from here
           extension = ONE_PLY;
 
       else if (   pos.capture(move)
+               && depth > 3 * ONE_PLY
                && (pos.attacks_from<KNIGHT>(pos.square<KING>(~us)) & to_sq(move))
                && (pos.attackers_to(to_sq(move)) & pos.pieces(~us, PAWN) & (pos.square<KING>(~us) + (~us == WHITE ? NORTH : SOUTH))))
           extension = ONE_PLY;
