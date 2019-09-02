@@ -1013,7 +1013,7 @@ moves_loop: // When in check, search starts from here
 
       else if (   pos.capture(move)
                && (pos.attacks_from<KNIGHT>(pos.square<KING>(~us)) & to_sq(move))
-               && (pos.attackers_to(to_sq(move)) & pos.pieces(~us, PAWN)))
+               && (pos.attackers_to(to_sq(move)) & pos.pieces(~us, PAWN) & (pos.square<KING>(~us) + (~us == WHITE ? NORTH : SOUTH))))
           extension = ONE_PLY;
 
       // Calculate new depth for this move
