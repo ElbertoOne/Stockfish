@@ -1011,12 +1011,6 @@ moves_loop: // When in check, search starts from here
                && pos.pawn_passed(us, to_sq(move)))
           extension = ONE_PLY;
 
-      else if (   pos.capture(move)
-               && depth > 3 * ONE_PLY
-               && (pos.attacks_from<KNIGHT>(pos.square<KING>(~us)) & to_sq(move))
-               && (pos.attackers_to(to_sq(move)) & pos.pieces(~us, PAWN) & (pos.square<KING>(~us) + (~us == WHITE ? NORTH : SOUTH))))
-          extension = ONE_PLY;
-
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
@@ -1100,6 +1094,12 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if opponent's move count is high (~10 Elo)
           if ((ss-1)->moveCount > 15)
+              r -= ONE_PLY;
+
+          if (   pos.capture(move)
+              && depth > 5 * ONE_PLY
+              && (pos.attacks_from<KNIGHT>(pos.square<KING>(~us)) & to_sq(move))
+              && (pos.attackers_to(to_sq(move)) & pos.pieces(~us, PAWN) & (pos.square<KING>(~us) + (~us == WHITE ? NORTH : SOUTH))))
               r -= ONE_PLY;
 
           // Decrease reduction if move has been singularly extended
