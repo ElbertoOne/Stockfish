@@ -509,7 +509,12 @@ namespace {
     {
         b = (defended | weak) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
         while (b)
-            score += ThreatByMinor[type_of(pos.piece_on(pop_lsb(&b)))];
+        {
+            Square s = pop_lsb(&b);
+            PieceType pt = type_of(pos.piece_on(s));
+            if (!((pt == KNIGHT || pt == BISHOP) && more_than_one(pos.attackers_to(s) & pos.pieces(Them, PAWN))))
+                score += ThreatByMinor[pt];
+        }
 
         b = weak & attackedBy[Us][ROOK];
         while (b)
