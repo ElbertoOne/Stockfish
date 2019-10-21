@@ -362,7 +362,8 @@ namespace {
         {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
-            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
+            Bitboard blockers = pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners);
+            if (blockers && !(!more_than_one(blockers) && (shift<Down>(blockers & pos.pieces(Them, PAWN)) & s)))
                 score -= WeakQueen;
         }
     }
@@ -535,8 +536,10 @@ namespace {
 
     // Bonus for attacking enemy pieces with our relatively safe pawns
     b = pos.pieces(Us, PAWN) & safe;
-    b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-    score += ThreatBySafePawn * popcount(b);
+    Bitboard bb = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
+    //if ((b & pos.blockers_for_king(Us)) && !(pos.pinners[Them] & bb))
+        //std::cerr << pos.fen() << std::endl;
+    score += ThreatBySafePawn * popcount(bb);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
