@@ -188,6 +188,8 @@ namespace {
     // very near squares, depending on king position.
     Bitboard kingRing[COLOR_NB];
 
+    Bitboard slidersForQueen[COLOR_NB];
+
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
     int kingAttackersCount[COLOR_NB];
@@ -236,6 +238,7 @@ namespace {
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
+    slidersForQueen[Us] = 0;
     if (relative_rank(Us, ksq) == RANK_1)
         kingRing[Us] |= shift<Up>(kingRing[Us]);
 
@@ -362,7 +365,8 @@ namespace {
         {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
-            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
+            slidersForQueen[Us] |= pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners);
+            if (slidersForQueen[Us])
                 score -= WeakQueen;
         }
     }
@@ -539,7 +543,7 @@ namespace {
     score += ThreatBySafePawn * popcount(b);
 
     // Find squares where our pawns can push on the next move
-    b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
+    b  = shift<Up>(pos.pieces(Us, PAWN) & ~pos.blockers_for_king(Us) & ~slidersForQueen[Us]) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
@@ -596,6 +600,7 @@ namespace {
         assert(!(pos.pieces(Them, PAWN) & forward_file_bb(Us, s + Up)));
 
         int r = relative_rank(Us, s);
+        File f = file_of(s);
 
         Score bonus = PassedRank[r];
 
@@ -645,7 +650,7 @@ namespace {
             || (pos.pieces(PAWN) & (s + Up)))
             bonus = bonus / 2;
 
-        score += bonus - PassedFile * map_to_queenside(file_of(s));
+        score += bonus - PassedFile * map_to_queenside(f);
     }
 
     if (T)
@@ -754,7 +759,7 @@ namespace {
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
 
-        sf = std::max(0, sf - (pos.rule50_count() - 12) / 4);
+        sf = std::max(0, sf - (pos.rule50_count() - 12) / 4  );
     }
 
     return ScaleFactor(sf);
