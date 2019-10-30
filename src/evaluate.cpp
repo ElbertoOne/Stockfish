@@ -600,7 +600,6 @@ namespace {
         assert(!(pos.pieces(Them, PAWN) & forward_file_bb(Us, s + Up)));
 
         int r = relative_rank(Us, s);
-        File f = file_of(s);
 
         Score bonus = PassedRank[r];
 
@@ -650,7 +649,7 @@ namespace {
             || (pos.pieces(PAWN) & (s + Up)))
             bonus = bonus / 2;
 
-        score += bonus - PassedFile * map_to_queenside(f);
+        score += bonus - PassedFile * map_to_queenside(file_of(s));
     }
 
     if (T)
@@ -759,7 +758,7 @@ namespace {
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
 
-        sf = std::max(0, sf - (pos.rule50_count() - 12) / 4  );
+        sf = std::max(0, sf - (pos.rule50_count() - 12) / 4);
     }
 
     return ScaleFactor(sf);
