@@ -524,7 +524,7 @@ namespace {
 
     score += RestrictedPiece * popcount(b);
 
-    b &= attackedBy2[Them] & attackedBy2[Us];
+    b &= ~attackedBy2[Them] & attackedBy2[Us];
     score += RestrictedPiece * popcount(b);
 
     // Protected or unattacked squares
