@@ -480,8 +480,8 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = pawn_push(Us);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
-    constexpr Bitboard  Camp = (Us == BLACK ? AllSquares ^ Rank5BB ^ Rank6BB ^ Rank7BB ^ Rank8BB
-                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB ^ Rank4BB);
+    constexpr Bitboard  Camp = (Us == WHITE ? Rank5BB | Rank6BB | Rank7BB | Rank8BB
+                                            : Rank1BB | Rank2BB | Rank3BB | Rank4BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
