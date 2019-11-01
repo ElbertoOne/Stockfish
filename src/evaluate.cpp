@@ -522,7 +522,7 @@ namespace {
        & ~stronglyProtected
        &  attackedBy[Us][ALL_PIECES];
 
-    if (eg_value(mobility[Them] - mobility[Us]) > 0)
+    if (eg_value(mobility[Them] - mobility[Us]) < 0)
         score += RestrictedPiece * (popcount(b) / 2);
     else
         score += RestrictedPiece * popcount(b);
