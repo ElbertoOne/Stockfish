@@ -786,8 +786,8 @@ namespace {
 
     // Early exit if score is high
     Value v = (mg_value(score) + eg_value(score)) / 2;
-    if (abs(v) > LazyThreshold + pos.non_pawn_material() / 64)
-       return pos.side_to_move() == WHITE ? v : -v;
+    if (abs(v) > LazyThreshold + pos.non_pawn_material() / (v < 0 ? 32 : 64))
+        return pos.side_to_move() == WHITE ? v : -v;
 
     // Main evaluation begins here
 
