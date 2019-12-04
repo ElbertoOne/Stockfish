@@ -580,10 +580,9 @@ namespace {
     auto king_proximity = [&](Color c, Square s) {
       Color c2 = (c == WHITE ? BLACK : WHITE);
       Square ksq = pos.square<KING>(c);
-      int dist = distance(ksq, s);
       if (attackedBy[c2][ROOK] & between_bb(ksq, s))
-          dist += 1;
-      return std::min(dist, 5);
+          return 5;
+      return std::min(distance(ksq, s), 5);
     };
 
     Bitboard b, bb, squaresToQueen, unsafeSquares;
