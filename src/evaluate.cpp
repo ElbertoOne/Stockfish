@@ -23,7 +23,6 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -585,7 +584,7 @@ namespace {
       return std::min(distance(pos.square<KING>(c), s), 5);
     };
 
-    Bitboard b, bb, squaresToQueen, unsafeSquares, candidatePassers, leverable;
+    Bitboard b, bb, squaresToQueen, unsafeSquares, candidatePassers, leverable, undefended;
     Score score = SCORE_ZERO;
 
     b = pe->passed_pawns(Us);
@@ -605,6 +604,7 @@ namespace {
             | shift<WEST>(leverable)
             | shift<EAST>(leverable);
     }
+    undefended = attackedBy[Them][ALL_PIECES] & ~attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][PAWN];
 
     while (b)
     {
@@ -616,9 +616,9 @@ namespace {
 
         Score bonus = PassedRank[r];
 
-        if (attackedBy[Them][ALL_PIECES] & ~attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][PAWN] & s)
+        if (undefended & s)
         {
-            bonus = make_score(0,0);
+            bonus = bonus / 2;
         }
 
         if (r > RANK_3)
