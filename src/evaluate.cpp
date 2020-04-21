@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -604,7 +605,7 @@ namespace {
             | shift<WEST>(leverable)
             | shift<EAST>(leverable);
     }
-    int count = 0;
+
     while (b)
     {
         Square s = pop_lsb(&b);
@@ -614,7 +615,11 @@ namespace {
         int r = relative_rank(Us, s);
 
         Score bonus = PassedRank[r];
-        count++;
+
+        if (attackedBy[Them][ALL_PIECES] & ~attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][PAWN] & s)
+        {
+            bonus = make_score(0,0);
+        }
 
         if (r > RANK_3)
         {
@@ -655,15 +660,6 @@ namespace {
                 bonus += make_score(k * w, k * w);
             }
         } // r > RANK_3
-
-        int ourPieceCount = pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us);
-        int theirPieceCount = pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them);
-
-        // Reduce bonus if the opponent has more non-pawn pieces.
-        if (theirPieceCount >= count && theirPieceCount > ourPieceCount && ourPieceCount <= count)
-        {
-			bonus = bonus * (ourPieceCount / theirPieceCount);
-		}
 
         score += bonus - PassedFile * edge_distance(file_of(s));
     }
