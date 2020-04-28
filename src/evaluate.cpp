@@ -147,6 +147,7 @@ namespace {
   constexpr Score TrappedRook         = S( 55, 13);
   constexpr Score WeakQueen           = S( 51, 14);
   constexpr Score WeakQueenProtection = S( 15,  0);
+  constexpr Score WeakPawn            = S( 20,  0);
 
 #undef S
 
@@ -536,6 +537,16 @@ namespace {
     b = pos.pieces(Us, PAWN) & safe;
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
+
+    b = pos.pieces(Them, PAWN) & ~stronglyProtected & ~attackedBy[Them][PAWN] & ~Rank2BB & ~Rank7BB;
+    b &= attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][PAWN];
+    if (b)
+    {
+        if (pawn_attacks_bb<Them>(b) & pos.pieces(Them, PAWN))
+        {
+            score += WeakPawn;
+        }
+    }
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
