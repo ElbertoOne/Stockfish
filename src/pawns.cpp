@@ -150,7 +150,7 @@ namespace {
 
         else if (backward)
             score -=   Backward
-                     + WeakUnopposed * (!opposed && !passed);
+                     + WeakUnopposed * !opposed;
 
         if (!support)
             score -=   Doubled * doubled
