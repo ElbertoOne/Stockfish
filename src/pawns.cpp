@@ -144,9 +144,9 @@ namespace {
             score += make_score(v, v * (r - 2) / 4);
         }
 
-        else if (!neighbours)
+        else if (!neighbours && !passed)
             score -=   Isolated
-                     + WeakUnopposed * (!opposed && !passed);
+                     + WeakUnopposed * !opposed;
 
         else if (backward)
             score -=   Backward
