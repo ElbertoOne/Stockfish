@@ -86,6 +86,7 @@ namespace {
     e->passedPawns[Us] = 0;
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = e->pawnAttacksSpan[Us] = pawn_attacks_bb<Us>(ourPawns);
+    e->blockedPawns[Us] = 0;
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -105,7 +106,12 @@ namespace {
         phalanx    = neighbours & rank_bb(s);
         support    = neighbours & rank_bb(s - Up);
 
-        e->blockedCount += blocked || more_than_one(leverPush);
+        //if (blocked && !lever)
+        if (blocked || more_than_one(leverPush))
+        {
+            e->blockedCount++;
+            e->blockedPawns[Us] |= s;
+        }
 
         // A pawn is backward when it is behind all pawns of the same color on
         // the adjacent files and cannot safely advance.
