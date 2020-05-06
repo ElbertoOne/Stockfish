@@ -148,6 +148,7 @@ namespace {
   constexpr Score ThreatByPawnPush    = S( 48, 39);
   constexpr Score ThreatBySafePawn    = S(173, 94);
   constexpr Score TrappedRook         = S( 55, 13);
+  constexpr Score PawnSupportedRook8  = S( 20, 40);
   constexpr Score WeakQueen           = S( 51, 14);
   constexpr Score WeakQueenProtection = S( 15,  0);
 
@@ -342,6 +343,9 @@ namespace {
             // Bonus for rook on the same file as a queen
             if (file_bb(s) & pos.pieces(QUEEN))
                 score += RookOnQueenFile;
+
+            if (relative_rank(Us, s) == RANK_8 && (attackedBy[Us][PAWN] & s))
+                score += PawnSupportedRook8;
 
             // Bonus for rook on an open or semi-open file
             if (pos.is_on_semiopen_file(Us, s))
