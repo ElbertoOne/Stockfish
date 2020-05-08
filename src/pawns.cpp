@@ -152,9 +152,9 @@ namespace {
             score -=   Backward
                      + WeakUnopposed * !opposed;
 
-            // If this pawn supports 2 other pawns, increase penalty.
-            if (more_than_one(neighbours & rank_bb(s + Up)))
-                score -= Isolated;
+            // If this pawn has at least 3 enemy pawns on this and adjacent files, increase penalty.
+            if (opposed && more_than_one(theirPawns & adjacent_files_bb(s)))
+                score -=   Isolated;
         }
 
         if (!support)
