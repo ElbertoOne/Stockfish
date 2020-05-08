@@ -150,12 +150,8 @@ namespace {
 
         else if (backward)
         {
-            score -=   Backward
+            score -=   Backward * (1 + (theirPawnCount > 6))
                      + WeakUnopposed * !opposed;
-
-            // Increase the penalty if the opponent has a lot of pawns.
-            if (theirPawnCount > 5)
-                score -= make_score(theirPawnCount, theirPawnCount);
         }
 
         if (!support)
