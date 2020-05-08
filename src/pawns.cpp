@@ -80,6 +80,7 @@ namespace {
 
     Bitboard ourPawns   = pos.pieces(  Us, PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
+    int theirPawnCount = pos.count<PAWN>(Them);
 
     Bitboard doubleAttackThem = pawn_double_attacks_bb<Them>(theirPawns);
 
@@ -152,9 +153,9 @@ namespace {
             score -=   Backward
                      + WeakUnopposed * !opposed;
 
-            // If this pawn has at least 3 enemy pawns on this and adjacent files, increase penalty.
-            if (opposed && more_than_one(theirPawns & adjacent_files_bb(s)))
-                score -=   Isolated;
+            // Increase the penalty if the opponent has a lot of pawns.
+            if (theirPawnCount > 5)
+                score -= make_score(theirPawnCount, theirPawnCount);
         }
 
         if (!support)
