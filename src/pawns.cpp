@@ -148,8 +148,14 @@ namespace {
                      + WeakUnopposed * !opposed;
 
         else if (backward)
+        {
             score -=   Backward
                      + WeakUnopposed * !opposed;
+
+            // If this pawn supports 2 other pawns, increase penalty.
+            if (more_than_one(neighbours & rank_bb(s + Up)))
+                score -= Isolated;
+        }
 
         if (!support)
             score -=   Doubled * doubled
