@@ -401,7 +401,7 @@ namespace {
           & (file_bb(ksq) | adjacent_files_bb(ksq))
           &  attackedBy[Them][PAWN]
           &  attackedBy[Us][PAWN]
-          &  shift<Down>(pos.pieces(Them));
+          &  shift<Down>(pos.pieces(Them, PAWN));
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
