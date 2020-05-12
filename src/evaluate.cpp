@@ -400,7 +400,6 @@ namespace {
     weak2 =  pos.pieces(Us, PAWN)
           & (file_bb(ksq) | adjacent_files_bb(ksq))
           &  attackedBy[Them][PAWN]
-          &  attackedBy[Us][PAWN]
           &  shift<Down>(pos.pieces(Them, PAWN));
 
     // Analyse the safe enemy's checks which are possible on next move
