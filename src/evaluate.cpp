@@ -380,10 +380,11 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = ~Us;
+    constexpr Direction Down = -pawn_push(Us);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
-    Bitboard weak, b1, b2, b3, safe, unsafeChecks = 0;
+    Bitboard weak, weak2, b1, b2, b3, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
     int kingDanger = 0;
     const Square ksq = pos.square<KING>(Us);
@@ -395,6 +396,12 @@ namespace {
     weak =  attackedBy[Them][ALL_PIECES]
           & ~attackedBy2[Us]
           & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
+
+    weak2 =  pos.pieces(Us, PAWN)
+          & (file_bb(ksq) | adjacent_files_bb(ksq))
+          &  attackedBy[Them][PAWN]
+          &  attackedBy[Us][PAWN]
+          &  shift<Down>(pos.pieces(Them));
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
@@ -452,7 +459,7 @@ namespace {
     int kingFlankDefense = popcount(b3);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 + 185 * popcount(kingRing[Us] & weak)
+                 + 185 * popcount((kingRing[Us] & weak) | (weak2 & ~kingRing[Us]))
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
