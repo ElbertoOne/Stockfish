@@ -493,6 +493,7 @@ namespace {
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
+    Square ksqt = pos.square<KING>(Them);
 
     // Non-pawn enemies
     nonPawnEnemies = pos.pieces(Them) & ~pos.pieces(PAWN);
@@ -556,7 +557,7 @@ namespace {
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     // Also include threats on blockers for their king.
-    b2 = pawn_attacks_bb<Us>(b2) & pos.pieces(Them, PAWN) & pos.blockers_for_king(Them);
+    b2 = pawn_attacks_bb<Us>(b2) & pos.pieces(Them, PAWN) & (file_bb(ksqt) | adjacent_files_bb(ksqt));
     score += ThreatByPawnPush * popcount(b | b2);
 
     // Bonus for threats on the next moves against enemy queen
