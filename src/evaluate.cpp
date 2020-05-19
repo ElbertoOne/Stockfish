@@ -544,21 +544,20 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
 
-    // Bonus for attacking enemy pawns that are blockers for their king.
-    b = pos.pieces(Us, PAWN) & ~attackedBy2[Them];
-    b = pawn_attacks_bb<Us>(b) & pos.pieces(Them, PAWN) & pos.blockers_for_king(Them);
-    score += ThreatByPawnPush * popcount(b);
-
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
+
+    Bitboard b2 = b & ~attackedBy2[Them];
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-    score += ThreatByPawnPush * popcount(b);
+    // Also include threats on blockers for their king.
+    b2 = pawn_attacks_bb<Us>(b2) & pos.pieces(Them, PAWN) & pos.blockers_for_king(Them);
+    score += ThreatByPawnPush * popcount(b | b2);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
