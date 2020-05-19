@@ -544,6 +544,11 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
 
+    // Bonus for attacking enemy pawns that are blockers for their king.
+    b = pos.pieces(Us, PAWN) & ~attackedBy2[Them];
+    b = pawn_attacks_bb<Us>(b) & pos.pieces(Them, PAWN) & pos.blockers_for_king(Them);
+    score += ThreatByPawnPush * popcount(b);
+
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
