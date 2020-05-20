@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
 #include "bitboard.h"
 #include "pawns.h"
@@ -156,7 +157,9 @@ namespace {
             if (doubled)
             {
                 if (!more_than_one((theirPawns & adjacent_files_bb(s)) | opposed))
-                    score -= Doubled;
+                    score -= Doubled * 3 / 2;
+                else
+                    score -= Doubled / 2;
             }
             score -= WeakLever * more_than_one(lever);
         }
