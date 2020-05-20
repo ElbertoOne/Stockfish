@@ -152,8 +152,14 @@ namespace {
                      + WeakUnopposed * !opposed;
 
         if (!support)
-            score -=   Doubled * doubled
-                     + WeakLever * more_than_one(lever);
+        {
+            if (doubled)
+            {
+                if (!more_than_one((theirPawns & adjacent_files_bb(s)) | opposed))
+                    score -= Doubled;
+            }
+            score -= WeakLever * more_than_one(lever);
+        }
     }
 
     return score;
