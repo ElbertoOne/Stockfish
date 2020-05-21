@@ -35,8 +35,11 @@ namespace {
   constexpr Score Backward      = S( 9, 24);
   constexpr Score BlockedStorm  = S(82, 82);
   constexpr Score Doubled       = S(11, 56);
+  Score DoubledA                = S(17, 84);
+  Score DoubledB                = S(17, 84);
   constexpr Score Isolated      = S( 5, 15);
-  constexpr Score WeakLever     = S( 0, 56);
+  Score WeakLever               = S( 0, 56);
+  TUNE(DoubledA, DoubledB, WeakLever);
   constexpr Score WeakUnopposed = S(13, 27);
 
   // Connected pawn bonus
@@ -152,8 +155,16 @@ namespace {
                      + WeakUnopposed * !opposed;
 
         if (!support)
-            score -=   Doubled * doubled
-                     + WeakLever * more_than_one(lever);
+        {
+            if (doubled)
+            {
+                if (!more_than_one((theirPawns & adjacent_files_bb(s)) | opposed))
+                    score -= DoubledA;
+                else
+                    score -= DoubledB / 3;
+            }
+            score -= WeakLever * more_than_one(lever);
+        }
     }
 
     return score;
