@@ -145,8 +145,14 @@ namespace {
         }
 
         else if (!neighbours)
+        {
             score -=   Isolated
                      + WeakUnopposed * !opposed;
+
+            if (   (ourPawns & forward_file_bb(Them, s))
+                && popcount(opposed | (theirPawns & adjacent_files_bb(s))) == 1)
+                score -= DoubledIsolated;
+        }
 
         else if (backward)
             score -=   Backward
@@ -155,12 +161,6 @@ namespace {
         if (!support)
             score -=   Doubled * doubled
                      + WeakLever * more_than_one(lever);
-
-        if (   !neighbours
-            && (ourPawns & forward_file_bb(Them, s))
-            && popcount(opposed) == 1
-            && !(theirPawns & adjacent_files_bb(s)))
-            score -= DoubledIsolated;
     }
 
     return score;
