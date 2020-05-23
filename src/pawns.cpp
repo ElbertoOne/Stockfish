@@ -162,14 +162,22 @@ namespace {
 
             if (blocked)
             {
-                Bitboard eastBB = shift<EAST>(file_bb(s));
-                Bitboard westBB = shift<WEST>(file_bb(s));
+                Bitboard eastBB = shift<EAST>(forward_file_bb(Us, s));
+                Bitboard westBB = shift<WEST>(forward_file_bb(Us, s));
                 // Increase the penalty if the opponent has a pawn that is close to attacking
                 // the backward pawn, with the threat to create a passed pawn.
-                if (!(eastBB & neighbours) && (eastBB & theirPawns & pos.attacks_from(KING, s + Up)))
-                    score -= Backward;
-                else if (!(westBB & neighbours) && (westBB & theirPawns & pos.attacks_from(KING, s + Up)))
-                    score -= Backward;
+                if (!(eastBB & neighbours) && (eastBB & theirPawns))
+                {
+                    Square s2 = frontmost_sq(Them, eastBB & theirPawns);
+                    if (!((ourPawns ^ s) & passed_pawn_span(Them, s2)))
+                        score -= Backward;
+                }
+                else if (!(westBB & neighbours) && (westBB & theirPawns))
+                {
+                    Square s2 = frontmost_sq(Them, westBB & theirPawns);
+                    if (!((ourPawns ^ s) & passed_pawn_span(Them, s2)))
+                        score -= Backward;
+                }
             }
         }
 
