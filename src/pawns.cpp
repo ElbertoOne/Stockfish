@@ -156,8 +156,22 @@ namespace {
         }
 
         else if (backward)
+        {
             score -=   Backward
                      + WeakUnopposed * !opposed;
+
+            if (blocked)
+            {
+                Bitboard eastBB = shift<EAST>(file_bb(s));
+                Bitboard westBB = shift<WEST>(file_bb(s));
+                // Increase the penalty if the opponent has a pawn that is close to attacking
+                // the backward pawn, with the threat to create a passed pawn.
+                if (!(eastBB & neighbours) && (eastBB & theirPawns & pos.attacks_from(KING, s + Up)))
+                    score -= Backward;
+                else if (!(westBB & neighbours) && (westBB & theirPawns & pos.attacks_from(KING, s + Up)))
+                    score -= Backward;
+            }
+        }
 
         if (!support)
             score -=   Doubled * doubled
