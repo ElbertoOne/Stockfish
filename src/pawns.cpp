@@ -169,13 +169,13 @@ namespace {
                 {
                     Square s2 = frontmost_sq(Them, eastBB & theirPawns);
                     if (!((ourPawns ^ s) & passed_pawn_span(Them, s2)))
-                        score -= Backward;
+                        score -= WeakLever;
                 }
                 else if (!(westBB & neighbours) && (westBB & theirPawns))
                 {
                     Square s2 = frontmost_sq(Them, westBB & theirPawns);
                     if (!((ourPawns ^ s) & passed_pawn_span(Them, s2)))
-                        score -= Backward;
+                        score -= WeakLever;
                 }
             }
         }
