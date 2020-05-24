@@ -153,13 +153,12 @@ namespace {
                 score -= Doubled;
 
             else if (   blocked
-                     && relative_rank(Us, s) == RANK_2
-                     && relative_rank(Us, pos.square<KING>(Us)) == RANK_1
-                     && distance(pos.square<KING>(Us), s) < 3)
+                     && relative_rank(Us, s) == RANK_2)
             {
                 // penalty when pieces on the back rank are cramped.
                 int bpawns = popcount(ourPawns & rank_bb(s));
-                score -= make_score(5 * bpawns * bpawns, 5 * bpawns * bpawns);
+                int file_bonus = edge_distance(file_of(s));
+                score -= make_score(5 * bpawns * file_bonus, 2 * bpawns * file_bonus);
             }
         }
 
