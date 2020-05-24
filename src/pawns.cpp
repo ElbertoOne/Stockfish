@@ -140,6 +140,10 @@ namespace {
                    + 21 * popcount(support);
 
             score += make_score(v, v * (r - 2) / 4);
+
+            if (   (ourPawns & forward_file_bb(Us, s))
+                && (opposed == stoppers))
+                score -= Doubled / 2;
         }
 
         else if (!neighbours)
@@ -151,15 +155,6 @@ namespace {
                 && popcount(opposed) == 1
                 && !(theirPawns & adjacent_files_bb(s)))
                 score -= Doubled;
-
-            else if (   blocked
-                     && relative_rank(Us, s) == RANK_2)
-            {
-                // penalty when pieces on the back rank are cramped.
-                int bpawns = popcount(ourPawns & rank_bb(s));
-                int file_bonus = edge_distance(file_of(s));
-                score -= make_score(5 * bpawns * file_bonus, 2 * bpawns * file_bonus);
-            }
         }
 
         else if (backward)
