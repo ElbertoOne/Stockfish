@@ -151,6 +151,16 @@ namespace {
                 && popcount(opposed) == 1
                 && !(theirPawns & adjacent_files_bb(s)))
                 score -= Doubled;
+
+            else if (   blocked
+                     && relative_rank(Us, s) == RANK_2
+                     && relative_rank(Us, pos.square<KING>(Us)) == RANK_1
+                     && distance(pos.square<KING>(Us), s) < 3)
+            {
+                // penalty when pieces on the back rank are cramped.
+                int bpawns = popcount(ourPawns & rank_bb(s));
+                score -= make_score(5 * bpawns * bpawns, 5 * bpawns * bpawns);
+            }
         }
 
         else if (backward)
