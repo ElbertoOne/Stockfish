@@ -158,22 +158,12 @@ namespace {
             score -=   Backward
                      + WeakUnopposed * !opposed;
 
-            // Check if this backward pawn is the base of a pawn chain
-            // that is not at the side of the board. In this case give
-            // a penalty if an open file is next to the pawn.
-            if (blocked && edge_distance(file_of(s)) > 0)
+            // Consider a pawn half-isolated if it is backward and it is next to an open file.
+            if (edge_distance(file_of(s)) > 0)
             {
-                Bitboard supporting = ourPawns & PawnAttacks[Us][s];
-                if (    supporting
-                    && !more_than_one(supporting))
-                {
-                    Bitboard bbEast = shift<EAST>(file_bb(s));
-                    Bitboard bbWest = shift<WEST>(file_bb(s));
-                    if (((bbEast & supporting) && !(bbWest & pos.pieces(PAWN)))
-                        ||
-                        ((bbWest & supporting) && !(bbEast & pos.pieces(PAWN))))
-                        score -= WeakUnopposed;
-                }
+                if (   !(shift<WEST>(file_bb(s)) & pos.pieces(PAWN))
+                    || !(shift<EAST>(file_bb(s)) & pos.pieces(PAWN)))
+                    score -= Isolated / 2;
             }
         }
 
