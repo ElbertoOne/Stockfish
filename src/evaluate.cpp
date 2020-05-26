@@ -126,6 +126,11 @@ namespace {
     S(0, 0), S(10, 28), S(17, 33), S(15, 41), S(62, 72), S(168, 177), S(276, 260)
   };
 
+  Score RookOnKingRing[] = {
+    S( 16,  0), S( 16,  0), S( 16,  0), S( 16,  0), S( 16,  0), S( 16,  0), S( 16,  0), S( 16,  0)
+  };
+  TUNE(SetRange(-100, 100), RookOnKingRing);
+
   // Assorted bonuses and penalties
   constexpr Score BishopPawns         = S(  3,  7);
   constexpr Score BishopXRayPawns     = S(  4,  5);
@@ -143,7 +148,6 @@ namespace {
   constexpr Score PassedFile          = S( 11,  8);
   constexpr Score PawnlessFlank       = S( 17, 95);
   constexpr Score RestrictedPiece     = S(  7,  7);
-  constexpr Score RookOnKingRing      = S( 16,  0);
   constexpr Score RookOnQueenFile     = S(  5,  9);
   constexpr Score SliderOnQueen       = S( 59, 18);
   constexpr Score ThreatByKing        = S( 24, 89);
@@ -289,7 +293,13 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
         else if (Pt == ROOK && (file_bb(s) & kingRing[Them]))
-            score += RookOnKingRing;
+        {
+            Bitboard bp = file_bb(s) & pos.pieces(Us, PAWN);
+            if (bp)
+                score += RookOnKingRing[relative_rank(Us, frontmost_sq(Us, bp))];
+            else
+                score += RookOnKingRing[7];
+        }
 
         int mob = popcount(b & mobilityArea[Us]);
 
