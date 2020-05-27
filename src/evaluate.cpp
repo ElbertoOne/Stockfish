@@ -454,6 +454,9 @@ namespace {
     int kingFlankAttack = popcount(b1) + popcount(b2);
     int kingFlankDefense = popcount(b3);
 
+    int kingXRay = popcount(PseudoAttacks[BISHOP][ksq] & pos.pieces(PAWN) & (KingFlank[file_of(ksq)] | CenterFiles));
+    kingFlankAttack += std::max(0, kingXRay - 4);
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
