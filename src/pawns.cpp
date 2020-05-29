@@ -155,8 +155,13 @@ namespace {
         }
 
         else if (backward)
+        {
             score -=   Backward
                      + WeakUnopposed * !opposed;
+
+            if (leverPush && opposed && !(ourPawns & PawnAttacks[Us][s]))
+                score -= Isolated / 2;
+        }
 
         if (!support)
             score -=   Doubled * doubled
