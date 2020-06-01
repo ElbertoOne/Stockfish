@@ -145,14 +145,14 @@ namespace {
 
         else if (!neighbours)
         {
-            if (     stoppers
-                &&  !more_than_one(stoppers)
-                &&  (ourPawns & forward_file_bb(Them, s)))
-                score -= opposed ? Doubled : Doubled / 2;
+            if (     opposed
+                &&  !doubled
+                &&  (ourPawns & forward_file_bb(Them, s))
+                && !(theirPawns & adjacent_files_bb(s)))
+                score -= Doubled;
             else
-                score -=   Isolated;
-
-            score -= WeakUnopposed * !opposed;
+                score -=   Isolated
+                         + WeakUnopposed * !opposed;
         }
 
         else if (backward)
