@@ -148,10 +148,11 @@ namespace {
             if (     stoppers
                 &&  !more_than_one(stoppers)
                 &&  (ourPawns & forward_file_bb(Them, s)))
-                score -= Doubled;
+                score -= opposed ? Doubled : Doubled / 2;
             else
-                score -=   Isolated
-                         + WeakUnopposed * !opposed;
+                score -=   Isolated;
+
+            score -= WeakUnopposed * !opposed;
         }
 
         else if (backward)
