@@ -146,9 +146,9 @@ namespace {
         else if (!neighbours)
         {
             if (     stoppers
-                &&  !doubled
                 &&  !more_than_one(stoppers)
-                &&  (ourPawns & forward_file_bb(Them, s)))
+                &&  (ourPawns & forward_file_bb(Them, s))
+                && !(theirPawns & passed_pawn_span(Them, s)))
                 score -= Doubled;
             else
                 score -=   Isolated
