@@ -149,13 +149,9 @@ namespace {
                 &&  (ourPawns & forward_file_bb(Them, s))
                 && !(theirPawns & adjacent_files_bb(s)))
                 score -= Doubled;
-            else
-            {
-                if (stoppers)
-                    score -=   Isolated;
-
-                score -= WeakUnopposed * !opposed;
-            }
+            else if (stoppers)
+                score -=   Isolated
+                         + WeakUnopposed * !opposed;
         }
 
         else if (backward)
