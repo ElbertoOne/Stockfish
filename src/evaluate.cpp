@@ -574,21 +574,18 @@ namespace {
         score += KnightOnQueen * popcount(b & safe);
 
         b = (attackedBy[Us][ROOK] & attacks_bb<ROOK  >(s, pos.pieces()));
-        Bitboard safePieces = pos.pieces(Us) & safe & attackedBy2[Us];
-        Bitboard bb = safePieces & b;
 
         // Exclude squares that are occupied by our pieces and can't result in
         // an attack by the rook right away.
-        if (bb && !(PseudoAttacks[ROOK][s] & pos.pieces(Us, ROOK)))
-            b ^= bb;
+        if (!(PseudoAttacks[ROOK][s] & pos.pieces(Us, ROOK)))
+            b ^= pos.pieces(Us) & b;
 
         Bitboard b2 = (attackedBy[Us][BISHOP] & attacks_bb<BISHOP>(s, pos.pieces()));
-        bb = safePieces & b2;
 
         // Exclude squares that are occupied by our pieces and can't result in
         // an attack by the bishop right away.
-        if (bb && !(PseudoAttacks[BISHOP][s] & pos.pieces(Us, BISHOP)))
-            b2 ^= bb;
+        if (!(PseudoAttacks[BISHOP][s] & pos.pieces(Us, BISHOP)))
+            b2 ^= pos.pieces(Us) & b2;
 
         b |= b2;
 
