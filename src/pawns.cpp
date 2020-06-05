@@ -150,7 +150,7 @@ namespace {
                 && !(theirPawns & adjacent_files_bb(s)))
                 score -= Doubled;
             else
-                score -=   Isolated
+                score -=   Isolated * bool(stoppers)
                          + WeakUnopposed * !opposed;
         }
 
@@ -159,7 +159,7 @@ namespace {
                      + WeakUnopposed * !opposed;
 
         if (!support)
-            score -=   Doubled * doubled
+            score -=   Doubled * doubled * bool(stoppers)
                      + WeakLever * more_than_one(lever);
     }
 
