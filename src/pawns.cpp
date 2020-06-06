@@ -32,12 +32,12 @@ namespace {
   #define S(mg, eg) make_score(mg, eg)
 
   // Pawn penalties
-  constexpr Score Backward      = S( 9, 24);
+  constexpr Score Backward      = S( 5, 24);
   constexpr Score Doubled       = S(11, 56);
   constexpr Score Isolated      = S( 5, 15);
   constexpr Score WeakLever     = S( 0, 56);
   constexpr Score WeakUnopposed = S(13, 27);
-  constexpr Score Hole          = S(10,  5);
+  constexpr Score Hole          = S(10,  0);
 
   constexpr Score BlockedStorm[RANK_NB]  = {S( 0, 0), S( 0, 0), S( 76, 78), S(-10, 15), S(-7, 10), S(-4, 6), S(-1, 2)};
 
@@ -73,7 +73,7 @@ namespace {
     constexpr Color     Them = ~Us;
     constexpr Direction Up   = pawn_push(Us);
 
-    Bitboard neighbours, stoppers, support, phalanx, opposed, supports;
+    Bitboard neighbours, stoppers, support, phalanx, opposed;
     Bitboard lever, leverPush, blocked;
     Square s;
     bool backward, passed, doubled;
@@ -107,7 +107,6 @@ namespace {
         neighbours = ourPawns   & adjacent_files_bb(s);
         phalanx    = neighbours & rank_bb(s);
         support    = neighbours & rank_bb(s - Up);
-        supports   = neighbours & rank_bb(s + Up);
 
         // A pawn is backward when it is behind all pawns of the same color on
         // the adjacent files and cannot safely advance.
@@ -161,7 +160,7 @@ namespace {
             score -=   Backward
                      + WeakUnopposed * !opposed;
 
-            if (more_than_one(supports) && !blocked)
+            if (!blocked && (neighbours & rank_bb(s + Up)))
                 score -= Hole;
         }
 
