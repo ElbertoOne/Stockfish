@@ -146,9 +146,8 @@ namespace {
         else if (!neighbours)
         {
             if (     opposed
-                &&  (ourPawns & forward_file_bb(Them, s))
-                && !(theirPawns & adjacent_files_bb(s)))
-                score -= Doubled;
+                &&  (ourPawns & forward_file_bb(Them, s)))
+                score -= Doubled / (1 + bool(theirPawns & adjacent_files_bb(s)));
             else
                 score -=   Isolated
                          + WeakUnopposed * !opposed;
