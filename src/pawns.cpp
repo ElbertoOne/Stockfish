@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
 #include "bitboard.h"
 #include "pawns.h"
@@ -145,17 +146,9 @@ namespace {
 
         else if (!neighbours)
         {
-            if (     opposed
-                &&  (ourPawns & forward_file_bb(Them, s))
-                && !(theirPawns & adjacent_files_bb(s)))
-                score -= Doubled;
-            else if (   !opposed
-                     && !doubled
-                     &&  stoppers
-                     && !more_than_one(stoppers)
-                     && (file_of(s) == FILE_A || file_of(s) == FILE_H)
-                     && (ourPawns & forward_file_bb(Them, s))
-                     && !(theirPawns & file_bb(s)))
+            if (     ((opposed && !(theirPawns & adjacent_files_bb(s)))
+                  ||  (stoppers && !more_than_one(stoppers)))
+                &&  (ourPawns & forward_file_bb(Them, s)))
                 score -= Doubled;
             else
                 score -=   Isolated
