@@ -313,15 +313,16 @@ namespace {
             if (shift<Down>(pos.pieces(PAWN)) & s)
                 score += MinorBehindPawn;
 
-            // Penalty if the piece is far from the king
-            score -= (Pt == KNIGHT ? KnightKingProtector
-                                   : BishopKingProtector) * distance(pos.square<KING>(Us), s);
+            // Penalty if the knight is far from the king
+            if (Pt == KNIGHT)
+                score -= KnightKingProtector * distance(pos.square<KING>(Us), s);
 
             if (Pt == BISHOP)
             {
-                // Penalty according to the number of our pawns on the same color square as the
-                // bishop, bigger when the center files are blocked with pawns and smaller
-                // when the bishop is outside the pawn chain.
+				// Penalty if the bishop does not control our own kingRing
+				if (!(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & kingRing[Us]))
+				    score -= BishopKingProtector * 3;
+
                 Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
