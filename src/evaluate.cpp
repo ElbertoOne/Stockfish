@@ -282,9 +282,11 @@ namespace {
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
+        bool kingRingAttack = false;
 
         if (b & kingRing[Them])
         {
+			kingRingAttack = true;
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
@@ -294,7 +296,10 @@ namespace {
             score += RookOnKingRing;
 
         else if (Pt == BISHOP && (attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & kingRing[Them]))
+        {
+			kingRingAttack = true;
             score += BishopOnKingRing;
+		}
 
         int mob = popcount(b & mobilityArea[Us]);
 
@@ -321,11 +326,11 @@ namespace {
             {
                 // Penalty according to the number of our pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns and smaller
-                // when the bishop is outside the pawn chain.
+                // when the bishop is outside the pawn chain or when the bishop attacks the enemy king ring.
                 Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
-                                     * (!(attackedBy[Us][PAWN] & s) + popcount(blocked & CenterFiles));
+                                     * (!(attackedBy[Us][PAWN] & s) + popcount(blocked & CenterFiles)) / (1 + kingRingAttack);
 
                 // Penalty for all enemy pawns x-rayed
                 score -= BishopXRayPawns * popcount(attacks_bb<BISHOP>(s) & pos.pieces(Them, PAWN));
