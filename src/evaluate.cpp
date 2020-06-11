@@ -387,6 +387,7 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = ~Us;
+    constexpr Bitboard BackRanks = (Us == WHITE ? Rank1BB | Rank2BB : Rank7BB | Rank8BB);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
@@ -457,6 +458,8 @@ namespace {
 
     int kingFlankAttack = popcount(b1) + popcount(b2);
     int kingFlankDefense = popcount(b3);
+    if (pe->blocked_count() > 11)
+        kingFlankAttack += popcount(attackedBy[Them][ALL_PIECES] & BackRanks);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
