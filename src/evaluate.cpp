@@ -413,8 +413,17 @@ namespace {
     // Enemy rooks checks
     rookChecks = b1 & safe & attackedBy[Them][ROOK];
     if (rookChecks)
-        kingDanger += more_than_one(rookChecks) ? RookSafeCheck * 175/100
-                                                : RookSafeCheck;
+    {
+        if (more_than_one(rookChecks))
+            kingDanger += RookSafeCheck * 175/100;
+        else
+        {
+            if (pos.attackers_to(frontmost_sq(Them, rookChecks)) & pos.pieces(Them, ROOK) & attackedBy[Them][ROOK])
+                kingDanger += RookSafeCheck * 137/100;
+            else
+                kingDanger += RookSafeCheck;
+        }
+    }
     else
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
