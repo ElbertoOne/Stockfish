@@ -419,7 +419,7 @@ namespace {
         else
         {
             if (pos.attackers_to(frontmost_sq(Them, rookChecks)) & pos.pieces(Them, ROOK) & attackedBy[Them][ROOK])
-                kingDanger += RookSafeCheck * 150/100;
+                kingDanger += RookSafeCheck * 125/100;
             else
                 kingDanger += RookSafeCheck;
         }
