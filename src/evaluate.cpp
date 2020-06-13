@@ -418,8 +418,10 @@ namespace {
             kingDanger += RookSafeCheck * 175/100;
         else
         {
-            if (pos.attackers_to(frontmost_sq(Them, rookChecks)) & pos.pieces(Them, ROOK) & attackedBy[Them][ROOK])
-                kingDanger += RookSafeCheck * 125/100;
+            Square checkSq = frontmost_sq(Them, rookChecks);
+            if (   (pos.attackers_to(checkSq) & pos.pieces(Them, ROOK) & attackedBy[Them][ROOK])
+                && (between_bb(checkSq, ksq) & attackedBy[Us][ALL_PIECES]))
+                kingDanger += RookSafeCheck * 137/100;
             else
                 kingDanger += RookSafeCheck;
         }
