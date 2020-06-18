@@ -160,9 +160,10 @@ namespace {
                      + WeakUnopposed * !opposed;
 
         else if (   !support
-                 && !stoppers
+                 && !(stoppers ^ opposed)
                  && neighbours == (neighbours & shift<Down>(theirPawns)))
-            score -=   Isolated;
+            score -=   Isolated
+                     + WeakUnopposed * !opposed;
 
         if (!support)
             score -=   Doubled * doubled
