@@ -71,6 +71,7 @@ namespace {
 
     constexpr Color     Them = ~Us;
     constexpr Direction Up   = pawn_push(Us);
+    constexpr Direction Down = -Up;
 
     Bitboard neighbours, stoppers, support, phalanx, opposed;
     Bitboard lever, leverPush, blocked;
@@ -160,8 +161,8 @@ namespace {
 
         else if (   !support
                  && !stoppers
-                 && popcount(neighbours) == popcount(theirPawns & shift<Up>(neighbours)))
-            score -= WeakUnopposed;
+                 && neighbours == (neighbours & shift<Down>(theirPawns)))
+            score -=   Isolated;
 
         if (!support)
             score -=   Doubled * doubled
