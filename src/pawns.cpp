@@ -158,6 +158,11 @@ namespace {
             score -=   Backward
                      + WeakUnopposed * !opposed;
 
+        else if (   !support
+                 && !stoppers
+                 && popcount(neighbours) == popcount(theirPawns & shift<Up>(neighbours)))
+            score -= WeakUnopposed;
+
         if (!support)
             score -=   Doubled * doubled
                      + WeakLever * more_than_one(lever);
