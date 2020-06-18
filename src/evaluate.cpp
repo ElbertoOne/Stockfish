@@ -310,7 +310,14 @@ namespace {
 
             // Bonus for a knight or bishop shielded by pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
+            {
                 score += MinorBehindPawn;
+
+                // Double the score if the minor blocks an enemy pawn which has 2 pawns on that file.
+                if (     more_than_one(pos.pieces(Them, PAWN) & forward_file_bb(Us, s))
+                    && !(pos.pieces(Them, PAWN) & adjacent_files_bb(s)))
+                    score += MinorBehindPawn;
+			}
 
             // Penalty if the piece is far from the king
             score -= (Pt == KNIGHT ? KnightKingProtector
