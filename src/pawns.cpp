@@ -76,7 +76,7 @@ namespace {
     Bitboard neighbours, stoppers, support, phalanx, opposed;
     Bitboard lever, leverPush, blocked;
     Square s;
-    bool backward, passed, doubled;
+    bool backward, passed, doubled, isolated;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
 
@@ -89,6 +89,8 @@ namespace {
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = e->pawnAttacksSpan[Us] = pawn_attacks_bb<Us>(ourPawns);
     e->blockedCount += popcount(shift<Up>(ourPawns) & (theirPawns | doubleAttackThem));
+
+    Bitboard theirBlocks = shift<Down>(theirPawns | pawn_attacks_bb<Them>(theirPawns));
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -112,6 +114,15 @@ namespace {
         // the adjacent files and cannot safely advance.
         backward =  !(neighbours & forward_ranks_bb(Them, s + Up))
                   && (leverPush | blocked);
+
+        // A pawn is isolated when it has no neighbours
+        // or when it's neighbours are behind this pawn and can't support
+        // it because they are blocked.
+        isolated =  !neighbours
+                  || (   !support
+                      && !(stoppers ^ opposed)
+                      && !(forward_ranks_bb(Us, s) & neighbours)
+                      && neighbours == (neighbours & theirBlocks));
 
         // Compute additional span if pawn is not backward nor blocked
         if (!backward && !blocked)
@@ -144,7 +155,7 @@ namespace {
             score += make_score(v, v * (r - 2) / 4);
         }
 
-        else if (!neighbours)
+        else if (isolated)
         {
             if (     opposed
                 &&  (ourPawns & forward_file_bb(Them, s))
@@ -157,12 +168,6 @@ namespace {
 
         else if (backward)
             score -=   Backward
-                     + WeakUnopposed * !opposed;
-
-        else if (   !support
-                 && !(stoppers ^ opposed)
-                 && neighbours == (neighbours & shift<Down>(theirPawns)))
-            score -=   Isolated
                      + WeakUnopposed * !opposed;
 
         if (!support)
