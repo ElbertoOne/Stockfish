@@ -326,6 +326,13 @@ namespace {
                 score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
                                      * (!(attackedBy[Us][PAWN] & s) + popcount(blocked & CenterFiles));
 
+                Bitboard bbSq = (DarkSquares & s) ? DarkSquares : ~DarkSquares;
+
+                // If this bishop has no opponent bishop on the same color squares,
+                // give penalty or bonus depending of the squares controlled by opponent pawns.
+                if (!(pos.pieces(Them, BISHOP) & bbSq))
+                    score += make_score(3 - popcount(pe->pawn_attacks(Them) & bbSq & ~pos.pieces()), 0) * 5;
+
                 // Penalty for all enemy pawns x-rayed
                 score -= BishopXRayPawns * popcount(attacks_bb<BISHOP>(s) & pos.pieces(Them, PAWN));
 
