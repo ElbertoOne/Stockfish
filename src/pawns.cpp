@@ -149,6 +149,10 @@ namespace {
                 &&  (ourPawns & forward_file_bb(Them, s))
                 && !(theirPawns & adjacent_files_bb(s)))
                 score -= Doubled;
+            else if (    !opposed
+                     &&   (more_than_one(theirPawns & shift<WEST>(forward_file_bb(Us, s)))
+                       ||  more_than_one(theirPawns & shift<EAST>(forward_file_bb(Us, s)))))
+                score -= WeakUnopposed;
             else
                 score -=  Isolated
                         + WeakUnopposed * !opposed;
