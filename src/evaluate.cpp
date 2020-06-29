@@ -137,7 +137,7 @@ namespace {
   constexpr Score Hanging             = S( 69, 36);
   constexpr Score KnightKingProtector = S(  8,  9);
   constexpr Score KnightOnQueen       = S( 16, 11);
-  constexpr Score KnightOutpost       = S( 56, 36);
+  constexpr Score KnightOutpost       = S( 61, 38);
   constexpr Score LongDiagonalBishop  = S( 45,  0);
   constexpr Score MinorBehindPawn     = S( 18,  3);
   constexpr Score PassedFile          = S( 11,  8);
@@ -307,12 +307,8 @@ namespace {
         {
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & attackedBy[Us][PAWN] & ~pe->pawn_attacks_span(Them);
-
             if (bb & s)
-            {
-                bool useless = edge_distance(file_of(s)) < 2 && !(b & kingRing[Them]) && !(b & pos.pieces(Them));
-                score += (Pt == KNIGHT) ? KnightOutpost / (1 + useless) : BishopOutpost / (1 + useless);
-            }
+                score += (Pt == KNIGHT) ? KnightOutpost / (1 + (edge_distance(file_of(s)) < 2 && !(b & kingRing[Them]) && !(b & pos.pieces(Them)))) : BishopOutpost;
             else if (Pt == KNIGHT && bb & b & ~pos.pieces(Us))
                 score += ReachableOutpost;
 
