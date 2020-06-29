@@ -307,8 +307,12 @@ namespace {
         {
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & attackedBy[Us][PAWN] & ~pe->pawn_attacks_span(Them);
+
             if (bb & s)
-                score += (Pt == KNIGHT) ? KnightOutpost : BishopOutpost;
+            {
+                bool useless = edge_distance(file_of(s)) < 2 && !(b & kingRing[Them]) && !(b & pos.pieces(Them));
+                score += (Pt == KNIGHT) ? KnightOutpost / (1 + useless) : BishopOutpost / (1 + useless);
+            }
             else if (Pt == KNIGHT && bb & b & ~pos.pieces(Us))
                 score += ReachableOutpost;
 
