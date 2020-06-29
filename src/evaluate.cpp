@@ -137,8 +137,8 @@ namespace {
   constexpr Score Hanging             = S( 69, 36);
   constexpr Score KnightKingProtector = S(  8,  9);
   constexpr Score KnightOnQueen       = S( 16, 11);
-  Score KnightOutpost[]               = { S( 56, 36), S( 56, 36) };
-  TUNE(KnightOutpost);
+  Score KnightOutpost[]               = { S( 62, 38), S( 31, 19) };
+  TUNE(SetRange(0, 124), KnightOutpost);
   constexpr Score LongDiagonalBishop  = S( 45,  0);
   constexpr Score MinorBehindPawn     = S( 18,  3);
   constexpr Score PassedFile          = S( 11,  8);
