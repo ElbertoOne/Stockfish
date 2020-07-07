@@ -82,6 +82,7 @@ namespace {
 
     constexpr Color     Them = ~Us;
     constexpr Direction Up   = pawn_push(Us);
+    constexpr Direction Down = -Up;
 
     Bitboard neighbours, stoppers, support, phalanx, opposed;
     Bitboard lever, leverPush, blocked;
@@ -174,7 +175,14 @@ namespace {
                     + WeakLever * more_than_one(lever);
 
         if (blocked && r > RANK_4)
-            score += BlockedPawn[r-4];
+        {
+            if (  !support
+                && neighbours
+                && (ourPawns & forward_file_bb(Them, s)) && !pos.is_chess960())
+                score -= Doubled;
+            else
+                score += BlockedPawn[r-4];
+        }
     }
 
     return score;
