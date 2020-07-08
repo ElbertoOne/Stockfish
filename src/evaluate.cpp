@@ -430,8 +430,9 @@ namespace {
 
     // Enemy queen safe checks: count them only if the checks are from squares from
     // which opponent cannot give a rook check, because rook checks are more valuable.
-    queenChecks =  (b1 | b2) & attackedBy[Them][QUEEN] & safe
+    Bitboard b4 = attackedBy[Them][QUEEN] & safe
                  & ~(attackedBy[Us][QUEEN] | rookChecks);
+    queenChecks =  lsb(b1 & b4) | lsb(b2 & b4);
     if (queenChecks)
         kingDanger += SafeCheck[QUEEN][more_than_one(queenChecks)];
 
