@@ -430,10 +430,16 @@ namespace {
 
     // Enemy queen safe checks: count them only if the checks are from squares from
     // which opponent cannot give a rook check, because rook checks are more valuable.
-    queenChecks =  (b1 | b2) & attackedBy[Them][QUEEN] & safe
+    Bitboard b4 = attackedBy[Them][QUEEN] & safe
                  & ~(attackedBy[Us][QUEEN] | rookChecks);
-    if (queenChecks)
-        kingDanger += SafeCheck[QUEEN][more_than_one(queenChecks)];
+    queenChecks = (b1 | b2) & b4;
+    int queenCheckCount = 0;
+    if (b1 & b4)
+		queenCheckCount++;
+	if (b2 & b4)
+	    queenCheckCount++;
+    if (queenCheckCount > 0)
+        kingDanger += SafeCheck[QUEEN][queenCheckCount > 1];
 
     // Enemy bishops checks: count them only if they are from squares from which
     // opponent cannot give a queen check, because queen checks are more valuable.
@@ -441,7 +447,6 @@ namespace {
                   & ~queenChecks;
     if (bishopChecks)
         kingDanger += SafeCheck[BISHOP][more_than_one(bishopChecks)];
-
     else
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
