@@ -602,7 +602,7 @@ namespace {
       return std::min(distance(pos.square<KING>(c), s), 5);
     };
 
-    Bitboard b, bb, squaresToQueen, unsafeSquares, blockedPassers, helpers;
+    Bitboard b, bb, squaresToQueen, unsafeSquares, blockedPassers, helpers, attacks;
     Score score = SCORE_ZERO;
 
     b = pe->passed_pawns(Us);
@@ -620,6 +620,8 @@ namespace {
             | shift<EAST>(helpers);
     }
 
+    attacks = attackedBy[Them][ALL_PIECES] & ~attackedBy[Us][ALL_PIECES];
+
     while (b)
     {
         Square s = pop_lsb(&b);
@@ -627,8 +629,9 @@ namespace {
         assert(!(pos.pieces(Them, PAWN) & forward_file_bb(Us, s + Up)));
 
         int r = relative_rank(Us, s);
+        int factor = (s & attacks) ? 2 : 1;
 
-        Score bonus = PassedRank[r];
+        Score bonus = PassedRank[r] / factor;
 
         if (r > RANK_3)
         {
