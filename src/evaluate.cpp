@@ -300,7 +300,7 @@ namespace {
             score += RookOnKingRing;
 
         else if (Pt == BISHOP && (attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & kingRing[Them]))
-            score += BishopOnKingRing;
+            score += BishopOnKingRing * ( 1 + (!(pos.pieces(Them, BISHOP) & ((DarkSquares & s) ? DarkSquares : ~DarkSquares))));
 
         int mob = popcount(b & mobilityArea[Us]);
 
