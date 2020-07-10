@@ -452,11 +452,10 @@ namespace {
     else
         unsafeChecks |= knightChecks;
 
-    // Reduce kingDanger if the king has enough safe escape squares from the checks.
+    // Increase kingDanger if the king has not enough safe escape squares from the checks.
     if (    kingDanger > 0
-        && !pos.can_castle(Us & ANY_CASTLING)
-        &&  more_than_one(attackedBy[Us][KING] & attackedBy2[Us] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us)))
-        kingDanger = kingDanger * 3 / 4;
+        &&  !(attackedBy[Us][KING] & attackedBy2[Us] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us)))
+        kingDanger = kingDanger * 5 / 4;
 
     // Find the squares that opponent attacks in our king flank, the squares
     // which they attack twice in that flank, and the squares that we defend.
