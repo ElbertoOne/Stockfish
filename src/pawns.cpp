@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
 #include "bitboard.h"
 #include "pawns.h"
@@ -237,6 +238,15 @@ Score Entry::evaluate_shelter(const Position& pos, Square ksq) const {
           bonus -= BlockedStorm[theirRank];
       else
           bonus -= make_score(UnblockedStorm[d][theirRank], 0);
+  }
+
+
+  Bitboard bb = ourPawns & PawnAttacks[Us][ksq];
+  if (bb)
+  {
+      constexpr Direction Up   = pawn_push(Us);
+      if ((shift<Up>(pos.pieces(Us, PAWN)) & ksq))
+          bonus -= make_score(15, 15) * (1 + more_than_one(bb));
   }
 
   return bonus;
