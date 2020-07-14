@@ -569,7 +569,8 @@ namespace {
     b = pawn_attacks_bb<Us>(b1) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
 
-    if (pawn_attacks_bb<Us>(b1 & rookTargets[Them]) & nonPawnEnemies)
+    if (   (rookTargets[Them] & ~attackedBy[Us][ALL_PIECES] & ~pos.pieces(Us, PAWN))
+        && (pawn_attacks_bb<Us>(b1 & rookTargets[Them]) & nonPawnEnemies))
         score -= ThreatBySafePawn / 2;
 
     // Find squares where our pawns can push on the next move
