@@ -200,6 +200,8 @@ namespace {
     // very near squares, depending on king position.
     Bitboard kingRing[COLOR_NB];
 
+    Bitboard rookTargets[COLOR_NB];
+
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
     int kingAttackersCount[COLOR_NB];
@@ -251,6 +253,7 @@ namespace {
     Square s = make_square(Utility::clamp(file_of(ksq), FILE_B, FILE_G),
                            Utility::clamp(rank_of(ksq), RANK_2, RANK_7));
     kingRing[Us] = attacks_bb<KING>(s) | s;
+    rookTargets[Us] = 0;
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
@@ -366,6 +369,10 @@ namespace {
             // Bonus for rook on the same file as a queen
             if (file_bb(s) & pos.pieces(QUEEN))
                 score += RookOnQueenFile;
+
+            Bitboard targets = attacks_bb<ROOK>(s, pos.pieces(Us)) & pos.pieces(Them) & file_bb(s);
+            if (more_than_one(targets) && !more_than_one(targets & pos.pieces(PAWN)))
+                rookTargets[Us] |= targets;
 
             // Bonus for rook on an open or semi-open file
             if (pos.is_on_semiopen_file(Us, s))
@@ -561,17 +568,9 @@ namespace {
     b1 = pos.pieces(Us, PAWN) & safe;
     b = pawn_attacks_bb<Us>(b1) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
-    if (b)
-    {
-        while (b1)
-        {
-            Square s = pop_lsb(&b1);
-            if (   (pawn_attacks_bb(Us, s) & nonPawnEnemies & ~pos.pieces(QUEEN))
-                && (attacks_bb<ROOK>(s, pos.pieces(PAWN)) & (pos.pieces(Us) ^ pos.pieces(PAWN)) & forward_file_bb(Them, s) & ~attackedBy[Us][ALL_PIECES])
-                && (attacks_bb<ROOK>(s, pos.pieces() ^ pos.pieces(Them, ROOK)) & pos.pieces(Them, ROOK) & forward_file_bb(Us, s)))
-                score -= ThreatBySafePawn;
-        }
-    }
+
+    if (pawn_attacks_bb<Us>(b1 & rookTargets[Them]) & nonPawnEnemies)
+        score -= ThreatBySafePawn / 2;
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
